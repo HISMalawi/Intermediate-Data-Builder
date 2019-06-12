@@ -16,8 +16,4 @@ class CreateHivStagingInfos < ActiveRecord::Migration[5.2]
         t.timestamps
         end
     end
-    def up
-        add_foreign_key :hiv_staging_infos, :encounters, column: :encounter_id, primary_key: :encounter_id
-    end
-
 end
