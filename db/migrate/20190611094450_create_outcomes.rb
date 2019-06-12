@@ -1,7 +1,7 @@
 class CreateOutcomes < ActiveRecord::Migration[5.2]
   def change
     create_table    :outcomes, :primary_key => :outcome_id, force: :cascade do |t|
-        t.bigint     :encounter_id
+      t.integer     :encounter_id
       t.integer     :concept_id
       t.string        :outcome_reason
       t.string        :outcome_source

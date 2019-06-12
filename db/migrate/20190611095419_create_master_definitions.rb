@@ -10,5 +10,6 @@ class CreateMasterDefinitions < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
+     change_column :master_definitions, :master_definition_id, :integer
   end
 end

@@ -12,5 +12,6 @@ class CreateLabOrders < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
+      change_column :lab_orders, :lab_order_id, :integer
   end
 end
