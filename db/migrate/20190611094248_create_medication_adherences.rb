@@ -1,6 +1,6 @@
 class CreateMedicationAdherences < ActiveRecord::Migration[5.2]
   def change
-    create_table  :medication_adherences, :primary_key => :adherence_id do |t|
+    create_table   :medication_adherences, :primary_key => :adherence_id do |t|
     	t.integer   :encounter_id
     	t.integer   :drug_id
     	t.float     :adherence
