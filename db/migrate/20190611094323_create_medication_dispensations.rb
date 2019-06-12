@@ -11,7 +11,5 @@ class CreateMedicationDispensations < ActiveRecord::Migration[5.2]
       t.timestamps
     end
   end
-    def up
-      add_foreign_key :medication_dispensations, :medication_prescriptions, column: :medication_prescription_id, primary_key: :medication_prescription_id
-    end
+
 end
