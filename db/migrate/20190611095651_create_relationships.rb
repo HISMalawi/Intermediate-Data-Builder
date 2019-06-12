@@ -15,9 +15,5 @@ class CreateRelationships < ActiveRecord::Migration[5.2]
       t.timestamps
     end
   end
-  def up
-    add_foreign_key :relationships, :people, column: :person_id_a, primary_key: :person_id
-    add_foreign_key :relationships, :people, column: :person_id_b, primary_key: :person_id
-  end
 end
   
