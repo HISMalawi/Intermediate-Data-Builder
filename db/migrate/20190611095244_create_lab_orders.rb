@@ -5,11 +5,11 @@ class CreateLabOrders < ActiveRecord::Migration[5.2]
     	t.datetime    :order_date
     	t.integer     :encounter_id    	
     	t.integer     :value_coded
-    	t.integer     :voided, :limit =>2
+    	t.boolean     :voided
     	t.integer     :voided_by
     	t.datetime    :voided_date
     	t.string      :void_reason
-      
+
       t.timestamps
     end
   end

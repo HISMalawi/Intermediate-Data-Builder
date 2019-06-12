@@ -6,7 +6,7 @@ class CreateMedicationPrescriptions < ActiveRecord::Migration[5.2]
     	t.datetime    :start_date
     	t.datetime    :end_name
     	t.string      :instructions
-    	t.integer     :voided, :limit =>2
+    	t.boolean     :voided
     	t.integer     :voided_by
     	t.datetime    :voided_date
     	t.string      :void_reason
