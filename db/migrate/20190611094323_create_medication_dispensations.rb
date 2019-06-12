@@ -1,6 +1,6 @@
 class CreateMedicationDispensations < ActiveRecord::Migration[5.2]
   def change
-    create_table :medication_dispensations, :primary_key => :dispensation_id do |t|
+    create_table   :medication_dispensations, :primary_key => :dispensation_id do |t|
     	t.integer  :prescription_id
     	t.float    :quantity
     	t.integer  :voided, :limit =>2
