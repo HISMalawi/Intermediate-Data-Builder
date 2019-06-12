@@ -1,0 +1,2 @@
+class PersonName < ApplicationRecord
+end
