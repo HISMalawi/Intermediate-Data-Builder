@@ -1,6 +1,6 @@
 class CreatePersonAddresses < ActiveRecord::Migration[5.2]
   def change
-    create_table :person_addresses do |t|
+    create_table :person_addresses,  :primary_key => :person_addresse_id do |t|
    	  t.integer      :person_id
       t.integer      :district_id
       t.integer      :traditional_authority_id
