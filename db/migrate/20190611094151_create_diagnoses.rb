@@ -11,6 +11,6 @@ class CreateDiagnosis < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
-    add_foreign_key :diagnosis, :encounters, column: 'encounter', primary_key: 'encounter_id'
+    #add_foreign_key :diagnosis, :encounters, column: 'encounter', primary_key: 'encounter_id'
   end
 end
