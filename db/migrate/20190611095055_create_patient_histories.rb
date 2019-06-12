@@ -4,7 +4,7 @@ class CreatePatientHistories < ActiveRecord::Migration[5.2]
     	t.integer     :encounter_id
     	t.integer     :concept_id
     	t.integer     :value_coded
-    	t.boolean     :voided
+    	t.boolean     :voided, null: false, default: 0
     	t.integer     :voided_by
     	t.datetime    :voided_date
     	t.string      :void_reason

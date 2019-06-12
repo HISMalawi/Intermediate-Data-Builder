@@ -5,7 +5,7 @@ class CreateLabOrders < ActiveRecord::Migration[5.2]
     	t.datetime    :order_date
     	t.integer     :encounter_id    	
     	t.integer     :value_coded
-    	t.boolean     :voided
+    	t.boolean      :voided, null: false, default: 0
     	t.integer     :voided_by
     	t.datetime    :voided_date
     	t.string      :void_reason

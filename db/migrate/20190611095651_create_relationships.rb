@@ -5,7 +5,7 @@ class CreateRelationships < ActiveRecord::Migration[5.2]
     	t.bigint       :person_id_b
     	t.integer      :relationship__type_id
       t.bigint       :creator, null:false
-    	t.boolean      :voided
+    	t.boolean      :voided, null: false, default: 0
     	t.bigint       :voided_by
     	t.datetime     :voided_date
     	t.string       :void_reason
