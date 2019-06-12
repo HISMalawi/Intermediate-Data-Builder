@@ -1,12 +1,12 @@
 class CreatePersonNames < ActiveRecord::Migration[5.2]
   def change
     create_table :person_names, :primary_key => :person_name_id do |t|
-    	t.bigint		:person_id
-		t.string  		:given_name
-		t.string  		:family_name
+    	t.bigint		:person_id, null:false
+		t.string  		:given_name, null:false
+		t.string  		:family_name, null:false
 		t.string  		:middle_name
 		t.string  		:maiden_name
-		t.bigint		:creator
+		t.bigint		:creator, null:false
 		t.boolean     :voided, null:false, default: 0
 		t.bigint		:voided_by
 		t.integer      :void_reason
@@ -15,6 +15,8 @@ class CreatePersonNames < ActiveRecord::Migration[5.2]
 
 		t.timestamps
     end
+	end
+	def up
 		add_foreign_key :person_names, :people, column: :person_id, primary_key: :person_id
-  end
+  	end
 end
