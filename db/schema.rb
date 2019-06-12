@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_12_133825) do
+ActiveRecord::Schema.define(version: 2019_06_12_191451) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -96,7 +96,7 @@ ActiveRecord::Schema.define(version: 2019_06_12_133825) do
   create_table "encounters", primary_key: "encounter_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_type_id"
     t.bigint "program_id"
-    t.integer "person_id"
+    t.bigint "person_id"
     t.datetime "visit_date"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
@@ -104,6 +104,9 @@ ActiveRecord::Schema.define(version: 2019_06_12_133825) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["encounter_type_id"], name: "fk_rails_cf33a2decd"
+    t.index ["person_id"], name: "fk_rails_8f2e31923b"
+    t.index ["program_id"], name: "fk_rails_a13406b5c0"
   end
 
   create_table "family_plannings", primary_key: "family_planning_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -300,7 +303,7 @@ ActiveRecord::Schema.define(version: 2019_06_12_133825) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "people", primary_key: "person_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "people", primary_key: "person_id", id: :bigint, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.date "birthdate", null: false
     t.boolean "birthdate_est", null: false
     t.integer "person_type_id", null: false
@@ -504,4 +507,7 @@ ActiveRecord::Schema.define(version: 2019_06_12_133825) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "encounters", "master_definitions", column: "encounter_type_id", primary_key: "master_definition_id"
+  add_foreign_key "encounters", "master_definitions", column: "program_id", primary_key: "master_definition_id"
+  add_foreign_key "encounters", "people", primary_key: "person_id"
 end
