@@ -7,7 +7,7 @@ class CreatePeople < ActiveRecord::Migration[5.2]
       t.integer      :gender, null:false
       t.date      	 :death_date
       t.string        :cause_of_death
-      t.string        :voided_date
+      t.datetime        :voided_date
       t.boolean   	 :dead, null:false, default: 0
       t.boolean      :voided, null:false, default: 0
       t.bigint      :voided_by
@@ -17,9 +17,6 @@ class CreatePeople < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
-  end
-  def up
-    change_column :people, :person_id, :integer, limit: 8
-    add_foreign_key :people, :person_types, column: :person_type_id, primary_key: :person_type_id
+     change_column :people, :person_id, :integer, limit: 8
   end
 end

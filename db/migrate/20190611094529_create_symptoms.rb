@@ -12,8 +12,4 @@ class CreateSymptoms < ActiveRecord::Migration[5.2]
       t.timestamps
     end
   end
-  def up
-        add_foreign_key :symptoms, :encounters, column: :encounter_id, primary_key: :encounter_id
-        add_foreign_key :symptoms, :master_definitions, column: :concept_id, primary_key: :master_definition_id
-  end
 end

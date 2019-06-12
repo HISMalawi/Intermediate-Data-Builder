@@ -13,7 +13,4 @@ class CreateLabOrders < ActiveRecord::Migration[5.2]
       t.timestamps
     end
   end
-  def up
-        add_foreign_key :lab_orders, :encounters, column: :encounter_id, primary_key: :encounter_id
-  end
 end

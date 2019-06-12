@@ -13,7 +13,4 @@ class CreateUsers < ActiveRecord::Migration[5.2]
            t.timestamps
     end
   end 
-  def up
-         add_foreign_key :users, :people, column: :person_id, primary_key: :person_id
-  end
 end
