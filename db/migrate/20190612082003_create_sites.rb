@@ -13,6 +13,8 @@ class CreateSites < ActiveRecord::Migration[5.2]
 
 		t.timestamps
     end
+	end
+	def up
      add_foreign_key :sites, :site_types, column: :site_type_id, primary_key: :site_type_id
-  end
+  	end
 end
