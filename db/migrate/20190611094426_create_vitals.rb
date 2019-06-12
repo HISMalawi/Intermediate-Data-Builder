@@ -4,11 +4,10 @@ class CreateVitals < ActiveRecord::Migration[5.2]
      	t.integer     :encounter_id
     	t.integer     :concept_id
     	t.float       :value_numeric
-    	t.integer     :voided, :limit => 2
+    	t.boolean     :voided
     	t.integer     :voided_by
     	t.datetime    :voided_date
     	t.string      :void_reason
-
 
       t.timestamps
     end

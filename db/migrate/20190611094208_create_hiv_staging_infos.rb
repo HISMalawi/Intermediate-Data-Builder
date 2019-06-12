@@ -8,12 +8,12 @@ class CreateHivStagingInfos < ActiveRecord::Migration[5.2]
     	t.datetime     :re_initiated
     	t.datetime     :age_at_initiation
     	t.integer      :age_in_days_at_initiation
-    	t.integer      :voided, :limit =>2
+    	t.boolean      :voided
     	t.integer      :voided_by
     	t.datetime     :voided_date
     	t.string       :void_reason
 
-      t.timestamps
+        t.timestamps
     end
   end
 end

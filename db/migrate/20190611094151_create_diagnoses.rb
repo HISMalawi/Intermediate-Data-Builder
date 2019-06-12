@@ -4,7 +4,7 @@ class CreateDiagnoses < ActiveRecord::Migration[5.2]
     	t.integer    :encounter_id
     	t.integer    :primary_diagnosis, :limit => 2
     	t.integer    :concept_id
-    	t.integer    :voided, :limit =>2
+    	t.boolean    :voided
     	t.integer    :voided_by
     	t.datetime   :voided_date
     	t.string     :void_reason
