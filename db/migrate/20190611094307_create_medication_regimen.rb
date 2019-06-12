@@ -1,5 +1,6 @@
 class CreateMedicationRegimen < ActiveRecord::Migration[5.2]
   def change
+
     create_table    :medication_regimen, :primary_key => :regimen_id do |t|
     	t.integer     :encounter_id
     	t.string      :regimen 
@@ -8,7 +9,7 @@ class CreateMedicationRegimen < ActiveRecord::Migration[5.2]
     	t.datetime    :voided_date
     	t.string      :void_reason
 
-      t.timestamps
+    t.timestamps
     end
   end
 end
