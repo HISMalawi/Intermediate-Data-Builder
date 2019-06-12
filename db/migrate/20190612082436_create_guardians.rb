@@ -4,7 +4,7 @@ class CreateGuardians < ActiveRecord::Migration[5.2]
       t.bigint        :person_id, null:false
       t.integer      :person_a, null:false
       t.integer      :person_b, null:false
-      t.integer      :relationship_id, null:false
+      t.integer      :relationship_type_id, null:false
       t.boolean     :voided, null:false, default: 0
       t.bigint        :creator
       t.bigint         :voided_by

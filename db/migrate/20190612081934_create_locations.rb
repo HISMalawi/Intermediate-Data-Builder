@@ -14,5 +14,6 @@ class CreateLocations < ActiveRecord::Migration[5.2]
 
 		t.timestamps
     end
+     change_column :locations, :location_id, :integer
   end
 end
