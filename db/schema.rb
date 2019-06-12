@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_11_100209) do
+ActiveRecord::Schema.define(version: 2019_06_11_100029) do
 
   create_table "breastfeeding_statuses", primary_key: "breastfeeding_status_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "encounter_id"
@@ -22,6 +22,15 @@ ActiveRecord::Schema.define(version: 2019_06_11_100209) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "chapters", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "title"
+    t.integer "no"
+    t.bigint "person_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_id"], name: "index_chapters_on_person_id"
   end
 
   create_table "contact_details", primary_key: "contact_details_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -191,13 +200,6 @@ ActiveRecord::Schema.define(version: 2019_06_11_100209) do
     t.integer "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "medication_prescription_has_medication_regimen", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "medication_prescription_medication_id"
-    t.integer "medication_regimens_regimen_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
