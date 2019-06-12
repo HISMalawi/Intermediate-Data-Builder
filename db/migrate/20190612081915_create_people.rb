@@ -19,7 +19,4 @@ class CreatePeople < ActiveRecord::Migration[5.2]
     end
      change_column :people, :person_id, :integer, limit: 8
   end
-  def up
-    add_foreign_key :people, :person_types, column: :person_type_id, primary_key: :person_type_id
-  end
 end
