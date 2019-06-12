@@ -12,6 +12,19 @@
 
 ActiveRecord::Schema.define(version: 2019_06_12_081915) do
 
+  create_table "encounters", primary_key: "encounter_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "encounter_type_id"
+    t.bigint "program_id"
+    t.integer "patient_id"
+    t.datetime "visit_date"
+    t.boolean "voided"
+    t.bigint "voided_by"
+    t.datetime "voided_date"
+    t.string "void_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "people", primary_key: "person_id", id: :bigint, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.date "birthdate", null: false
     t.boolean "birthdate_est", null: false
@@ -28,23 +41,4 @@ ActiveRecord::Schema.define(version: 2019_06_12_081915) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "relationships", primary_key: "relationship_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.bigint "person_id_a"
-    t.bigint "person_id_b"
-    t.integer "relationship__type_id"
-    t.bigint "creator", null: false
-    t.boolean "voided"
-    t.bigint "voided_by"
-    t.datetime "voided_date"
-    t.string "void_reason"
-    t.datetime "app_date_created", null: false
-    t.datetime "app_date_updated", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["person_id_a"], name: "fk_rails_4a655159ef"
-    t.index ["person_id_b"], name: "fk_rails_e559688f3c"
-  end
-
-  add_foreign_key "relationships", "people", column: "person_id_a", primary_key: "person_id"
-  add_foreign_key "relationships", "people", column: "person_id_b", primary_key: "person_id"
 end
