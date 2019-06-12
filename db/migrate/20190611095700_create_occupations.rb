@@ -12,8 +12,4 @@ class CreateOccupations < ActiveRecord::Migration[5.2]
       t.timestamps
     end
   end
-  def up
-        add_foreign_key :occupations, :people, column: :person_id, primary_key: :person_id
-       add_foreign_key :occupations, :master_definitions, column: :occupation, primary_key: :master_definition_id
-    end
 end
