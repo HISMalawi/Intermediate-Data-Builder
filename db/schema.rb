@@ -13,7 +13,7 @@
 ActiveRecord::Schema.define(version: 2019_06_13_133405) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "encounter_id", null: false
+    t.bigint "encounter_id", null: false
     t.datetime "appointment_date", null: false
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
@@ -28,9 +28,9 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "breastfeeding_statuses", primary_key: "breastfeeding_status_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "encounter_id"
-    t.integer "concept_id"
-    t.integer "value_coded"
+    t.bigint "encounter_id"
+    t.bigint "concept_id"
+    t.bigint "value_coded"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -42,7 +42,7 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "contact_details", primary_key: "contact_details_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "person_id", null: false
+    t.bigint "person_id", null: false
     t.string "home_phone_number"
     t.string "cell_phone_number"
     t.string "work_phone_number"
@@ -68,7 +68,7 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
 
   create_table "de_identified_identifiers", primary_key: "de_identified_identifier_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "identifier", null: false
-    t.integer "person_id", null: false
+    t.bigint "person_id", null: false
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -79,8 +79,8 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "diagnosis", primary_key: "diagnosis_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "encounter_id"
-    t.integer "concept_id"
+    t.bigint "encounter_id"
+    t.bigint "concept_id"
     t.boolean "primary_diagnosis"
     t.boolean "secondary_diagnosis"
     t.boolean "voided", default: false, null: false
@@ -100,10 +100,10 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "encounters", primary_key: "encounter_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "encounter_type_id"
-    t.integer "program_id"
-    t.integer "person_id"
+  create_table "encounters", primary_key: "encounter_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "encounter_type_id"
+    t.bigint "program_id"
+    t.bigint "person_id"
     t.datetime "visit_date"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
@@ -117,9 +117,9 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "family_plannings", primary_key: "family_planning_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "encounter_id"
-    t.integer "concept_id"
-    t.integer "value_coded"
+    t.bigint "encounter_id"
+    t.bigint "concept_id"
+    t.bigint "value_coded"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -130,10 +130,10 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "guardians", primary_key: "guardian_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "person_id", null: false
-    t.integer "person_a", null: false
-    t.integer "person_b", null: false
-    t.integer "relationship_type_id", null: false
+    t.bigint "person_id", null: false
+    t.bigint "person_a", null: false
+    t.bigint "person_b", null: false
+    t.bigint "relationship_type_id", null: false
     t.boolean "voided", default: false, null: false
     t.bigint "creator"
     t.bigint "voided_by"
@@ -147,7 +147,7 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "hiv_staging_infos", primary_key: "staging_info_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "encounter_id"
+    t.bigint "encounter_id"
     t.date "start_date"
     t.date "date_enrolled"
     t.integer "transfer_in"
@@ -166,7 +166,7 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   create_table "lab_orders", primary_key: "lab_order_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "tracking_number"
     t.datetime "order_date"
-    t.integer "encounter_id"
+    t.bigint "encounter_id"
     t.bigint "creator"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
@@ -180,8 +180,8 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   create_table "lab_test_results", primary_key: "test_result_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "lab_order_id", null: false
     t.integer "results_test_facility_id", null: false
-    t.integer "test_measure_id", null: false
-    t.integer "test_type_id"
+    t.bigint "test_measure_id", null: false
+    t.bigint "test_type_id"
     t.datetime "test_result_date"
     t.string "value_text"
     t.integer "value_numeric"
@@ -216,11 +216,11 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "master_definitions", primary_key: "master_definition_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "master_definitions", primary_key: "master_definition_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "definition"
     t.string "description"
     t.boolean "voided", default: false, null: false
-    t.integer "voided_by"
+    t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
     t.datetime "created_at", null: false
@@ -229,7 +229,7 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
 
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "medication_dispensation_id"
-    t.integer "drug_id"
+    t.bigint "drug_id"
     t.float "adherence"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
@@ -263,8 +263,8 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "medication_prescriptions", primary_key: "medication_prescription_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "drug_id"
-    t.integer "encounter_id"
+    t.bigint "drug_id"
+    t.bigint "encounter_id"
     t.datetime "start_date"
     t.datetime "end_name"
     t.string "instructions"
@@ -289,8 +289,8 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "occupations", primary_key: "occupation_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "person_id", null: false
-    t.integer "occupation", null: false
+    t.bigint "person_id", null: false
+    t.bigint "occupation", null: false
     t.bigint "creator"
     t.boolean "voided", default: false, null: false
     t.integer "voided_by"
@@ -303,11 +303,11 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "outcomes", primary_key: "outcome_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "encounter_id"
-    t.integer "concept_id"
+    t.bigint "encounter_id"
+    t.bigint "concept_id"
     t.string "outcome_reason"
     t.string "outcome_source"
-    t.integer "value_coded"
+    t.bigint "value_coded"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -319,9 +319,9 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "patient_histories", primary_key: "history_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "encounter_id"
-    t.integer "concept_id"
-    t.integer "value_coded"
+    t.bigint "encounter_id"
+    t.bigint "concept_id"
+    t.bigint "value_coded"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -332,11 +332,11 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
     t.index ["encounter_id"], name: "fk_rails_67120a30d2"
   end
 
-  create_table "people", primary_key: "person_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "people", primary_key: "person_id", id: :bigint, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.date "birthdate", null: false
     t.boolean "birthdate_est", null: false
-    t.integer "person_type_id", null: false
-    t.integer "gender", null: false
+    t.bigint "person_type_id", null: false
+    t.bigint "gender", null: false
     t.date "death_date"
     t.bigint "creator"
     t.string "cause_of_death"
@@ -353,7 +353,7 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "person_addresses", primary_key: "person_address_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "person_id", null: false
+    t.bigint "person_id", null: false
     t.integer "district_id", null: false
     t.integer "traditional_authority_id", null: false
     t.integer "village_id", null: false
@@ -370,8 +370,8 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
     t.index ["village_id"], name: "fk_rails_723872d48a"
   end
 
-  create_table "person_names", primary_key: "person_name_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "person_id", null: false
+  create_table "person_names", primary_key: "person_name_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "person_id", null: false
     t.string "given_name", null: false
     t.string "family_name", null: false
     t.string "middle_name"
@@ -387,7 +387,7 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
     t.index ["person_id"], name: "fk_rails_546377d8eb"
   end
 
-  create_table "person_types", primary_key: "person_type_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "person_types", primary_key: "person_type_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "person_type_name"
     t.string "person_type_description"
     t.boolean "voided", default: false, null: false
@@ -398,8 +398,8 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "potential_duplicates", primary_key: "potential_duplicate_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "person_id_a", null: false
-    t.integer "person_id_b", null: false
+    t.bigint "person_id_a", null: false
+    t.bigint "person_id_b", null: false
     t.integer "duplicate_status_id", null: false
     t.float "score", null: false
     t.bigint "creator", null: false
@@ -415,9 +415,9 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "pregnant_statuses", primary_key: "pregnant_status_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "concept_id"
-    t.integer "encounter_id"
-    t.integer "value_coded"
+    t.bigint "concept_id"
+    t.bigint "encounter_id"
+    t.bigint "value_coded"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -429,9 +429,9 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "presenting_complaints", primary_key: "presenting_complaint_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "encounter_id"
-    t.integer "concept_id"
-    t.integer "value_coded"
+    t.bigint "encounter_id"
+    t.bigint "concept_id"
+    t.bigint "value_coded"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -442,9 +442,9 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
     t.index ["encounter_id"], name: "fk_rails_47d1923fb4"
   end
 
-  create_table "providers", primary_key: "provider_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "person_name_id"
-    t.integer "person_type_id", null: false
+  create_table "providers", primary_key: "provider_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "person_name_id", null: false
+    t.bigint "person_type_id", null: false
     t.bigint "creator", null: false
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
@@ -458,9 +458,9 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "relationships", primary_key: "relationship_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "person_id_a", null: false
-    t.integer "person_id_b", null: false
-    t.integer "relationship_type_id", null: false
+    t.bigint "person_id_a", null: false
+    t.bigint "person_id_b", null: false
+    t.bigint "relationship_type_id", null: false
     t.bigint "creator", null: false
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
@@ -476,9 +476,9 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "side_effects", primary_key: "side_effect_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "encounter_id"
-    t.integer "concept_id"
-    t.integer "value_coded"
+    t.bigint "encounter_id"
+    t.bigint "concept_id"
+    t.bigint "value_coded"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -526,9 +526,9 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "symptoms", primary_key: "symptom_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "encounter_id"
-    t.integer "concept_id"
-    t.integer "value_coded"
+    t.bigint "encounter_id"
+    t.bigint "concept_id"
+    t.bigint "value_coded"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -540,9 +540,9 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "tb_statuses", primary_key: "tb_status_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "encounter_id"
-    t.integer "concept_id"
-    t.integer "value_coded"
+    t.bigint "encounter_id"
+    t.bigint "concept_id"
+    t.bigint "value_coded"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -553,7 +553,7 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "users", primary_key: "user_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "person_id", null: false
+    t.bigint "person_id", null: false
     t.string "username", null: false
     t.string "password", null: false
     t.integer "user_role", null: false
@@ -567,9 +567,9 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   end
 
   create_table "vitals", primary_key: "vitals_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "encounter_id"
-    t.integer "concept_id"
-    t.integer "value_coded"
+    t.bigint "encounter_id"
+    t.bigint "concept_id"
+    t.bigint "value_coded"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
