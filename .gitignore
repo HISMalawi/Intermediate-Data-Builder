@@ -28,3 +28,14 @@
 
 # Ignore only DB config file
 config/database.yml
+
+.idea/Intermediate-Data-Builder.iml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+
+.generators
+.idea/.rakeTasks
+.idea/workspace.xml
+

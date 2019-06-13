@@ -8,20 +8,26 @@ require 'damerau-levenshtein'
 
 
 def get_all_rds_people
-	if @last_updated['Person'].blank?
-		last_updated = '1900-01-01 00:00:00'
-	else
-		last_updated = @last_updated['Person']
-	end
-
+	if @last_updated.include?('Person')
+		if @last_updated['Person'].blank?
+			last_updated = '1900-01-01 00:00:00'
+		else
+			last_updated = @last_updated['Person']
+		end
+    else
+    	last_updated = '1900-01-01 00:00:00'
+    end
 	rds_people = ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.person where date_created >= #{last_updated}
-	OR date_changed >= #{last_updated}
-	OR date_voided  >=  #{last_updated};
+	SELECT * FROM #{@rds_db}.person where date_created >= '#{last_updated}'
+	OR date_changed >= '#{last_updated}'
+	OR date_voided  >= '#{last_updated}'
+	AND person_id NOT IN (SELECT person_id FROM #{@rds_db}.users);
 
 QUERY
 
 end
+
+
 
 def get_rds_person_name(person_id, voided = 0)
 	if @last_updated['PersonName'].blank?
@@ -56,40 +62,42 @@ QUERY
 
 end
 
+
+
 def check_for_duplicate(person)	
 end
 
 def load_person
 	get_all_rds_people.each do |person|
-		debugger
+		
 		if person['birthdate'].blank? 
-			dob = '1900-01-01'
+			dob = "'1900-01-01'"
 		else
-			dob = person['birthdate'].to_date
+			dob = "'#{person['birthdate'].to_date}'"
 		end
 
 		if person['death_date'].blank?
 		 dod = 'NULL' 
 		else 
-		 dod = person['death_date'].to_date
+		 dod = "'#{person['death_date'].to_date}'"
 		end
-
-		if person['voided_date'].blank? 
+        
+		if person['date_voided'].blank? 
 		 voided_date = 'NULL' 
 		else
-		 voided_date = person['voided_date'].to_date
+		 voided_date = "'#{person['date_voided']}'"
 		end
 
 		if person['date_created'].blank?
 			app_created_at = 'NULL' 
 		else
-			app_created_at = person['date_created'].to_date
+			app_created_at = "'#{person['date_created'].to_date}'"
 		end
 
 		if person['date_changed'].blank?
-			app_updated_at = person['date_created'].to_date
+			app_updated_at = "'#{person['date_created'].to_date}'"
 		else
-			app_updated_at = person['date_changed'].to_date
+			app_updated_at = "'#{person['date_changed'].to_date}'"
 		end
 
 		if person['gender'] == 'M'
@@ -97,6 +105,7 @@ def load_person
 		else
 			gender = 0
 		end
+        puts "processiong person_id #{person['person_id']}"
 
 		if Person.find_by(person_id: person['person_id']).blank?
 			ActiveRecord::Base.connection.execute <<QUERY
@@ -106,7 +115,7 @@ def load_person
 									voided_by,voided_date,void_reason,app_date_created, \
 									app_date_updated,created_at,updated_at ) \
 									values  (#{person['person_id'].to_i}, \
-							  				'#{dob}', \
+							  				#{dob}, \
 							  				#{person['birthdate_estimated'].to_i}, \
 							  				1, \
 							   				#{gender.to_i}, \
@@ -115,36 +124,37 @@ def load_person
 							   				#{person['dead'].to_i}, \
 							  				#{person['voided'].to_i}, \
 							 				#{person['voided_by'].to_i}, \
-							 				'#{voided_date}', \
+							 				#{voided_date}, \
 							  				#{person['void_reason'].to_i}, \
-							  				'#{app_created_at}', \
-							  				'#{app_updated_at}', \
+							  				#{app_created_at}, \
+							  				#{app_updated_at}, \
 							  				now(), \
 							     			now());
 QUERY
 		else 
 			ActiveRecord::Base.connection.execute <<QUERY
 			UPDATE people SET person_id				= 	#{person['person_id'].to_i}, \
-							  birthdate				=   '#{dob}', \
+							  birthdate				=   #{dob}, \
 							  birthdate_est 		=	#{person['birthdate_estimated'].to_i}, \
 							  person_type_id		=	1, \
 							  gender 				= 	#{gender.to_i}, \
-							  death_date 			= 	'#{dod}', \
-							  cause_of_death		=	'#{person['cause_of_death']}', \
-							  voided_date			= 	'#{person['voided_date']}', \
+							  death_date 			= 	#{dod}, \
+							  cause_of_death		=	'#{person['cause_of_death']}', \							  
 							  dead 					=	#{person['dead'].to_i}, \
 							  voided 				=	#{person['voided'].to_i}, \
 							  voided_by 			= 	#{person['voided_by'].to_i}, \
-							  voided_date			=	'#{voided_date}', \
+							  voided_date			=	#{voided_date}, \
 							  void_reason 			=	1, \
-							  app_date_created		=	'#{app_created_at}', \
-							  app_date_updated		=	'#{app_updated_at}', \
+							  app_date_created		=	#{app_created_at}, \
+							  app_date_updated		=	#{app_updated_at}, \
 							  updated_at			=    now()  \
 							  where person_id 		= 	 #{person['person_id']};
 QUERY
 		end
 	end 
 end
+
+
 
 
 def load_to_ids
