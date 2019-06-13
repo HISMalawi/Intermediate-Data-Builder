@@ -7,7 +7,5 @@ class CreateDuplicateStatuses < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
-
-    change_column :duplicate_statuses, :duplicate_status_id, :integer
   end
 end
