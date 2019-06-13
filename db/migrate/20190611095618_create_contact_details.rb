@@ -1,7 +1,7 @@
 class CreateContactDetails < ActiveRecord::Migration[5.2]
   def change
     create_table    :contact_details , :primary_key => :contact_details_id do |t|
-        t.bigint        :person_id, null: false
+        t.integer        :person_id, null: false
         t.string        :home_phone_number
         t.string        :cell_phone_number
         t.string        :work_phone_number

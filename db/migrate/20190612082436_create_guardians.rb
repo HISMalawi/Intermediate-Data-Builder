@@ -1,7 +1,7 @@
 class CreateGuardians < ActiveRecord::Migration[5.2]
   def change
     create_table :guardians, :primary_key => :guardian_id do |t|
-      t.bigint        :person_id, null:false
+      t.integer        :person_id, null:false
       t.integer      :person_a, null:false
       t.integer      :person_b, null:false
       t.integer      :relationship_type_id, null:false

@@ -17,6 +17,6 @@ class CreatePeople < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
-     change_column :people, :person_id, :integer, limit: 8
+     change_column :people, :person_id, :integer
   end
 end

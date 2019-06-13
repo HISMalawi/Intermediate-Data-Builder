@@ -13,5 +13,6 @@ class CreateSites < ActiveRecord::Migration[5.2]
 
 		t.timestamps
     end
+    change_column :sites, :site_id, :integer
   end
 end
