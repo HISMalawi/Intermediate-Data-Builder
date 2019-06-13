@@ -31,3 +31,4 @@ config/database.yml
 
 # install intellij .idea files
 .idea/
+.generators

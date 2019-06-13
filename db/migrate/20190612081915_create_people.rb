@@ -6,6 +6,7 @@ class CreatePeople < ActiveRecord::Migration[5.2]
       t.integer       :person_type_id, null:false
       t.integer      :gender, null:false
       t.date      	 :death_date
+      t.bigint      :creator
       t.string        :cause_of_death
       t.datetime        :voided_date
       t.boolean   	 :dead, null:false, default: 0
@@ -17,6 +18,6 @@ class CreatePeople < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
-     change_column :people, :person_id, :integer
+     change_column :people, :person_id, :bigint
   end
 end
