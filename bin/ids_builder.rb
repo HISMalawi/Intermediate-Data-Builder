@@ -21,7 +21,8 @@ def get_all_rds_people
 	SELECT * FROM #{@rds_db}.person where date_created >= '#{last_updated}'
 	OR date_changed >= '#{last_updated}'
 	OR date_voided  >= '#{last_updated}'
-	AND person_id NOT IN (SELECT person_id FROM #{@rds_db}.users);
+	AND person_id NOT IN (SELECT person_id FROM #{@rds_db}.users) 
+  ORDER BY date_created, date_changed, date_voided;
 
 QUERY
 
@@ -151,7 +152,12 @@ QUERY
 							  where person_id 		= 	 #{person['person_id']};
 QUERY
 		end
-	end 
+		  current_update_date = {}
+       current_update_date['Person'] = person['date_voided'] || person['date_changed'] || person['date_created']
+		   File.open("log/last_update.yml","w") do |file|
+			file.write current_update_date.to_yaml
+  	end
+	end
 end
 
 
