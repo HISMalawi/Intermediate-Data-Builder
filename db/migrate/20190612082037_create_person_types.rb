@@ -4,7 +4,7 @@ class CreatePersonTypes < ActiveRecord::Migration[5.2]
 
       t.string  :person_type_name
       t.string  :person_type_description
-      t.boolean :voided, null:false, default: 0
+      t.boolean :voided, null: false, default: 0
       t.bigint  :voided_by
       t.integer :void_reason
 
