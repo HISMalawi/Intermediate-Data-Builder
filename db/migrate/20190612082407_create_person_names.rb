@@ -15,5 +15,6 @@ class CreatePersonNames < ActiveRecord::Migration[5.2]
 
 		t.timestamps
     end
+    change_column :person_names, :person_name_id, :integer
   end
 end

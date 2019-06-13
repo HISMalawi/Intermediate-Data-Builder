@@ -370,7 +370,7 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
     t.index ["village_id"], name: "fk_rails_723872d48a"
   end
 
-  create_table "person_names", primary_key: "person_name_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "person_names", primary_key: "person_name_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "person_id", null: false
     t.string "given_name", null: false
     t.string "family_name", null: false
@@ -453,6 +453,8 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
     t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["person_name_id"], name: "fk_rails_39ca42bc7d"
+    t.index ["person_type_id"], name: "fk_rails_b180705c7f"
   end
 
   create_table "relationships", primary_key: "relationship_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -624,6 +626,8 @@ ActiveRecord::Schema.define(version: 2019_06_13_133405) do
   add_foreign_key "pregnant_statuses", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "presenting_complaints", "encounters", primary_key: "encounter_id"
   add_foreign_key "presenting_complaints", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
+  add_foreign_key "providers", "person_names", primary_key: "person_name_id"
+  add_foreign_key "providers", "person_types", primary_key: "person_type_id"
   add_foreign_key "relationships", "master_definitions", column: "relationship_type_id", primary_key: "master_definition_id"
   add_foreign_key "relationships", "people", column: "person_id_a", primary_key: "person_id"
   add_foreign_key "relationships", "people", column: "person_id_b", primary_key: "person_id"
