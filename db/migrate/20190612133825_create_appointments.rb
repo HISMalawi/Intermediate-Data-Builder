@@ -1,7 +1,7 @@
 class CreateAppointments < ActiveRecord::Migration[5.2]
 	def change
 		create_table :appointments, :primary_key => :appointment_id do |t|
-		t.bigint       	:encounter_id, null: false
+		t.integer     	:encounter_id, null: false
 		t.datetime    :appointment_date, null: false
 		t.boolean		:voided, null: false, default: 0
 		t.bigint        :voided_by
@@ -13,8 +13,5 @@ class CreateAppointments < ActiveRecord::Migration[5.2]
 
 		t.timestamps
 		end
-	end
-	def up
-			add_foreign_key :appointments, :encounters, column: :encounter_id, primary_key: :encounter_id
 	end
 end
