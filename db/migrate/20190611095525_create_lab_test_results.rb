@@ -3,8 +3,8 @@ class CreateLabTestResults < ActiveRecord::Migration[5.2]
     create_table       :lab_test_results, :primary_key => :test_result_id do |t|
     	t.integer          :lab_order_id, null: false
     	t.integer          :results_test_facility_id, null: false
-    	t.integer          :test_measure_id, null: false
-    	t.integer          :test_type_id
+    	t.bigint          :test_measure_id, null: false
+    	t.bigint          :test_type_id
     	t.datetime        :test_result_date
     	t.string            :value_text
     	t.integer          :value_numeric
