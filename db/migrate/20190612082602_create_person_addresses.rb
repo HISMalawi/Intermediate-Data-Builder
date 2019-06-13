@@ -1,7 +1,7 @@
 class CreatePersonAddresses < ActiveRecord::Migration[5.2]
     def change
       create_table    :person_addresses,  :primary_key => :person_address_id do |t|
-        t.integer          :person_id, null: false
+        t.bigint          :person_id, null: false
         t.integer        :district_id, null: false
         t.integer        :traditional_authority_id, null: false
         t.integer        :village_id, null: false

@@ -1,8 +1,8 @@
 class CreateRelationships < ActiveRecord::Migration[5.2]
   def change
     create_table   :relationships, :primary_key => :relationship_id do |t|
-    	t.integer       :person_id_a, null:false
-    	t.integer       :person_id_b, null:false
+    	t.bigint       :person_id_a, null:false
+    	t.bigint       :person_id_b, null:false
     	t.integer      :relationship_type_id, null:false
       t.bigint       :creator, null:false
     	t.boolean      :voided, null: false, default: 0
