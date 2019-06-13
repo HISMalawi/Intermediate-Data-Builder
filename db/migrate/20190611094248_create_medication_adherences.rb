@@ -2,7 +2,7 @@ class CreateMedicationAdherences < ActiveRecord::Migration[5.2]
   def change
     create_table :medication_adherences, :primary_key => :adherence_id do |t|
     	t.integer    :medication_dispensation_id
-      t.integer      :drug_id
+      t.bigint      :drug_id
     	t.float        :adherence
       t.boolean    :voided, null: false, default: 0
       t.bigint        :voided_by
