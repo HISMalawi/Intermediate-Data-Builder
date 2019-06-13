@@ -26,8 +26,5 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
+# Ignore only DB config file
 config/database.yml
-config/email.yml
-config/application.yml
-config/settings.yml
-config/couchdb.yml
