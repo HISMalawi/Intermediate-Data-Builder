@@ -10,10 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_12_200405) do
+ActiveRecord::Schema.define(version: 2019_06_13_133405) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.bigint "encounter_id", null: false
+    t.integer "encounter_id", null: false
     t.datetime "appointment_date", null: false
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
@@ -24,6 +24,7 @@ ActiveRecord::Schema.define(version: 2019_06_12_200405) do
     t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["encounter_id"], name: "fk_rails_20191c09ff"
   end
 
   create_table "breastfeeding_statuses", primary_key: "breastfeeding_status_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -74,6 +75,7 @@ ActiveRecord::Schema.define(version: 2019_06_12_200405) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["person_id"], name: "fk_rails_a018965096"
   end
 
   create_table "diagnosis", primary_key: "diagnosis_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -336,6 +338,7 @@ ActiveRecord::Schema.define(version: 2019_06_12_200405) do
     t.integer "person_type_id", null: false
     t.integer "gender", null: false
     t.date "death_date"
+    t.bigint "creator"
     t.string "cause_of_death"
     t.datetime "voided_date"
     t.boolean "dead", default: false, null: false
@@ -367,7 +370,7 @@ ActiveRecord::Schema.define(version: 2019_06_12_200405) do
     t.index ["village_id"], name: "fk_rails_723872d48a"
   end
 
-  create_table "person_names", primary_key: "person_name_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "person_names", primary_key: "person_name_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "person_id", null: false
     t.string "given_name", null: false
     t.string "family_name", null: false
@@ -437,6 +440,21 @@ ActiveRecord::Schema.define(version: 2019_06_12_200405) do
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_ab3111fcf9"
     t.index ["encounter_id"], name: "fk_rails_47d1923fb4"
+  end
+
+  create_table "providers", primary_key: "provider_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.integer "person_name_id"
+    t.integer "person_type_id", null: false
+    t.bigint "creator", null: false
+    t.boolean "voided", default: false, null: false
+    t.bigint "voided_by"
+    t.integer "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_name_id"], name: "fk_rails_39ca42bc7d"
+    t.index ["person_type_id"], name: "fk_rails_b180705c7f"
   end
 
   create_table "relationships", primary_key: "relationship_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -562,9 +580,11 @@ ActiveRecord::Schema.define(version: 2019_06_12_200405) do
     t.index ["encounter_id"], name: "fk_rails_27601f1758"
   end
 
+  add_foreign_key "appointments", "encounters", primary_key: "encounter_id"
   add_foreign_key "breastfeeding_statuses", "encounters", primary_key: "encounter_id"
   add_foreign_key "breastfeeding_statuses", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "contact_details", "people", primary_key: "person_id"
+  add_foreign_key "de_identified_identifiers", "people", primary_key: "person_id"
   add_foreign_key "diagnosis", "encounters", primary_key: "encounter_id"
   add_foreign_key "diagnosis", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "encounters", "master_definitions", column: "encounter_type_id", primary_key: "master_definition_id"
@@ -606,6 +626,8 @@ ActiveRecord::Schema.define(version: 2019_06_12_200405) do
   add_foreign_key "pregnant_statuses", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "presenting_complaints", "encounters", primary_key: "encounter_id"
   add_foreign_key "presenting_complaints", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
+  add_foreign_key "providers", "person_names", primary_key: "person_name_id"
+  add_foreign_key "providers", "person_types", primary_key: "person_type_id"
   add_foreign_key "relationships", "master_definitions", column: "relationship_type_id", primary_key: "master_definition_id"
   add_foreign_key "relationships", "people", column: "person_id_a", primary_key: "person_id"
   add_foreign_key "relationships", "people", column: "person_id_b", primary_key: "person_id"
