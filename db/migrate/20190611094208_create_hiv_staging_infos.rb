@@ -1,7 +1,7 @@
 class CreateHivStagingInfos < ActiveRecord::Migration[5.2]
   def change
     create_table  :hiv_staging_infos, :primary_key => :staging_info_id do |t|
-            t.integer      :encounter_id
+            t.bigint      :encounter_id
             t.date       :start_date
             t.date       :date_enrolled
             t.integer    :transfer_in
