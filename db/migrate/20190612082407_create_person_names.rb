@@ -1,7 +1,7 @@
 class CreatePersonNames < ActiveRecord::Migration[5.2]
   def change
     create_table :person_names, :primary_key => :person_name_id do |t|
-    	t.bigint		:person_id, null:false
+    	t.integer		:person_id, null:false
 		t.string  		:given_name, null:false
 		t.string  		:family_name, null:false
 		t.string  		:middle_name

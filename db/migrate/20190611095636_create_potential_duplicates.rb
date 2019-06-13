@@ -1,8 +1,8 @@
 class CreatePotentialDuplicates < ActiveRecord::Migration[5.2]
   def change
     create_table    :potential_duplicates, :primary_key => :potential_duplicate_id do |t|
-    	t.bigint            :person_id_a, null: false
-    	t.bigint            :person_id_b, null: false
+    	t.integer            :person_id_a, null: false
+    	t.integer            :person_id_b, null: false
     	t.integer          :duplicate_status_id, null: false
     	t.float             :score, null: false
         t.bigint            :creator, null: false
@@ -13,5 +13,6 @@ class CreatePotentialDuplicates < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
+         change_column :potential_duplicates, :potential_duplicate_id, :integer
     end
 end

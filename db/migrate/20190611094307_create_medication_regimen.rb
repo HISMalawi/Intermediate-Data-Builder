@@ -9,5 +9,6 @@ class CreateMedicationRegimen < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
+    change_column :medication_regimen, :medication_regimen_id, :integer
     end
 end

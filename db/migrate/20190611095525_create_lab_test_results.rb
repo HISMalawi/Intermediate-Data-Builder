@@ -19,5 +19,6 @@ class CreateLabTestResults < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
+        change_column :lab_test_results, :test_result_id, :integer
     end 
 end

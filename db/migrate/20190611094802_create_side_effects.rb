@@ -1,6 +1,6 @@
 class CreateSideEffects < ActiveRecord::Migration[5.2]
   def change
-    create_table    :side_effects, :primary_key => :side_effects_id do |t|
+    create_table    :side_effects, :primary_key => :side_effect_id do |t|
     	t.integer        :encounter_id
     	t.integer      :concept_id
     	t.integer       :value_coded
@@ -11,5 +11,6 @@ class CreateSideEffects < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
+        change_column :side_effects, :side_effect_id, :integer
   end
 end
