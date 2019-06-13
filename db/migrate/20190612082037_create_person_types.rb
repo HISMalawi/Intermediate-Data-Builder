@@ -10,6 +10,5 @@ class CreatePersonTypes < ActiveRecord::Migration[5.2]
 
 		t.timestamps
     end
-      change_column :person_types, :person_type_id, :bigint
 	end
 end
