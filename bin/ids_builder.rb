@@ -14,9 +14,9 @@ def get_all_rds_people
 		else
 			last_updated = @last_updated['Person']
 		end
-    else
-    	last_updated = '1900-01-01 00:00:00'
-    end
+	else
+		last_updated = '1900-01-01 00:00:00'
+	end
 	rds_people = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person where date_created >= '#{last_updated}'
 	OR date_changed >= '#{last_updated}'
@@ -65,40 +65,40 @@ end
 
 
 
-def check_for_duplicate(person)	
+def check_for_duplicate(person)
 end
 
 def load_person
 	get_all_rds_people.each do |person|
-		
-		if person['birthdate'].blank? 
+
+		if person['birthdate'].blank?
 			dob = "'1900-01-01'"
 		else
 			dob = "'#{person['birthdate'].to_date}'"
 		end
 
 		if person['death_date'].blank?
-		 dod = 'NULL' 
-		else 
-		 dod = "'#{person['death_date'].to_date}'"
-		end
-        
-		if person['date_voided'].blank? 
-		 voided_date = 'NULL' 
+			dod = 'NULL'
 		else
-		 voided_date = "'#{person['date_voided']}'"
+			dod = "'#{person['death_date'].to_date}'"
+		end
+
+		if person['date_voided'].blank?
+			voided_date = 'NULL'
+		else
+			voided_date = "'#{person['date_voided'].strftime('%Y-%m-%d %H:%M:%S')}'"
 		end
 
 		if person['date_created'].blank?
-			app_created_at = 'NULL' 
+			app_created_at = 'NULL'
 		else
-			app_created_at = "'#{person['date_created'].to_date}'"
+			app_created_at = "'#{person['date_created'].strftime('%Y-%m-%d %H:%M:%S')}'"
 		end
 
 		if person['date_changed'].blank?
-			app_updated_at = "'#{person['date_created'].to_date}'"
+			app_updated_at = 'NULL'
 		else
-			app_updated_at = "'#{person['date_changed'].to_date}'"
+			app_updated_at = "'#{person['date_changed'].strftime('%Y-%m-%d %H:%M:%S')}'"
 		end
 
 		if person['gender'] == 'M'
@@ -106,7 +106,7 @@ def load_person
 		else
 			gender = 0
 		end
-        puts "processiong person_id #{person['person_id']}"
+		puts "processiong person_id #{person['person_id']}"
 
 		if Person.find_by(person_id: person['person_id']).blank?
 			ActiveRecord::Base.connection.execute <<QUERY
@@ -124,15 +124,15 @@ def load_person
 							   				'#{person['cause_of_death']}', \
 							   				#{person['dead'].to_i}, \
 							  				#{person['voided'].to_i}, \
-							 				#{person['voided_by'].to_i}, \
-							 				#{voided_date}, \
+							 				  #{person['voided_by'].to_i}, \
+							 				 #{voided_date}, \
 							  				#{person['void_reason'].to_i}, \
 							  				#{app_created_at}, \
 							  				#{app_updated_at}, \
 							  				now(), \
 							     			now());
 QUERY
-		else 
+		else
 			ActiveRecord::Base.connection.execute <<QUERY
 			UPDATE people SET person_id				= 	#{person['person_id'].to_i}, \
 							  birthdate				=   #{dob}, \
@@ -140,7 +140,7 @@ QUERY
 							  person_type_id		=	1, \
 							  gender 				= 	#{gender.to_i}, \
 							  death_date 			= 	#{dod}, \
-							  cause_of_death		=	'#{person['cause_of_death']}', \							  
+							  cause_of_death		=	'#{person['cause_of_death']}', \
 							  dead 					=	#{person['dead'].to_i}, \
 							  voided 				=	#{person['voided'].to_i}, \
 							  voided_by 			= 	#{person['voided_by'].to_i}, \
@@ -152,11 +152,11 @@ QUERY
 							  where person_id 		= 	 #{person['person_id']};
 QUERY
 		end
-		  current_update_date = {}
-       current_update_date['Person'] = person['date_voided'] || person['date_changed'] || person['date_created']
-		   File.open("log/last_update.yml","w") do |file|
+		current_update_date = {}
+		current_update_date['Person'] = person['date_created'].strftime('%Y-%m-%d %H:%M:%S')
+		File.open("log/last_update.yml","w") do |file|
 			file.write current_update_date.to_yaml
-  	end
+		end
 	end
 end
 
@@ -172,7 +172,7 @@ def load_to_ids
 		demographics.merge!(get_rds_person_addresses(person['person_id']).first) \
 		unless get_rds_person_addresses(person['person_id']).first.blank?
 	end
-	
+
 end
 
 
