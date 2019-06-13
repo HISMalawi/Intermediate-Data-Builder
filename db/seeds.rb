@@ -8,6 +8,7 @@
 
 # Creation of other records in Ruby above ...
 
+# Load metadata into database
 connection = ActiveRecord::Base.connection
 
 sql = File.read('db/seed_dumps/person_types.sql') # Change path and filename as necessary
@@ -19,5 +20,6 @@ ActiveRecord::Base.transaction do
     connection.execute(statement)
   end
 end
+# ending loading metadata into database
 
 # Creation of other records in Ruby below ...
