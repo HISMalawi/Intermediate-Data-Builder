@@ -66,7 +66,7 @@ end
 
 def find_duplicates(subject, subject_person_id)
 	duplicates = ActiveRecord::Base.connection.select_all <<QUERY
-			SELECT person_id, ROUND(CAST((((length("#{subject}") - levenshtein(honorable,"#{subject}",2))/ length("#{subject}")) * 100) AS DECIMAL),2)
+			SELECT person_id, ROUND(CAST((((length("#{subject}") - levenshtein(person_de_duplicator,"#{subject}",2))/ length("#{subject}")) * 100) AS DECIMAL),2)
  as score FROM de_duplicators WHERE person_id != #{subject_person_id};
 QUERY
 end
@@ -96,10 +96,10 @@ def check_for_duplicate(demographics)
 	person_present = DeDuplicator.find_by(person_id: demographics[:person]['person_id'])
 	if person_present
 		puts 'person_present'
-		person_present.update(honorable: subject)
+		person_present.update(person_de_duplicator: subject)
 	else
-		DeDuplicator.create(person_id: demographics[:person]['person_id'], honorable: subject)
-		puts duplicates.first['score'].to_f.inspect
+		DeDuplicator.create(person_id: demographics[:person]['person_id'], person_de_duplicator: subject)
+		puts duplicates.first['score'].to_f.inspect rescue nil
 	end
 	process_duplicates(duplicates, demographics[:person]['person_id']) unless duplicates.blank?
 end
@@ -210,5 +210,6 @@ def load_to_ids
   end
 end
 
+load_person
 load_to_ids
 
