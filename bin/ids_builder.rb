@@ -2,10 +2,9 @@ require 'yaml'
 require 'damerau-levenshtein'
 
 @rds_db  		=	 YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
+File.open("#{Rails.root}/log/last_update.yml", "w") { |file| file.puts 'Person: 1900-01-01 00:00:00'} # Create a tracking file if it does not exist
 @last_updated 	=	 YAML.load_file("#{Rails.root}/log/last_update.yml")
 @batch_size 	=	 50_000
-
-
 
 def get_all_rds_people
 	if @last_updated.include?('Person')
@@ -25,26 +24,24 @@ def get_all_rds_people
   ORDER BY date_created, date_changed, date_voided;
 
 QUERY
-
 end
 
 
-
-def get_rds_person_name(person_id, voided = 0)
+def get_rds_person_name(person_id)
 	if @last_updated['PersonName'].blank?
 		last_updated = '1900-01-01 00:00:00'
 	else
 		last_updated = @last_updated['PersonName']
 	end
-
-	rds_people = ActiveRecord::Base.connection.select_all <<QUERY
+  person_name = []
+	rds_person_name = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_name where person_id = #{person_id}
 	AND (date_created >= '#{last_updated}'
 	OR date_changed >= '#{last_updated}'
 	OR date_voided  >=  '#{last_updated}');
 
 QUERY
-
+ rds_person_name.each{|name| person_name << name}
 end
 
 def get_rds_person_addresses(person_id)
@@ -54,18 +51,43 @@ def get_rds_person_addresses(person_id)
 		last_updated = @last_updated['PersonAddress']
 	end
 
-	rds_people = ActiveRecord::Base.connection.select_all <<QUERY
+  person_address = []
+	rds_address= ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_address where person_id = #{person_id}
 	AND (date_created >= '#{last_updated}'
 	OR date_voided  >=  '#{last_updated}');
 
 QUERY
 
+  rds_address.each{|address| person_address << address}
+
 end
 
 
 
-def check_for_duplicate(person)
+def check_for_duplicate(demographics)
+	#find matching text in de_duplicator table
+	subject = ''
+	subject << demographics[:person_names][0]['given_name'] rescue nil
+	subject << demographics[:person_names][0]['family_name'] rescue nil
+	subject << demographics[:person]['gender'] rescue nil
+	subject << (demographics[:person]['birthdate'].strftime('%Y-%m-%d')).gsub("-","") rescue nil
+	subject << demographics[:person_address][0]['address2'] rescue nil
+	subject << demographics[:person_address][0]['county_district'] rescue nil
+	subject << demographics[:person_address][0]['neighborhood_cell'] rescue nil
+
+	duplicates = ActiveRecord::Base.connection.select_all <<QUERY
+			SELECT person_id, (((length('#{subject}') - levenshtein(honorable,'#{subject}',2))/ length('#{subject}')) * 100)
+ as score FROM de_duplicators;
+QUERY
+	raise duplicates.first['score'].inspect
+	if duplicates.blank?
+		matchingString = DeDuplicator.create(person_id: demographics[:person]['person_id'], honorable: subject)
+	else
+		raise duplicates.inspect
+	end
+
+
 end
 
 def load_person
@@ -166,16 +188,13 @@ end
 def load_to_ids
 	rds_people = get_all_rds_people
 	rds_people.each do |person|
-		demographics = {}
-		demographics[:person] = person
-		demographics.merge!(get_rds_person_name(person['person_id']).first)
-		demographics.merge!(get_rds_person_addresses(person['person_id']).first) \
-		unless get_rds_person_addresses(person['person_id']).first.blank?
-	end
-
+    demographics = {}
+    demographics = {"person": person}
+		demographics.update( { "person_names": get_rds_person_name(person['person_id']) } )
+    demographics.update({ "person_address": get_rds_person_addresses(person['person_id']) })
+		check_for_duplicate(demographics)
+  end
 end
 
-
-
-load_person
+load_to_ids
 
