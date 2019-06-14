@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_14_093743) do
+ActiveRecord::Schema.define(version: 2019_06_14_082221) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "encounter_id", null: false
@@ -95,7 +95,7 @@ ActiveRecord::Schema.define(version: 2019_06_14_093743) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "duplicate_statuses", primary_key: "duplicate_status_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "duplicate_statuses", primary_key: "duplicate_status_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "status"
     t.string "description"
     t.datetime "created_at", null: false
@@ -115,6 +115,11 @@ ActiveRecord::Schema.define(version: 2019_06_14_093743) do
     t.datetime "updated_at", null: false
     t.index ["encounter_type_id"], name: "fk_rails_cf33a2decd"
     t.index ["program_id"], name: "fk_rails_a13406b5c0"
+  end
+
+  create_table "entities", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "family_plannings", primary_key: "family_planning_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -369,10 +374,10 @@ ActiveRecord::Schema.define(version: 2019_06_14_093743) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "potential_duplicates", primary_key: "potential_duplicate_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "person_id_a", null: false
-    t.integer "person_id_b", null: false
-    t.integer "duplicate_status_id", null: false
+  create_table "potential_duplicates", primary_key: "potential_duplicate_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "person_id_a", null: false
+    t.bigint "person_id_b", null: false
+    t.bigint "duplicate_status_id", null: false
     t.float "score", null: false
     t.bigint "creator", null: false
     t.boolean "voided", default: false, null: false
@@ -487,6 +492,11 @@ ActiveRecord::Schema.define(version: 2019_06_14_093743) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "trackers", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
