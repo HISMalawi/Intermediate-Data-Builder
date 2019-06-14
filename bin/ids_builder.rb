@@ -5,6 +5,7 @@ require 'damerau-levenshtein'
 File.open("#{Rails.root}/log/last_update.yml", "w") { |file| file.puts 'Person: 1900-01-01 00:00:00'} # Create a tracking file if it does not exist
 @last_updated 	=	 YAML.load_file("#{Rails.root}/log/last_update.yml")
 @batch_size 	=	 50_000
+@threshold = 85
 
 def get_all_rds_people
 	if @last_updated.include?('Person')
@@ -63,7 +64,21 @@ QUERY
 
 end
 
+def find_duplicates(subject, subject_person_id)
+	duplicates = ActiveRecord::Base.connection.select_all <<QUERY
+			SELECT person_id, ROUND(CAST((((length("#{subject}") - levenshtein(honorable,"#{subject}",2))/ length("#{subject}")) * 100) AS DECIMAL),2)
+ as score FROM de_duplicators WHERE person_id != #{subject_person_id};
+QUERY
+end
 
+def process_duplicates(duplicates, duplicate_id)
+	duplicates.each do |duplicate|
+		if duplicate['score'].to_f >= @threshold
+			#save to duplicate_statuses
+			PotentialDuplicate.create(person_id_a: duplicate_id, person_id_b: duplicate['person_id'], score: duplicate['score'].to_f)
+		end
+	end
+end
 
 def check_for_duplicate(demographics)
 	#find matching text in de_duplicator table
@@ -76,18 +91,17 @@ def check_for_duplicate(demographics)
 	subject << demographics[:person_address][0]['county_district'] rescue nil
 	subject << demographics[:person_address][0]['neighborhood_cell'] rescue nil
 
-	duplicates = ActiveRecord::Base.connection.select_all <<QUERY
-			SELECT person_id, (((length('#{subject}') - levenshtein(honorable,'#{subject}',2))/ length('#{subject}')) * 100)
- as score FROM de_duplicators;
-QUERY
-	raise duplicates.first['score'].inspect
-	if duplicates.blank?
-		matchingString = DeDuplicator.create(person_id: demographics[:person]['person_id'], honorable: subject)
+  duplicates = find_duplicates(subject, demographics[:person]['person_id'])
+
+	person_present = DeDuplicator.find_by(person_id: demographics[:person]['person_id'])
+	if person_present
+		puts 'person_present'
+		person_present.update(honorable: subject)
 	else
-		raise duplicates.inspect
+		DeDuplicator.create(person_id: demographics[:person]['person_id'], honorable: subject)
+		puts duplicates.first['score'].to_f.inspect
 	end
-
-
+	process_duplicates(duplicates, demographics[:person]['person_id']) unless duplicates.blank?
 end
 
 def load_person

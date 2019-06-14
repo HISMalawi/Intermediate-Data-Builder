@@ -1,0 +1,2 @@
+class DeDuplicator < ApplicationRecord
+end
