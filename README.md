@@ -39,6 +39,7 @@ application up and running.
     
 ## Database setup/ initialization
   
+**Using an Empty Database**  
 > Run the following command to setup and initialize your database with metadata:
   
     rails db:setup
