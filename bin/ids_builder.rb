@@ -65,6 +65,23 @@ QUERY
   rds_attribute.each { |attribute| person_attribute << attribute }
 end
 
+# get all rds users
+def get_rds_users
+  if @last_updated.include?('Person')
+    @last_updated['Person'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['Person']
+  else
+    last_updated = '1900-01-01 00:00:00'
+  end
+
+  rds_users = ActiveRecord::Base.connection.select_all <<QUERY
+	SELECT * FROM #{@rds_db}.users where date_created >= '#{last_updated}'
+	OR date_changed >= '#{last_updated}'
+	OR date_voided  >= '#{last_updated}'
+  ORDER BY date_created, date_changed, date_voided;
+
+QUERY
+end
+
 def find_duplicates(subject, subject_person_id)
   duplicates = ActiveRecord::Base.connection.select_all <<QUERY
 			SELECT person_id, ROUND(CAST((((length("#{subject}") - levenshtein(person_de_duplicator,"#{subject}",2))/ length("#{subject}")) * 100) AS DECIMAL),2)
@@ -137,7 +154,7 @@ def check_for_duplicate(demographics)
   process_duplicates(duplicates, demographics[:person]['person_id']) unless duplicates.blank?
 end
 
-# load person into IDS
+# populate people in IDS
 def populate_people
   get_all_rds_people.each do |person|
     person['birthdate'].blank? ? dob = "'1900-01-01'" : dob = "'#{person['birthdate'].to_date}'"
@@ -295,6 +312,34 @@ def populate_contact_details
   end
 end
 
+# populate users in IDS
+def populate_users
+  # person_id, username, user_role
+  get_rds_users.each do |rds_user|
+    person = Person.find_by(person_id: rds_user['person_id'])
+
+    # TODO code for getting all people skipping user, to talk about this
+    if person
+      if User.find_by(person_id: rds_user['person_id']).blank?
+        user = User.new
+        user.person_id = rds_user['person_id']
+        user.username = rds_user['username']
+        user.user_role = ''
+        user.save
+      end
+    else
+      puts '==================================================================='
+      puts "Skipped record for User with ID #{rds_user['person_id']}"
+      puts 'Reason: Person records for the above ID not available in People'
+      puts '==================================================================='
+      puts ''
+      puts 'Ending script'
+      break
+    end
+  end
+end
+
 # populate_people # load person records into IDS
 # initiate_deduplication # initate deduplication on people
-populate_contact_details # load contact details
+# populate_contact_details # load contact details
+populate_users
