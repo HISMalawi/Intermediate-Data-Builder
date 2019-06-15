@@ -5,3 +5,4 @@ class PotentialDuplicatesMigration < ActiveRecord::Migration[5.2]
     add_foreign_key :potential_duplicates, :duplicate_statuses, column: :duplicate_status_id, primary_key: :duplicate_status_id
   end
 end
+
