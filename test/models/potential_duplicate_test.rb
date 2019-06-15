@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class EntityTest < ActiveSupport::TestCase
+class PotentialDuplicateTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end
