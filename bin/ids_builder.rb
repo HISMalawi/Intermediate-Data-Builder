@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'yaml'
-require 'damerau-levenshtein'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') { |file| file.puts 'Person: 1900-01-01 00:00:00' } # Create a tracking file if it does not exist
@@ -50,6 +49,20 @@ def get_rds_person_addresses(person_id)
 QUERY
 
   rds_address.each { |address| person_address << address }
+end
+
+# get person attributes from rds
+def get_rds_person_attributes
+  @last_updated['PersonAttribute'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['PersonAttribute']
+  person_attribute = []
+  rds_attribute = ActiveRecord::Base.connection.select_all <<QUERY
+	SELECT * FROM #{@rds_db}.person_attribute WHERE person_attribute_type_id IN (12,14,15)
+	AND (date_created >= '#{last_updated}'
+	OR date_voided  >=  '#{last_updated}');
+
+QUERY
+
+  rds_attribute.each { |attribute| person_attribute << attribute }
 end
 
 def find_duplicates(subject, subject_person_id)
@@ -124,7 +137,8 @@ def check_for_duplicate(demographics)
   process_duplicates(duplicates, demographics[:person]['person_id']) unless duplicates.blank?
 end
 
-def load_person
+# load person into IDS
+def populate_people
   get_all_rds_people.each do |person|
     person['birthdate'].blank? ? dob = "'1900-01-01'" : dob = "'#{person['birthdate'].to_date}'"
 
@@ -192,7 +206,7 @@ QUERY
   end
 end
 
-def load_to_ids
+def initiate_deduplication
   rds_people = get_all_rds_people
   rds_people.each do |person|
     demographics = {}
@@ -204,5 +218,83 @@ def load_to_ids
   end
 end
 
-load_person
-load_to_ids
+# populate contact details in IDS
+def populate_contact_details
+  get_rds_person_attributes.each do |person_attribute|
+    attribute_value = person_attribute['value']
+
+    cell_phone_number = ''
+    home_phone_number = ''
+    work_phone_number = ''
+
+    case person_attribute['person_attribute_type_id']
+
+    when 12
+      cell_phone_number = attribute_value
+    when 14
+      home_phone_number = attribute_value
+    when 15
+      work_phone_number = attribute_value
+
+      # TODO Add email address code
+      # email_address to be added when applications having email addresses start pushing to IDS
+    end
+
+    puts "processing person_id #{person_attribute['person_id']}"
+
+    person = Person.find_by(person_id: person_attribute['person_id'])
+
+    if person
+      if ContactDetail.find_by(person_id: person_attribute['person_id']).blank?
+        contact_detail = ContactDetail.new
+        contact_detail.person_id = person_attribute['person_id']
+        contact_detail.home_phone_number = home_phone_number
+        contact_detail.cell_phone_number = cell_phone_number
+        contact_detail.work_phone_number = work_phone_number
+        contact_detail.creator = person_attribute['creator']
+        contact_detail.voided = person_attribute['voided']
+        contact_detail.voided_by = person_attribute['voided_by']
+        contact_detail.voided_date = person_attribute['date_voided']
+        contact_detail.void_reason = person_attribute['void_reason']
+        contact_detail.created_at = Date.today.strftime('%Y-%m-%d %H:%M:%S')
+        contact_detail.updated_at = Date.today.strftime('%Y-%m-%d %H:%M:%S')
+
+        contact_detail.save
+
+        puts "Successfully populated contact details with record for person #{person_attribute['person_id']}"
+      else
+        contact_detail = ContactDetail.where(person_id: person_attribute['person_id'])
+        contact_detail.update(home_phone_number: '') unless home_phone_number.nil?
+        contact_detail.update(cell_phone_number: '') unless cell_phone_number.nil?
+        contact_detail.update(work_phone_number: '') unless work_phone_number.nil?
+        contact_detail.update(creator: person_attribute['creator'])
+        contact_detail.update(voided: person_attribute['voided'])
+        contact_detail.update(voided_by: person_attribute['voided_by'])
+        contact_detail.update(voided_date: person_attribute['date_voided'])
+        contact_detail.update(void_reason: person_attribute['void_reason'])
+        contact_detail.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+        contact_detail.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+
+        puts "Successfully updated contact details with record for person #{person_attribute['person_id']}"
+      end
+    else
+      puts '==================================================================='
+      puts "Skipped record for Person with ID #{person_attribute['person_id']}"
+      puts 'Reason: Person records for the above ID not available in People'
+      puts '==================================================================='
+      puts ''
+      puts 'Ending script'
+      break
+    end
+    current_update_date = {}
+    current_update_date['PersonAttribute'] = person_attribute['date_created'].strftime('%Y-%m-%d %H:%M:%S')
+
+    File.open('log/last_update.yml', 'w') do |file|
+      file.write current_update_date.to_yaml
+    end
+  end
+end
+
+# populate_people # load person records into IDS
+# initiate_deduplication # initate deduplication on people
+populate_contact_details # load contact details
