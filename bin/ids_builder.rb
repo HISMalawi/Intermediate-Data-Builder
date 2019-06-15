@@ -324,6 +324,7 @@ def populate_users
         user = User.new
         user.person_id = rds_user['person_id']
         user.username = rds_user['username']
+        user.password = rds_user['password']
         user.user_role = ''
         user.save
       end
