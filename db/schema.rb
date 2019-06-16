@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_14_213433) do
+ActiveRecord::Schema.define(version: 2019_06_16_131710) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -364,7 +364,6 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
   create_table "people", primary_key: "person_id", id: :bigint, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.date "birthdate", null: false
     t.boolean "birthdate_est", null: false
-    t.bigint "person_type_id", null: false
     t.bigint "gender", null: false
     t.date "death_date"
     t.bigint "creator"
@@ -378,7 +377,6 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["person_type_id"], name: "fk_rails_4385f9c280"
   end
 
   create_table "person_addresses", primary_key: "person_address_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -397,6 +395,15 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.index ["person_id"], name: "fk_rails_eb9d05724a"
     t.index ["traditional_authority_id"], name: "fk_rails_c3837dd6a4"
     t.index ["village_id"], name: "fk_rails_723872d48a"
+  end
+
+  create_table "person_has_types", primary_key: "person_has_type_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "person_id"
+    t.bigint "person_type_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_id"], name: "fk_rails_282ec6b71b"
+    t.index ["person_type_id"], name: "fk_rails_7858ca9698"
   end
 
   create_table "person_names", primary_key: "person_name_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -653,12 +660,13 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
   add_foreign_key "outcomes", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "patient_histories", "encounters", primary_key: "encounter_id"
   add_foreign_key "patient_histories", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
-  add_foreign_key "people", "person_types", primary_key: "person_type_id"
   add_foreign_key "person_addresses", "countries", primary_key: "country_id"
   add_foreign_key "person_addresses", "locations", column: "district_id", primary_key: "location_id"
   add_foreign_key "person_addresses", "locations", column: "traditional_authority_id", primary_key: "location_id"
   add_foreign_key "person_addresses", "locations", column: "village_id", primary_key: "location_id"
   add_foreign_key "person_addresses", "people", primary_key: "person_id"
+  add_foreign_key "person_has_types", "people", primary_key: "person_id"
+  add_foreign_key "person_has_types", "person_types", primary_key: "person_type_id"
   add_foreign_key "person_names", "people", primary_key: "person_id"
   add_foreign_key "potential_duplicates", "duplicate_statuses", primary_key: "duplicate_status_id"
   add_foreign_key "potential_duplicates", "people", column: "person_id_a", primary_key: "person_id"
