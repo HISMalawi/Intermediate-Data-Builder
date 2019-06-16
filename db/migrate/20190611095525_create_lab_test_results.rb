@@ -17,6 +17,8 @@ class CreateLabTestResults < ActiveRecord::Migration[5.2]
 			t.integer	:voided_by
 			t.datetime	:voided_date
 			t.string	:void_reason
+			t.datetime  :app_date_created, null: false
+			t.datetime  :app_date_updated
 
 			t.timestamps
 		end
