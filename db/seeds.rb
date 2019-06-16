@@ -10,7 +10,9 @@
 
 # Load metadata into database
 connection = ActiveRecord::Base.connection
-puts "...Loading Database..."
+puts "========================================================"
+puts "================ Loading Person Types ====================="
+puts "========================================================"
 sql = File.read('db/seed_dumps/person_types.sql') # Change path and filename as necessary
 statements = sql.split(/;$/)
 statements.pop
@@ -20,10 +22,14 @@ ActiveRecord::Base.transaction do
     connection.execute(statement)
   end
 end
-puts "...Database Loaded..."
+puts "========================================================"
+puts "================= Person Types Loaded ====================="
+puts "========================================================"
 
 
-puts "Initialising Nations"
+puts "========================================================"
+puts "================= Initializing Nations ========================"
+puts "========================================================"
 
 CSV.foreach("#{Rails.root}/app/assets/data/country.csv", :headers => true) do |row|
   Country.count
@@ -32,16 +38,14 @@ CSV.foreach("#{Rails.root}/app/assets/data/country.csv", :headers => true) do |r
   if country.blank?
     country = Country.new()
     country.name = row[3]
-
     country.save!
-    puts "Country Saved"
+    puts "New Country Saved"
   else
     country = Country.new()
     country.country_id = row[0]
     country.name = row[3]
-
     country.save!
-    puts "Country:  {#Country.all.name} Saved"
+    puts "...#{country.name} Saved Successfully..."
   end
 
 #Other Country
@@ -51,7 +55,6 @@ if ucountry.blank?
   ucountry.name = "Other"
   ucountry.save
 else
-  puts "Other Country already exists"
 end
 #Unknown Country
 ucountry = "Unknown"
@@ -60,12 +63,11 @@ if ucountry.blank?
   ucountry.name = "Unknown"
   ucountry.save
 else
-  puts "Unknown Country already exists"
 end
-
-puts "Country count : #{Country.all.count}"
 end
-
+puts "========================================================"
+puts "======== All : #{Country.count} Countries Saved Successfully ======"
+puts "========================================================"
 # ending loading metadata into database
 
 # Creation of other records in Ruby below ...
