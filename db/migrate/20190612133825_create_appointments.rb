@@ -9,8 +9,8 @@ class CreateAppointments < ActiveRecord::Migration[5.2]
 			t.bigint		:creator, null: false
 			t.datetime	:voided_date
 			t.string		:void_reason
-			t.datetime	:app_date_created, null: false
-			t.datetime	:app_date_updated, null: false
+			t.datetime  :app_date_created, null: false
+			t.datetime  :app_date_updated
 
 			t.timestamps
 		end

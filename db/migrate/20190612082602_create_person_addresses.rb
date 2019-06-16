@@ -10,6 +10,8 @@ class CreatePersonAddresses < ActiveRecord::Migration[5.2]
       t.bigint  :creator, null: false
       t.string  :landmark
       t.boolean :ancestry, null: false, default: 0
+      t.datetime  :app_date_created, null: false
+      t.datetime  :app_date_updated
 
       t.timestamps
     end
