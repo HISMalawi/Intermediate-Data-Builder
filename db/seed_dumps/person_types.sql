@@ -41,7 +41,11 @@ CREATE TABLE `person_types` (
 
 LOCK TABLES `person_types` WRITE;
 /*!40000 ALTER TABLE `person_types` DISABLE KEYS */;
-INSERT INTO `person_types` VALUES (1,'Patient','This person is an EMR client or patient',0,NULL,NULL,'2019-06-13 22:01:16','2019-06-13 22:01:16'),(2,'Provider','This person provides details to the person input',0,NULL,NULL,'2019-06-13 22:03:43','2019-06-13 22:03:43'),(3,'Client','Person receiving other services other than health',0,NULL,NULL,'2019-06-13 22:03:51','2019-06-13 22:03:51');
+INSERT INTO `person_types` VALUES (1,'Patient','This person is an EMR client or patient',0,NULL,NULL,now(),now()),
+(2,'Provider','This person provides details to the person input',0,NULL,NULL,now(),now()),
+(3,'Client','Person receiving other services other than health',0,NULL,NULL,now(), now()),
+(4,'User','Person using the system',0,NULL,NULL,now(),now()),
+(5,'Guardian','Person taking care of a Patient/Client',0,NULL,NULL,now(),now());
 /*!40000 ALTER TABLE `person_types` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
