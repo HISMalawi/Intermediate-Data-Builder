@@ -35,6 +35,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_45a3b8051f"
@@ -96,6 +98,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_adf3d8ea32"
@@ -118,6 +122,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["encounter_type_id"], name: "fk_rails_cf33a2decd"
@@ -167,6 +173,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["encounter_id"], name: "fk_rails_f70a4c1055"
@@ -244,6 +252,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["drug_id"], name: "fk_rails_0ca1abbeae"
@@ -257,6 +267,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["medication_prescription_id"], name: "fk_rails_51fd85fc50"
@@ -281,6 +293,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["drug_id"], name: "fk_rails_2ae6a3ad59"
@@ -293,6 +307,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -321,6 +337,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_b0b07ac345"
@@ -335,6 +353,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_b9e7ab44d4"
@@ -430,6 +450,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_1f3f5dcd65"
@@ -444,6 +466,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_ab3111fcf9"
@@ -491,6 +515,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_2ecd253a4e"
@@ -541,6 +567,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_e32867fc03"
@@ -555,6 +583,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["encounter_id"], name: "fk_rails_e6659727a6"
@@ -582,6 +612,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_49a56b35f0"

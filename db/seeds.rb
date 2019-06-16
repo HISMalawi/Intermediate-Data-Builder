@@ -10,7 +10,9 @@
 
 # Load metadata into database
 connection = ActiveRecord::Base.connection
-
+puts "========================================================"
+puts "================ Loading Person Types ====================="
+puts "========================================================"
 sql = File.read('db/seed_dumps/person_types.sql') # Change path and filename as necessary
 statements = sql.split(/;$/)
 statements.pop
@@ -20,6 +22,52 @@ ActiveRecord::Base.transaction do
     connection.execute(statement)
   end
 end
+puts "========================================================"
+puts "================= Person Types Loaded ====================="
+puts "========================================================"
+
+
+puts "========================================================"
+puts "================= Initializing Nations ========================"
+puts "========================================================"
+
+CSV.foreach("#{Rails.root}/app/assets/data/country.csv", :headers => true) do |row|
+  Country.count
+  next if row[0].blank?
+  country = row[3]
+  if country.blank?
+    country = Country.new()
+    country.name = row[3]
+    country.save!
+    puts "New Country Saved"
+  else
+    country = Country.new()
+    country.country_id = row[0]
+    country.name = row[3]
+    country.save!
+    puts "...#{country.name} Saved Successfully..."
+  end
+
+#Other Country
+ucountry = "Other"
+if ucountry.blank?
+  ucountry = Country.new()
+  ucountry.name = "Other"
+  ucountry.save
+else
+end
+#Unknown Country
+ucountry = "Unknown"
+if ucountry.blank?
+  ucountry = Country.new()
+  ucountry.name = "Unknown"
+  ucountry.save
+else
+end
+end
+puts "========================================================"
+puts "======== All : #{Country.count} Countries Saved Successfully ======"
+puts "========================================================"
 # ending loading metadata into database
 
 # Creation of other records in Ruby below ...
