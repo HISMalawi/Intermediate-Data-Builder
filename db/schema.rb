@@ -245,6 +245,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.string "definition", null: false
     t.text "description"
     t.integer "openmrs_metadata_id", null: false
+    t.string "openmrs_entity_name", null: false
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
