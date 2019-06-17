@@ -250,8 +250,6 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
-    t.datetime "app_date_created", null: false
-    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
