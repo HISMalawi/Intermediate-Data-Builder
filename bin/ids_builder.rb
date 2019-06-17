@@ -271,6 +271,7 @@ def populate_contact_details
         contact_detail.void_reason = person_attribute['void_reason']
         contact_detail.created_at = Date.today.strftime('%Y-%m-%d %H:%M:%S')
         contact_detail.updated_at = Date.today.strftime('%Y-%m-%d %H:%M:%S')
+        contact_detail.app_date_created = person_attribute['date_created']
 
         contact_detail.save
 
@@ -466,18 +467,43 @@ def populate_diagnosis
   secondary_diagnosis = 6543
 
   get_rds_diagnosis.each do |diagnosis|
-    diagnosis = Diagnosis.new
-    diagnosis.encounter_id = diagnosis['encounter_id']
-    diagnosis.primary_diagnosis = (diagnosis['concept_id'] == primary_diagnosis ? diagnosis['value_coded'] : '')
-    diagnosis.secondary_diagnosis = (diagnosis['concept_id'] == secondary_diagnosis ? diagnosis['value_coded'] : '')
-    diagnosis.app_date_created = diagnosis['encounter_datetime']
-    diagnosis.save!
-    update_last_update('Diagnosis', diagnosis['encounter_datetime'])
+    person = Person.find_by(person_id: person_attribute['person_id'])
+
+    if person
+      diagnosis = Diagnosis.new
+      diagnosis.encounter_id = diagnosis['encounter_id']
+      diagnosis.primary_diagnosis = (diagnosis['concept_id'] == primary_diagnosis ? diagnosis['value_coded'] : '')
+      diagnosis.secondary_diagnosis = (diagnosis['concept_id'] == secondary_diagnosis ? diagnosis['value_coded'] : '')
+      diagnosis.app_date_created = diagnosis['encounter_datetime']
+      diagnosis.save!
+      puts "Successfully populated diagnosis with person id #{diagnosis['person_id']}"
+      update_last_update('Diagnosis', diagnosis['encounter_datetime'])
+    else
+      puts 'diagnosis update code not available yet'
+    end
   end
 end
 
 def get_district_id(district)
   Location.find_by(name: district)['location_id'].to_i
+end
+
+def get_rds_vitals
+  last_updated = get_last_updated('Diagnosis')
+
+  ActiveRecord::Base.connection.select_all <<QUERY
+	SELECT * FROM #{@rds_db}.obs ob
+  INNER JOIN #{@rds_db}.encounter en
+  ON ob.encounter_id = en.encounter_id
+  WHERE ob.concept_id IN (6542,6543)
+	AND (ob.date_created >= '#{last_updated}'
+	OR ob.date_voided  >=  '#{last_updated}');
+
+QUERY
+end
+
+def populate_vitals
+
 end
 
 def populate_person_address
