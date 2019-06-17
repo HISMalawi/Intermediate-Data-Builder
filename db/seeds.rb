@@ -35,42 +35,35 @@ puts ''
 puts ''
 puts '================= Initializing Countries ========================'
 
-CSV.foreach("#{Rails.root}/app/assets/data/country.csv", headers: true) do |row|
-  Country.count
-  next if row[0].blank?
+CSV.foreach("#{Rails.root}/app/assets/data/country.csv", :headers => true) do |row|
 
-  country = row[3]
-  if country.blank?
+  next if row[0].blank?
     country = Country.new
-    country.name = row[3]
-    country.save!
-    puts 'New Country Saved'
-  else
-    country = Country.new
-    country.country_id = row[0]
     country.name = row[3]
     country.save!
     puts "...#{country.name} Saved Successfully..."
   end
-
-  # Other Country
-  ucountry = 'Other'
-  if ucountry.blank?
-    ucountry = Country.new
-    ucountry.name = 'Other'
-    ucountry.save
-    end
-  # Unknown Country
-  ucountry = 'Unknown'
-  if ucountry.blank?
-    ucountry = Country.new
-    ucountry.name = 'Unknown'
-    ucountry.save
-    end
-end
-puts ''
+puts "========================================================"
 puts "======== All : #{Country.count} Countries Saved Successfully ======"
-puts '========================================================'
+puts "========================================================"
+puts "========================================================"
+puts "======== Initializing Districts In Malawi ======"
+puts "========================================================"
+CSV.foreach("#{Rails.root}/app/assets/data/districts_with_codes.csv", :headers => true) do |row|
+ # Location.count
+  next if row[0].blank?
+  row[1] = 'Nkhata-bay' if row[1].match(/Nkhata/i)
+    location = Location.new
+    location.name = row[1]
+    location.latitude = row[3]
+    location.longitude = row[4]
+    location.save!
+    puts "...#{location.name} Saved Successfully..."
+end
+puts "========================================================"
+puts "======= All : #{Location.count} Districts Saved Successfully ======"
+puts "========================================================"
+
 # ending loading metadata into database
 
 # Creation of other records in Ruby below ...

@@ -1,0 +1,261 @@
+concept_id,Diagnosis
+3,Anemia
+5,Asthma
+16,Diarrhea
+29,Hepatitis
+43,Pneumonia
+49,"Postpartum hemorrhage"
+50,Abortion
+55,"Urinary tract infection"
+57,"Yellow fever"
+58,Tuberculosis
+60,Meningitis
+63,Measles
+64,Mumps
+68,Malnutrition
+70,Cataract
+78,"Dental disorders"
+86,"Road Traffic Accidents, RTA"
+102,"Toxicity, drug"
+106,"Upper respiratory tract infection"
+109,"Wound, septic"
+111,Dyspepsia
+114,"Otitis media"
+115,Mastitis
+116,Arthritis
+120,"Dermatitis, allergic"
+123,Malaria
+125,"Head injury"
+126,Gingivitis
+127,Dysmenorrhoea
+131,"Dental caries"
+134,Cellulitis
+135,Burns
+138,Abscess
+140,Scabies
+141,"Typhoid fever"
+142,"Allergic reaction"
+155,Epilepsy
+163,"Foreign body"
+171,"Fungal infection"
+172,Gastritis
+173,Epistaxis
+174,STI
+177,Fracture
+180,"Shoulder dislocation"
+197,Gastroenteritis
+198,Cholera
+199,Helminthiasis
+208,"Duodenal ulcer"
+210,"Peptic ulcer"
+212,"Gastric ulcer"
+215,Jaundice
+218,"Otitis externa"
+221,"Rheumatic heart disease"
+222,Sinusitis
+223,Syphilis
+226,"Neonatal sepsis"
+228,"Antepartum hemorrhage"
+363,Schistosomiasis
+370,Urethritis
+506,Inguinal
+507,"Kaposis sarcoma"
+620,Headache
+821,"Peripheral neuropathy"
+829,Eczema
+836,"Herpes zoster"
+839,Thrombocytopenia
+890,Leprosy
+891,Pertussis
+892,"Chicken pox"
+894,"Acquired immunodeficiency syndrome"
+902,"Pelvic inflammatory disease"
+903,Hypertension
+945,"Cerebral palsy"
+1083,"Allergy to other medicine"
+1136,"Pulmonary effusion"
+1210,"Parotid enlargement, persistent unexplained"
+1616,"Candidiasis, esophageal"
+1628,Constipation
+2151,"Skin, growths, ganglions"
+2618,Pneumothorax
+2737,"Genital ulcers, lgv"
+2850,"Syphilis with genital ulcers"
+3131,"Congenital heart disease"
+3307,"Pericardial disease"
+3681,"Renal failure"
+3689,"Abdominal pain, surgical"
+3692,"Eye infection"
+3700,"Allergic conjunctivitis"
+3702,"Anal fistula"
+3704,Balanitis
+3713,"Chronic psychiatric disease"
+3714,Cirrhosis
+3715,"Conjunctivitis, bacterial"
+3718,"Dental abscess"
+3719,"Dental pain"
+3720,Diabetes
+3724,Gout
+3730,Impetigo
+3734,"Lower respiratory tract infection"
+3740,"Musculoskeletal pain"
+3743,Parotitis
+3769,Roundworm
+3770,Sepsis
+3781,"Ulcer, oral"
+3784,Urticaria
+5020,"HSV stomatitis"
+5024,"Symptomatic lymphoid interstitial pneumonia"
+5258,Poliomyelitis
+5328,"Persistent generalized lymphadenopathy"
+5945,Fever
+5993,"Vaginal discharge"
+5995,"Urethral discharge"
+6263,"Soft tissue injury"
+6266,Trauma
+6421,Stroke
+6432,"Unexplained shock"
+6436,Tetanus
+6437,Rabies
+6455,Syncope
+6480,"Chronic lung disease"
+6503,"Liver disease"
+6515,Hookworm
+6527,"Nephrotic syndrome"
+6557,Poisoning
+6558,"Organophosphate poisoning"
+6597,Osteomyelitis
+6610,"Other skin condition"
+6682,Empyema
+6832,"Flaccid paralysis"
+6834,"Neonatal tetanus"
+6864,"Psychiatric disorder"
+6865,"Syphilis in pregnancy"
+6866,Ebola
+6867,Plague
+6874,"Abortion complications"
+6875,"Pericardial effusion"
+6888,"Anal fissure"
+6890,"Angina pectoris"
+6901,"Ear infection nos"
+6904,"Fracture proximal ulnar or radius"
+6905,"Genital warts"
+6906,Giardiasis
+6909,Hemorrhoids
+6914,"Lower abdominal pain"
+6916,Mastoiditis
+6919,Esophagitis
+6929,"Dysfunctional uterine bleeding"
+6940,Tinea
+6946,"Hernia nos"
+7062,Encephalitis
+7108,"Psychosis acute"
+7110,"Psychosis alcohol induced"
+7111,"Psychosis alcohol withdrawal"
+7112,"Psychosis organic"
+7139,"Vacuum extraction delivery"
+7156,Eclampsia
+7158,"Retained products of conception"
+7174,"Pelvic pain"
+7179,"Congenital malformation"
+7188,"Flu-like illness"
+7191,"Vomiting or diarrhoea"
+7211,Cancer
+7379,"Other lower respiratory infection"
+7380,"Acute respiratory infection"
+7382,"Severe anaemia in pregnancy"
+7383,Goitre
+7384,"Other heart diseases"
+7385,"Other oral conditions"
+7387,"All other communicable diseases"
+7388,"Opportunistic infections"
+7389,"Gynaecological disorders"
+7390,"Postpartum sepsis"
+7391,"New born complications"
+7392,"Other genito-urinary tract infection"
+7393,"Traumatic conditions"
+7394,"All other surgical conditions"
+7395,Query
+7397,Ulcers
+7400,Abscondees
+7401,"Neurological condition"
+7402,"Reflux oesophagitis"
+7403,Varices
+7405,Candida
+7410,"All other non-communicable diseases"
+7483,Bronchilitis
+7484,Epiglottitis
+7485,Sinusitis
+7486,Tonsilitis
+7487,"Bacillary dysentery"
+7488,"Brain abscess"
+7490,"Cardiac failure"
+7491,Cretinism
+7492,Croup
+7493,"Foreign body inhalation"
+7494,Glomerulonephritis
+7495,"Heamolytic uraemic syndrome"
+7496,"Infective endocarditis"
+7498,"Juvenile rheumatoid arthritis"
+7500,Myocarditis
+7503,"Retropharyngeal abscess"
+7504,"Reye syndrome"
+7505,"Rheumatic fever"
+7506,Rubella
+7507,"Septic athritis"
+7510,Trypanosomiasis
+7518,"Sickle cell disease"
+7521,Retinoblastoma
+7530,"Other eye infections"
+7532,"Acute abdomen surgical problem"
+7565,"Acute abdomen"
+7569,"Nephritic syndrome"
+7599,Malignancy
+7609,"Hepatic  failure"
+7637,Dysentery
+7685,"Other diagnosis"
+8116,"GI Bleed"
+8121,"Hospital Acquired"
+8137,Diptheria
+8138,Duodenitis
+8139,"Bowel obstruction"
+8275,"Skin infections"
+8303,"Severe headache"
+8430,"Dry Socket"
+8432,"Infected socket"
+8433,ANUG
+8434,"Mandibular fractures"
+8435,Exfoliation
+8436,"Rampant Caries"
+8437,Rannulla
+8438,"Tumours or Oral cancers"
+8439,"Tongue tie"
+8440,"Other dental conditions"
+8442,"AVD- or Low risk"
+8443,"AVD+ or High Risk"
+8444,"Scrotum swelling"
+8445,"Neonatal Conjuct"
+8446,"Syphilis RPR/VDRL"
+8453,Pulpititis
+8455,"Hormornal Imbalance"
+8583,Prematurity
+8587,"Burkitts Lymphoma"
+8618,"Child abuse"
+8627,"Conjenital Infection"
+8635,"Downs syndrome"
+8636,"Developmental delay"
+8638,"Faltering growth"
+8639,"Febrile convulsion"
+8640,Haemopholia
+8642,Hydrocephalis
+8643,Hydrocoele
+8644,Hypospadias
+8645,"Infective Endocarditis"
+8647,Laryngomalacia
+8649,"Neonatal Respiratory Distress"
+8650,"Neonatal Jaundice"
+8651,Scald
+8652,"Viral Exanthem"
+8653,"Raptured Uterus"
+8820,"Stevens Johnson Syndrome"
+8821,"Viral illness"
