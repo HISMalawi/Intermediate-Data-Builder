@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'yaml'
+require File.join File.dirname(__FILE__), 'ids_builder.rb'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -205,7 +206,7 @@ def initiate_deduplication
   end
 end
 
-def populate_personnames
+def populate_person_names
   last_updated = get_last_updated('PersonNames')
   person_names = ActiveRecord::Base.connection.select_all <<SQL
   SELECT * FROM #{@rds_db}.person_name WHERE date_created >= '#{last_updated}' OR date_changed >= '#{last_updated}'
@@ -403,9 +404,11 @@ SQL
     update_last_update('Relationship', patient['date_created'])
   end
 end
+
 populate_people # load person records into IDS
 #update_person_type
 # initiate_deduplication # initate deduplication on people
 # populate_contact_details # load contact details
 #populate_encounters
-populate_personnames
+populate_person_names
+populate_vitals
