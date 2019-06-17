@@ -3,8 +3,8 @@
 class CreateMasterDefinitions < ActiveRecord::Migration[5.2]
   def change
     create_table :master_definitions, primary_key: :master_definition_id do |t|
-      t.string  :definition
-      t.string  :description
+      t.string :definition
+      t.text :description
       t.boolean :voided, null: false, default: 0
       t.bigint  :voided_by
       t.datetime :voided_date
