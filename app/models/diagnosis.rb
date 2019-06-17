@@ -1,5 +1,6 @@
+# frozen_string_literal: true
+
 class Diagnosis < ApplicationRecord
-
-	belongs_to :encounter
-
+  self.table_name = 'diagnosis'
+  belongs_to :encounter
 end
