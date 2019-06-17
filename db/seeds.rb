@@ -45,7 +45,7 @@ CSV.foreach("#{Rails.root}/app/assets/data/country.csv", :headers => true) do |r
   end
 puts "========================================================"
 puts "======== All : #{Country.count} Countries Saved Successfully ======"
-puts "========================================================"
+puts ""
 puts "========================================================"
 puts "======== Initializing Districts In Malawi ======"
 puts "========================================================"
@@ -63,6 +63,27 @@ end
 puts "========================================================"
 puts "======= All : #{Location.count} Districts Saved Successfully ======"
 puts "========================================================"
+puts "======= Initializing Traditional Authorities ======"
+puts "========================================================"
+
+file = File.open("#{Rails.root}/app/assets/data/districts.json").read
+json = JSON.parse(file)
+#puts "Initialising TAs"
+json.each do |district, traditional_authorities|
+  traditional_authorities.each do |ta|
+    d = Location.by_name.key(district).first rescue nil
+    next if d.blank?
+    next if ta.blank?
+
+    #TraditionalAuthority.create(district_id: d.id, name: ta)
+    location = Location.new
+    location.name = ta
+    location.save!
+  end
+  puts "TA count : #{Location.all.count}"
+end
+
+
 
 # ending loading metadata into database
 
