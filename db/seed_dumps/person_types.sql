@@ -32,7 +32,7 @@ CREATE TABLE `person_types` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`person_type_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -41,11 +41,7 @@ CREATE TABLE `person_types` (
 
 LOCK TABLES `person_types` WRITE;
 /*!40000 ALTER TABLE `person_types` DISABLE KEYS */;
-INSERT INTO `person_types` VALUES (1,'Patient','This person is an EMR client or patient',0,NULL,NULL,now(),now()),
-(2,'Provider','This person provides details to the person input',0,NULL,NULL,now(),now()),
-(3,'Client','Person receiving other services other than health',0,NULL,NULL,now(), now()),
-(4,'User','Person using the system',0,NULL,NULL,now(),now()),
-(5,'Guardian','Person taking care of a Patient/Client',0,NULL,NULL,now(),now());
+INSERT INTO `person_types` VALUES (1,'Patient','This person is an EMR client or patient',0,NULL,NULL,'2019-06-17 14:14:40','2019-06-17 14:14:40'),(2,'Provider','This person provides details to the person input',0,NULL,NULL,'2019-06-17 14:14:40','2019-06-17 14:14:40'),(3,'Client','Person receiving other services other than health',0,NULL,NULL,'2019-06-17 14:14:40','2019-06-17 14:14:40'),(4,'User','Person using the system',0,NULL,NULL,'2019-06-17 14:14:40','2019-06-17 14:14:40'),(5,'Guardian','Person taking care of a Patient/Client',0,NULL,NULL,'2019-06-17 14:14:40','2019-06-17 14:14:40');
 /*!40000 ALTER TABLE `person_types` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -58,4 +54,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-13 22:21:48
+-- Dump completed on 2019-06-17 17:07:21
