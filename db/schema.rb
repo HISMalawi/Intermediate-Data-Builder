@@ -551,7 +551,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["side_effect_id"], name: "fk_rails_5c0c6cd6a9"
   end
 
-  create_table "site_types", primary_key: "site_type_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "site_types", primary_key: "site_type_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "description"
     t.string "site_type"
     t.boolean "voided", default: false, null: false
@@ -561,7 +561,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "sites", primary_key: "site_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "sites", primary_key: "site_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "site_name"
     t.string "short_name"
     t.string "site_description"
