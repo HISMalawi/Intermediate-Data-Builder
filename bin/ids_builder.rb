@@ -368,6 +368,9 @@ SQL
     end
   end
 end
+
+#populate Diagnosis
+
 # populate users in IDS
 def populate_users
   # person_id, username, user_role
@@ -450,10 +453,11 @@ SQL
   end
 end
 
-populate_people # load person records into IDS
+#populate_people # load person records into IDS
 #update_person_type
 # initiate_deduplication # initate deduplication on people
 # populate_contact_details # load contact details
 #populate_encounters
-populate_personnames
+# populate_personnames
+ #populate_diagnosis
 
