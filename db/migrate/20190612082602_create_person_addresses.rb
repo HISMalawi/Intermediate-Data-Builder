@@ -7,7 +7,7 @@ class CreatePersonAddresses < ActiveRecord::Migration[5.2]
       t.integer :district_id, null: false
       t.integer :traditional_authority_id, null: false
       t.integer :village_id, null: false
-      t.integer :country_id, null: false
+      t.integer :country_id
       t.bigint  :creator, null: false
       t.string  :landmark
       t.boolean :ancestry, null: false, default: 0
