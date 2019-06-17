@@ -12,11 +12,7 @@ def get_all_rds_people
   last_updated = get_last_updated('Person')
 
   rds_people = ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.person where date_created >= '#{last_updated}'
-	OR date_changed >= '#{last_updated}'
-	OR date_voided  >= '#{last_updated}'
-	ORDER BY date_created, date_changed, date_voided;
-
+	SELECT * FROM #{@rds_db}.person where created_at >= '#{last_updated}' ORDER BY created_at;
 QUERY
 end
 
@@ -25,10 +21,7 @@ def get_rds_person_name(person_id)
   person_name = []
   rds_person_name = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_name where person_id = #{person_id}
-	AND (date_created >= '#{last_updated}'
-	OR date_changed >= '#{last_updated}'
-	OR date_voided  >=  '#{last_updated}');
-
+	AND (created_at >= '#{last_updated}');
 QUERY
   rds_person_name.each { |name| person_name << name }
 end
@@ -164,7 +157,7 @@ def populate_people
 
     gender = person['gender'] == 'M' ? 1 : 0
 
-    puts "processiong person_id #{person['person_id']}"
+    puts "processing person_id #{person['person_id']}"
 
     person_exits = Person.find_by(person_id: person['person_id'])
 
@@ -403,9 +396,47 @@ SQL
     update_last_update('Relationship', patient['date_created'])
   end
 end
-populate_people # load person records into IDS
+
+def get_district_id(district)
+  Location.find_by(name: district)['location_id'].to_i
+end
+
+def populate_person_address
+  last_updated = get_last_updated('PersonAddress')
+
+  person_addresses = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.person_address WHERE updated_at >= '#{last_updated}' order by updated_at;
+SQL
+  person_addresses.each do |person_address|
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  # Need to add code to get elements from master definition table
+  # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    #grouped_address = categorize_address(person_address)
+    puts "Updating Person Address for person_id: #{person_address['person_id']}"
+
+
+    person_address_exist = PersonAddress.find_by(person_address_id: person_address['person_address_id'])
+
+    if person_address_exist.blank?
+      PersonAddress.create(person_id: person_address['person_id'],
+                           home_district_id: 1, home_traditional_authority_id: 1, home_village_id: 1,country_id: 1,
+                           current_district_id: 1, current_traditional_authority_id: 1, current_village_id: 1,country_id: 1,
+                           creator: person_address['creator'], landmark: person_address['landmark'],
+                           app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
+    else
+      person_address_exist.update( home_district_id: 1, home_traditional_authority_id: 1, home_village_id: 1,country_id: 1,
+                                   current_district_id: 1, current_traditional_authority_id: 1, current_village_id: 1,country_id: 1,
+                                   creator: person_address['creator'], landmark: person_address['landmark'],
+                                   app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
+    end
+    update_last_update('PersonAddress', person_address['updated_at'])
+  end
+
+end
+#populate_people # load person records into IDS
 #update_person_type
 # initiate_deduplication # initate deduplication on people
 # populate_contact_details # load contact details
 #populate_encounters
-populate_personnames
+#populate_personnames
+populate_person_address
