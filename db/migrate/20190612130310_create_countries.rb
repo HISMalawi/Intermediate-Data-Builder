@@ -7,9 +7,7 @@ class CreateCountries < ActiveRecord::Migration[5.2]
       t.boolean  :voided, null: false, default: 0
       t.integer  :voided_by
       t.integer  :void_reason
-
-      t.timestamps
-    end
-    change_column :countries, :country_id, :integer
-  end
+		end
+		change_column :countries, :country_id, :integer,  auto_increment: true
+	end
 end
