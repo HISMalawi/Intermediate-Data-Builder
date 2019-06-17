@@ -242,8 +242,10 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   end
 
   create_table "master_definitions", primary_key: "master_definition_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.string "definition"
-    t.string "description"
+    t.string "definition", null: false
+    t.text "description"
+    t.integer "openmrs_metadata_id", null: false
+    t.string "openmrs_entity_name", null: false
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -394,7 +396,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.integer "district_id", null: false
     t.integer "traditional_authority_id", null: false
     t.integer "village_id", null: false
-    t.integer "country_id", null: false
+    t.integer "country_id"
     t.bigint "creator", null: false
     t.string "landmark"
     t.boolean "ancestry", default: false, null: false
