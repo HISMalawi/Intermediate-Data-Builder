@@ -1,0 +1,1053 @@
+Chitipa District Hospital|North|Chitipa|-9.701590|33.265900
+Ifumbo Health Centre|North|Chitipa|-9.604360|33.404950
+Kameme Health Centre|North|Chitipa|-9.544250|33.131340
+Kapenda Health Centre|North|Chitipa|-9.493940|33.249110
+Misuku Health Centre|North|Chitipa|-9.679770|33.520760
+Nthalire Health Centre|North|Chitipa|-10.348940|33.643940
+Wenya Health Centre|North|Chitipa|-10.112860|33.563440
+Kaseye Mission Hospital|North|Chitipa|-9.666440|33.373610
+Chambo Health Centre|North|Chitipa|-9.943610|33.397950
+Msumbe Dispensary|North|Chitipa|-9.751230|33.675630
+Mpale Private Clinic|North|Chitipa|-10.186900|33.541680
+Banja La Mtsogolo Clinic|North|Chitipa|-9.701760|33.273350
+Karonga District Hospital|North|Karonga|-9.955450|33.911130
+Chilumba Rural Hospital|North|Karonga|-10.431990|34.251930
+Kaporo Rural Hospital|North|Karonga|-9.767560|33.874660
+Hara Health Centre|North|Karonga|-10.488760|34.169390
+Iponga Health Centre|North|Karonga|-9.646050|33.812530
+Kasoba Health Centre|North|Karonga|-9.873550|33.869720
+Lupembe Health Centre|North|Karonga|-10.066280|33.987780
+Lwezga Health Centre|North|Karonga|-10.566920|34.179430
+Mlare Health Centre|North|Karonga|-10.173000|34.035910
+Mpata Health Centre|North|Karonga|-9.960620|33.815250
+Ngana Health Centre|North|Karonga|-9.620210|33.698910
+Nyungwe Health Centre|North|Karonga|-10.285460|34.108510
+Wiliro Health Centre|North|Karonga|-9.893120|33.614040
+Fulirwa Health Centre|North|Karonga|-10.447720|34.112110
+Atupele Community Hospital|North|Karonga|-9.736820|33.837440
+Sangiro Health centre|North|Karonga|-10.516090|34.213460
+St. Anne's Health Centre|North|Karonga|-10.411840|34.211880
+Chiza Private Clinic, Dube, Wy|North|Karonga|-10.455340|34.209510
+Kwambukwa Private Clinic, Mbuk|North|Karonga|-9.940490|33.924230
+Maneno Private Clinic, Mhone,|North|Karonga|-9.940140|33.924360
+Care Private Clinic, Mphenzi,|North|Karonga|-9.939420|33.922970
+Timunyazge Clinic|North|Karonga|-10.211910|34.087430
+Karonga BLM|North|Karonga|-9.940270|33.924360
+Nkhata Bay District Hospital|North|Nkhata Bay|-11.601590|34.298720
+Chintcheche Rural Hospital|North|Nkhata Bay|-11.827190|34.168360
+Bula Health Centre|North|Nkhata Bay|-11.222680|34.123240
+Chesamu Health Centre|North|Nkhata Bay|-11.854220|34.018360
+Chikwina Health Centre|North|Nkhata Bay|-11.396940|34.169730
+Chisala Health Centre|North|Nkhata Bay|-11.574580|34.122010
+Chitheka Health Centre|North|Nkhata Bay|-11.701910|33.951470
+Kachere Health Centre|North|Nkhata Bay|-12.003270|34.049610
+Kande Health Centre|North|Nkhata Bay|-11.936410|34.109440
+Liuzi Health Centre|North|Nkhata Bay|-12.189710|34.015720
+Maula Health Centre|North|Nkhata Bay|-11.735180|34.235140
+Mpamba Health Centre|North|Nkhata Bay|-11.546970|34.197270
+Mzenga Health Centre|North|Nkhata Bay|-11.732490|34.074010
+Usisya Health Centre|North|Nkhata Bay|-11.239400|34.209410
+Khondowe|North|Nkhata Bay|-11.072810|34.219390
+Ruarwe Dispensary|North|Nkhata Bay|-11.113770|34.230930
+Nthungwa Health Centre|North|Nkhata Bay|-11.660140|33.800460
+Lwazi Health Centre|North|Nkhata Bay|-11.518640|34.151150
+Chilambwe Health Centre|North|Nkhata Bay|-11.691140|34.316170
+Vizara Dispensary|North|Nkhata Bay|-11.666560|34.261150
+Cumnock Private Clinic|North|Nkhata Bay|-11.527050|34.084820
+Nkhata Bay Private Clinic|North|Nkhata Bay|-11.606630|34.295490
+Raha Private Clinic|North|Nkhata Bay|-11.612280|34.268740
+Banja La Mstogolo (BLM) Nkhata|North|Nkhata Bay|-11.609070|34.298990
+Mwaya Clinic|North|Nkhata Bay|-11.976580|34.076030
+Kavuzi Clinic|North|Nkhata Bay|-11.674410|34.081660
+Kawalazi Estate Clinic|North|Nkhata Bay|-11.644060|34.109830
+Rumphi District Hospital|North|Rumphi|-11.019930|33.854220
+Tcharo Health Centre|North|Rumphi|-10.961930|34.222250
+Bolero Rural Hospital|North|Rumphi|-10.978430|33.743420
+Katowo Rural Hospital|North|Rumphi|-10.812780|33.522220
+Mhuju Rural Hospital|North|Rumphi|-10.866850|33.997650
+Chitimba Health Centre|North|Rumphi|-10.598080|34.170260
+Chisimuka Health Centre|North|Rumphi|-10.769240|33.557510
+Jalawe Health Centre|North|Rumphi|-10.730520|34.161720
+Lura Health Centre|North|Rumphi|-10.726380|34.044080
+Mphompha Health Centre|North|Rumphi|-11.006620|34.073050
+Mwazisi Health Centre|North|Rumphi|-10.943560|33.579200
+Mzokoto Health Centre|North|Rumphi|-10.907770|34.027350
+Ng'onga Health Centre|North|Rumphi|-10.939220|33.943480
+Chilinda|North|Rumphi|-10.591010|33.806050
+Zunga Health Post|North|Rumphi|-10.846280|34.212310
+Livingstonia Mission Hospital|North|Rumphi|-10.604670|34.110900
+Luwuchi Health Centre|North|Rumphi|-10.683530|34.193530
+Mlowe Health Centre|North|Rumphi|-10.764290|34.194880
+Nthenje Health Centre|North|Rumphi|-10.917880|33.987860
+St. Patricks Health Centre|North|Rumphi|-11.022970|33.873190
+Eva Demaya Private Clinic|North|Rumphi|-10.960020|33.648620
+Kasambala Private Clinic|North|Rumphi|-10.775930|34.039080
+Twisile Private Clinic, Nyondo|North|Rumphi|-10.977600|33.745980
+Wongani Private Clinic|North|Rumphi|-11.023790|33.854190
+Phwezi Private Clinic|North|Rumphi|-10.887620|34.044460
+Rumphi BLM|North|Rumphi|-11.022790|33.855230
+Mchenga Clinic|North|Rumphi|-10.699570|34.140360
+Mzuzu Cental Hospital|North|Mzimba|-11.427920|33.995500
+Mzimba District Hospital|North|Mzimba|-11.898050|33.584210
+Euthini Rural Hospital|North|Mzimba|-11.458360|33.419250
+Katete Community Hospital|North|Mzimba|-12.345920|33.614210
+Bulala Health Centre|North|Mzimba|-11.678100|33.447980
+Bwengu Health Centre|North|Mzimba|-11.063560|33.916460
+Chikangawa Health Centre|North|Mzimba|-11.843620|33.787590
+Choma Health Centre|North|Mzimba|-11.313180|33.993270
+Edingeni Health Centre|North|Mzimba|-12.040720|33.312950
+Emfeni Health Centre|North|Mzimba|-12.594060|33.609760
+Emsizini Health Centre|North|Mzimba|-11.444350|33.824850
+Endindeni Health Centre|North|Mzimba|-11.758180|33.556100
+Engucwini Health Centre|North|Mzimba|-11.197610|33.823140
+Enukweni Health Centre|North|Mzimba|-11.180050|33.885920
+Hoho Health Centre|North|Mzimba|-12.278150|33.686400
+Jenda Health Centre|North|Mzimba|-12.352060|33.547550
+Kabuwa Health Centre|North|Mzimba|-12.517260|34.073950
+Kabwafu Health Centre|North|Mzimba|-11.308690|33.525560
+Kafukule Health Centre|North|Mzimba|-11.457500|33.633950
+Kamteteka Health Centre|North|Mzimba|-11.836490|33.358920
+Kamwe Health Centre|North|Mzimba|-11.102650|33.789110
+Khosolo Health Centre|North|Mzimba|-12.440200|33.791330
+Nkhuyukuyu Health Centre|North|Mzimba|-11.221830|33.914610
+Luvwere Health Centre|North|Mzimba|-11.389210|33.672900
+Luwawa Health Centre|North|Mzimba|-12.113370|33.719430
+Luwelezi Health Centre|North|Mzimba|-12.488250|33.641190
+Luzi Health Centre|North|Mzimba|-10.996810|33.955830
+Madede Health Centre|North|Mzimba|-11.538940|33.294560
+Malidade Health Centre|North|Mzimba|-11.229260|33.499890
+Manyamula Health Centre|North|Mzimba|-11.940050|33.439450
+Matuli Health Centre|North|Mzimba|-11.485130|33.896130
+Mbalachanda Health Centre|North|Mzimba|-11.357380|33.371330
+Mkoma Health Centre|North|Mzimba|-12.612350|33.782400
+Mpherembe Health Centre|North|Mzimba|-11.288060|33.614310
+Msese Health Centre|North|Mzimba|-12.359510|33.740020
+Mtende Health Centre|North|Mzimba|-11.497240|33.548940
+Mtwalo Health Centre|North|Mzimba|-11.396710|33.745910
+Mzalangwe Health Centre|North|Mzimba|-11.612280|33.565100
+Mzuzu Health Centre|North|Mzimba|-11.461380|34.015180
+Njuyu Health Centre|North|Mzimba|-11.524550|33.699530
+Thunduwike Health Centre|North|Mzimba|-11.176650|33.576360
+Ehehieni  Dispensary|North|Mzimba|-12.262100|33.589120
+Ekwaiweni Dispensary|North|Mzimba|-11.423090|33.897660
+Lusangazi Dispensary|North|Mzimba|-11.499790|33.942910
+Vibangalala Dispensary|North|Mzimba|-12.234330|33.486190
+Escom, Mzuzu|North|Mzimba|-11.462870|34.022750
+Mzuzu Central Prison|North|Mzimba|-11.464740|34.019910
+Zolozolo Health Post|North|Mzimba|-11.435700|34.023940
+Embangweni Mission Hospital|North|Mzimba|-12.136650|33.476810
+Mzambazi Community Hospital|North|Mzimba|-11.427640|33.450310
+Ekwendeni Mission Hospital|North|Mzimba|-11.371560|33.883420
+St. Johns Hospital|North|Mzimba|-11.451610|34.028060
+St. John of God Mental Hospita|North|Mzimba|-11.455710|34.013810
+Kalikumbi Health Centre|North|Mzimba|-12.203800|33.333520
+Lunjika Health Centre|North|Mzimba|-11.714510|33.685800
+Mabiri Health Centre|North|Mzimba|-12.246240|33.430000
+Mhalaunda Health Centre|North|Mzimba|-12.051180|33.466560
+Nkhorongo Health Centre|North|Mzimba|-11.390100|33.985140
+Mary Mount Clinic|North|Mzimba|-11.442620|34.035820
+WAFC Private Clinic, Banda, Be|North|Mzimba|-12.354580|33.552840
+Dr Musachi's Surgery|North|Mzimba|-11.457710|34.017140
+Kaswavipindi private Clinic|North|Mzimba|-11.900570|33.594650
+Masm Medi Clinic Katoto|North|Mzimba|-11.471110|33.995350
+Chibanja Private Clinic, Mtika|North|Mzimba|-11.451080|34.011780
+Mumbwe Medical Centre|North|Mzimba|-11.461150|34.025990
+Vitumbiko Private Clinic|North|Mzimba|-11.469860|34.069290
+Care Medical Centre, Mtambo, M|North|Mzimba|-11.460360|34.006960
+Macro Mzuzu|North|Mzimba|-11.464900|34.004390
+Mzimba BLM|North|Mzimba|-11.898820|33.594020
+Mzuzu BLM|North|Mzimba|-11.456120|34.016380
+Raiply Clinic|North|Mzimba|-11.916440|33.755980
+St Mary's / Chizumulu Health C|North|Likoma|-12.029340|34.624250
+Likoma/St Peters|North|Likoma|-12.064800|34.736570
+Kasungu District Hospital|Central|Kasungu|-13.035790|33.480410
+Kaluluma Rural Hospital|Central|Kasungu|-12.577590|33.518590
+Bua Health Centre|Central|Kasungu|-13.294030|33.538590
+Chamama Health Centre|Central|Kasungu|-12.924306|33.776861
+Chamwabvi Health Centre|Central|Kasungu|-13.107570|33.685280
+Chulu Health Centre|Central|Kasungu|-12.821920|33.308160
+Kamboni Health Centre|Central|Kasungu|-13.307590|33.181890
+Kapelula Health Centre|Central|Kasungu|-12.877670|33.870860
+Kasalika Health Centre|Central|Kasungu|-13.039850|33.498660
+Kawamba Health Centre|Central|Kasungu|-13.295750|33.339300
+Khola Health Centre|Central|Kasungu|-13.344470|33.316490
+Linyangwa Health Centre|Central|Kasungu|-13.143790|33.300500
+Lodjwa Health Centre|Central|Kasungu|-12.418980|33.529470
+Mdunga Health Centre|Central|Kasungu|-12.993100|33.851900
+Mkhota Health Centre|Central|Kasungu|-13.566510|33.343480
+Mpasazi Health Centre|Central|Kasungu|-12.583194|33.381861
+Mtunthama Health Centre|Central|Kasungu|-13.031450|33.682090
+Ntepa Health Centre|Central|Kasungu|-12.622020|33.326810
+Ofesi Health Centre|Central|Kasungu|-12.779390|33.549040
+Santhe Health Centre|Central|Kasungu|-13.467120|33.393780
+Simlemba Health Centre|Central|Kasungu|-12.740810|33.676400
+Thupa Health Centre|Central|Kasungu|-12.682667|33.393528
+Wimbe Health Centre|Central|Kasungu|-12.991260|33.686940
+Chisinga Dispensary|Central|Kasungu|-12.622028|33.326917
+Dwangwa Dispensary|Central|Kasungu|-12.881420|33.453700
+Gogode Dispensary|Central|Kasungu|-12.887730|33.561340
+Lifupa Dispensary|Central|Kasungu|-13.048889|33.146944
+Kapyanga Health Post|Central|Kasungu|-12.823840|33.788420
+Nkhamenya Hospital|Central|Kasungu|-12.566060|33.500980
+KTFT/Mziza Health Centre|Central|Kasungu|-13.279410|33.504050
+Newa Health Centre|Central|Kasungu|-12.583330|33.381740
+St. Andrews Health Centre|Central|Kasungu|-13.032630|33.671140
+St. Faith Anglican Clinic|Central|Kasungu|-12.928860|33.795200
+Kasalika Private Clinic, Chimb|Central|Kasungu|-13.035220|33.499270
+Titani Private Clinic, Chimpha|Central|Kasungu|-12.984910|33.694370
+Yankho Private Clinic|Central|Kasungu|-13.040440|33.481110
+Chimwemwe Private Clinic|Central|Kasungu|-12.567170|33.511490
+Mbalunji Private Clinic, Dhlam|Central|Kasungu|-12.814060|33.433900
+Gogo Leya Private Clinic|Central|Kasungu|-12.700320|33.488990
+Kalikene Private Clinic|Central|Kasungu|-13.038900|33.481380
+Chipulumutso Private Clinic, K|Central|Kasungu|-13.301010|33.528060
+St. Mark Private Clinic, Magom|Central|Kasungu|-13.043120|33.480490
+Chikumbutso Private Clinic, Ng|Central|Kasungu|-13.065160|33.434820
+Nkuriza, Stanilas, Inernos Pri|Central|Kasungu|-12.927410|33.796280
+Phanga, Chimongo J. Prince Hen|Central|Kasungu|-13.211630|33.503020
+Phiri, Harold K. S. Chisomo Pr|Central|Kasungu|-13.437900|33.384160
+Veruwa, Flyven P. Mphatso Zath|Central|Kasungu|-13.067500|33.482970
+Kasungu BLM|Central|Kasungu|-13.043090|33.478580
+Kamuzu Academy Clinic|Central|Kasungu|-13.029380|33.688430
+Nkhotakota District Hospital|Central|Nkhotakota|-12.925080|34.279390
+Dwambazi Rural Hospital|Central|Nkhotakota|-12.234050|33.991940
+Benga Health Centre|Central|Nkhotakota|-13.368460|34.274040
+Bua Health Centre|Central|Nkhotakota|-12.796700|34.209710
+Katimbira Health Centre|Central|Nkhotakota|-12.756940|34.217370
+Malowa Health Centre|Central|Nkhotakota|-13.181600|34.251650
+Mpamantha Health Centre|Central|Nkhotakota|-13.069260|34.252240
+Msenjere Health Centre|Central|Nkhotakota|-12.732480|34.170620
+Mtosa Health Centre|Central|Nkhotakota|-13.438760|34.273650
+Mwansambo Health Centre|Central|Nkhotakota|-13.306980|34.118770
+Ngala Health Centre|Central|Nkhotakota|-12.365290|34.065520
+Nkhunga Health Centre|Central|Nkhotakota|-12.480230|34.108420
+Kaongozi Dispensary|Central|Nkhotakota|-12.436650|34.049980
+Alinafe Community Hospital|Central|Nkhotakota|-13.387890|34.242920
+St. Annes Hospital|Central|Nkhotakota|-12.927470|34.295540
+Chididi Health Centre|Central|Nkhotakota|-13.085730|34.314740
+Kapili Health Centre|Central|Nkhotakota|-13.216160|34.311360
+Kasitu Health Centre|Central|Nkhotakota|-12.309380|34.034300
+Liwaladzi Health Centre|Central|Nkhotakota|-12.620540|34.165380
+Kamanga, Lester P, Hossana Pri|Central|Nkhotakota|-12.928610|34.283050
+Mkoko, Arthur B, Chisomo Priva|Central|Nkhotakota|-12.505880|34.112340
+Nyamvuu Clinic|Central|Nkhotakota|-12.479120|34.136040
+Ukasi Clinic|Central|Nkhotakota|-12.529260|34.163370
+Dwangwa BLM|Central|Nkhotakota|-12.509750|34.112100
+NASO (Nkhotakota Aids Support|Central|Nkhotakota|-12.927390|34.284650
+Nkhotakota BLM|Central|Nkhotakota|-12.924290|34.283460
+World Medical Fund|Central|Nkhotakota|-12.915360|34.283380
+Matiki Health Centre|Central|Nkhotakota|-12.498740|34.154640
+Dwangwa Cane Grower Ltd Clinic|Central|Nkhotakota|-12.521140|34.119100
+Central 3 Clinic|Central|Nkhotakota|-12.503300|34.130800
+Ntchisi District Hospital|Central|Ntchisi|-13.363450|33.910610
+Chinguluwe Health Centre|Central|Ntchisi|-13.261660|33.868510
+Kamsonga Health Centre|Central|Ntchisi|-13.274110|33.799490
+Kangolwa Health centre|Central|Ntchisi|-13.370460|34.070480
+Khuwi Health Centre|Central|Ntchisi|-13.431920|33.833670
+Malomo Health Centre|Central|Ntchisi|-13.148610|33.839270
+Mkhuzi Health Centre|Central|Ntchisi|-13.366460|33.776620
+Mndinda Health Centre|Central|Ntchisi|-13.247400|34.056750
+Mzandu Health Centre|Central|Ntchisi|-13.489160|34.027380
+Nthondo Health Centre|Central|Ntchisi|-13.247230|34.006990
+Chinthembwe Health Centre|Central|Ntchisi|-13.433260|33.975270
+Malambo Health Centre|Central|Ntchisi|-13.213070|33.762440
+Asimec Clinic|Central|Ntchisi|-13.358700|33.916190
+Fancy Private Clinic|Central|Ntchisi|-13.353250|33.919100
+Dowa District Hospital|Central|Dowa|-13.654320|33.936250
+Mponela Rural Hospital|Central|Dowa|-13.532640|33.737130
+Bowe Health Centre|Central|Dowa|-13.278780|33.683920
+Chakhaza Health Centre|Central|Dowa|-13.444210|33.646760
+Chankhungu Health Centre|Central|Dowa|-13.764920|34.014710
+Chinkhwiri Health Centre|Central|Dowa|-13.385570|33.721060
+Chisepo Health Centre|Central|Dowa|-13.634920|33.470170
+Chizolowondo Health Centre|Central|Dowa|-13.463360|33.513280
+Dzaleka Health Centre|Central|Dowa|-13.661680|33.870420
+Dzoole Health Centre|Central|Dowa|-13.585370|33.661560
+Kayembe Health Centre|Central|Dowa|-13.642560|33.583010
+Mbingwa Health Centre|Central|Dowa|-13.544250|33.514850
+Msakambewa Health Centre|Central|Dowa|-13.552960|33.897190
+Mvera Army Health Centre|Central|Dowa|-13.779630|34.139800
+Mwangala Health Centre|Central|Dowa|-13.487440|33.923400
+Nalunga Health Centre|Central|Dowa|-13.643780|34.056700
+Thonje Health Centre|Central|Dowa|-13.726240|34.237250
+Madisi Mission Hospital|Central|Dowa|-13.407120|33.608130
+Mthengathenga Hospital|Central|Dowa|-13.671650|33.776230
+Mvera Mission Health Centre|Central|Dowa|-13.736730|34.128760
+St. Mary's Rehabilitation Heal|Central|Dowa|-13.725200|34.037070
+Kasese/Lifeline Malawi Health|Central|Dowa|-13.333380|33.576290
+Dalitso Private Clinic|Central|Dowa|-13.422370|33.609320
+Kanyika, Mwakalinga M. Alinafe|Central|Dowa|-13.548490|33.742100
+Mamoyo Private Clinic|Central|Dowa|-13.535320|33.739790
+Towoo's Private Clinic|Central|Dowa|-13.705790|33.601860
+MBA-Esita Private Clinic|Central|Dowa|-13.282820|33.689940
+BLM Mponela Clinic|Central|Dowa|-13.531970|33.738020
+Family Planning Association of|Central|Dowa|-13.658340|33.932890
+Salima District Hospital|Central|Salima|-13.762140|34.421990
+Chagunda Health Centre|Central|Salima|-13.880280|34.367210
+Chinguluwe Health Centre|Central|Salima|-13.664540|34.385030
+Chipoka Health Centre|Central|Salima|-13.989730|34.515450
+Khombedza Health Centre|Central|Salima|-13.596950|34.311110
+Lifuwu Health Centre|Central|Salima|-13.679150|34.588780
+MAFCO|Central|Salima|-13.784190|34.603380
+Maganga Health Centre|Central|Salima|-13.846810|34.559100
+Makioni Health Centre|Central|Salima|-13.585990|34.197000
+Mchoka Health Centre|Central|Salima|-13.925930|34.489840
+Parachute Battalion|Central|Salima|-13.743140|34.588260
+Admarc|Central|Salima|-13.787000|34.462350
+Baptist Medical Clinic|Central|Salima|-13.738870|34.597490
+Chitala Health Centre|Central|Salima|-13.671610|34.271740
+Kaphatenga Health Centre|Central|Salima|-13.762220|34.384180
+Ngodzi Health Centre|Central|Salima|-14.089260|34.508960
+Thavite Health Centre|Central|Salima|-13.498000|34.261220
+Asante Private Clinic|Central|Salima|-13.770650|34.441740
+Bliss Private Clinic|Central|Salima|-13.789290|34.462060
+Katemela Clinic|Central|Salima|-13.784930|34.458880
+Madalitso Private Clinic|Central|Salima|-13.784140|34.454090
+Matabwa, Tengani L. Tadfa Priv|Central|Salima|-13.728620|34.615360
+M & M Medical and Dental Clini|Central|Salima|-13.770240|34.437950
+Muchila Private Clinic|Central|Salima|-13.777740|34.438030
+Lifeline Health Centre|Central|Salima|-14.092190|34.544370
+Katawa Clinic|Central|Salima|-13.713140|34.318010
+Ndimoyo Palliative Trust Clini|Central|Salima|-13.782740|34.458880
+Salima AIDS Support Organisati|Central|Salima|-13.771650|34.440550
+Salima BLM|Central|Salima|-13.770420|34.437920
+Salima Admarc Dispensary|Central|Salima|-13.786230|34.462430
+Kamuzu Central Hospital|Central|Lilongwe|-13.976390|33.785120
+Kabudula Rural Hospital|Central|Lilongwe|-13.819720|33.448380
+Mitundu Community Hospital|Central|Lilongwe|-14.247760|33.774650
+Kamuzu Barracks Hospital|Central|Lilongwe|-13.981310|33.821050
+Area 18 Health Centre|Central|Lilongwe|-13.941310|33.780510
+Area 25 Health centre|Central|Lilongwe|-13.892720|33.774650
+Chadza Health Centre|Central|Lilongwe|-14.147150|33.841670
+Chikowa Health Centre|Central|Lilongwe|-13.729290|33.458210
+Chileka Health Centre|Central|Lilongwe|-14.021020|33.385440
+Chilobwe/Majiga Health Centre|Central|Lilongwe|-13.854670|33.374390
+Chimbalanga Health Centre|Central|Lilongwe|-13.935800|34.125670
+Chitedze Health Centre|Central|Lilongwe|-13.976840|33.645290
+Chiunjiza Health Centre|Central|Lilongwe|-14.243220|33.401300
+Chiwamba Health Centre|Central|Lilongwe|-13.857100|33.929260
+Diamphwe Health Centre|Central|Lilongwe|-14.132320|34.081240
+Dickson Health Centre|Central|Lilongwe|-14.266260|33.658850
+Kang'oma Health Centre|Central|Lilongwe|-13.978170|33.882190
+Katchale Health Centre|Central|Lilongwe|-14.283600|33.907820
+Kawale Health Centre|Central|Lilongwe|-13.991750|33.797570
+Khongoni Health Centre|Central|Lilongwe|-13.774510|33.367610
+Lumbadzi Health Centre|Central|Lilongwe|-13.770740|33.804770
+Maluwa Health Centre|Central|Lilongwe|-14.262870|33.873640
+Matapila Health Centre|Central|Lilongwe|-14.011080|33.975090
+Mbabvi Health Centre|Central|Lilongwe|-13.928080|33.670870
+Mbang'ombe 2 Health Centre|Central|Lilongwe|-14.169450|33.379420
+Mbangombe Health Centre 1|Central|Lilongwe|-13.736730|33.713820
+Ming'ong'o Health Centre|Central|Lilongwe|-14.074790|33.448380
+Mtenthela Health Centre|Central|Lilongwe|-14.108840|34.005670
+Nathenje Health Centre|Central|Lilongwe|-14.085040|33.908230
+Ndaula Health Centre|Central|Lilongwe|-14.138500|33.507570
+Ngoni Health Centre|Central|Lilongwe|-13.775090|33.640180
+Nsalu Health centre|Central|Lilongwe|-13.885500|33.504300
+Nthondo Health centre|Central|Lilongwe|-14.031530|33.448490
+Ukwe Health Centre|Central|Lilongwe|-13.825860|33.601290
+Bwaila Hospital|Central|Lilongwe|-13.991640|33.775610
+City Assembly Health|Central|Lilongwe|-13.989310|33.770820
+David Livingstone Memorial Cli|Central|Lilongwe|-13.981730|33.788130
+Lilongwe City Assembly Chinsap|Central|Lilongwe|-14.013310|33.731710
+Lilongwe City Assembly Staff C|Central|Lilongwe|-13.989720|33.770490
+Dzalanyama/Kapombeza|Central|Lilongwe|-14.249360|33.444690
+Nkhoma Mission Hospital|Central|Lilongwe|-14.043890|34.103600
+Chiwe Health Centre|Central|Lilongwe|-13.907380|33.398620
+Nambuma Health Centre|Central|Lilongwe|-13.724090|33.557890
+Daeyang Luke Hospital|Central|Lilongwe|-13.876840|33.808670
+Likuni Mission Hospital|Central|Lilongwe|-14.026830|33.708860
+Mlale Mission Hospital|Central|Lilongwe|-14.230110|33.756580
+St. Gabriel Mission Hospital|Central|Lilongwe|-13.984180|33.351280
+Dzenza Health Centre|Central|Lilongwe|-13.875980|33.746890
+Malembo Health Centre|Central|Lilongwe|-13.620060|33.415070
+Malingunde Health Centre|Central|Lilongwe|-14.168870|33.639700
+Mbwatalika Health Centre|Central|Lilongwe|-14.003870|33.550700
+Area 24 Private Clinic|Central|Lilongwe|-14.020500|33.799670
+Banda, Boniface An. N., Maziko|Central|Lilongwe|-14.005070|33.816290
+Boulos, Maher Eskander. Amoun|Central|Lilongwe|-13.988210|33.769290
+CCK Health Clinic|Central|Lilongwe|-13.983020|33.752330
+Chete, Tenace D B. Chagogo Pri|Central|Lilongwe|-14.072770|33.831950
+Chilewani, Billy B. K. Gift of|Central|Lilongwe|-13.907290|33.750610
+Chigomezgo Private Clinic|Central|Lilongwe|-13.880300|33.760180
+Chilinde Health Services|Central|Lilongwe|-13.995870|33.810260
+Chimango, Amon B. Ali Private|Central|Lilongwe|-13.783260|33.815860
+Chimwala Clinic|Central|Lilongwe|-14.051210|33.794190
+Chirwa, Patrick W. Lilongwe  P|Central|Lilongwe|-13.938770|33.792100
+Chonde, Numeri G. Malakia Priv|Central|Lilongwe|-13.994550|33.809080
+City Centre Clinic|Central|Lilongwe|-13.956660|33.783900
+Discovery Medi Clinic|Central|Lilongwe|-13.958180|33.791590
+Dopa Private Clinic|Central|Lilongwe|-13.886470|33.757120
+Dr AQA Ghumra|Central|Lilongwe|-13.989070|33.774120
+Dr G M Lorgat|Central|Lilongwe|-13.990490|33.776380
+Family Health Private Clinic|Central|Lilongwe|-13.986520|33.798070
+Gama, Samuel, Kachi Private Cl|Central|Lilongwe|-13.942670|33.778070
+Gika Private Clinic|Central|Lilongwe|-13.896500|33.764350
+Gobede, Kalimanjira J. Chizika|Central|Lilongwe|-14.135880|33.945540
+Gwaza, George R. Good Hope pri|Central|Lilongwe|-14.006560|33.764530
+Hiwa, Snowden S. S S H Clinic|Central|Lilongwe|-13.973450|33.773280
+Howa, David A C. Area 36 Priva|Central|Lilongwe|-14.018250|33.779060
+Kabota, Nathaniel S. Mt. Nkhom|Central|Lilongwe|-13.875670|33.754770
+Kachepa, Stephen J. Kama Priva|Central|Lilongwe|-14.009130|33.816870
+Kachere Clinic|Central|Lilongwe|-14.005110|33.817340
+Kafodya, Charles M. Mpumulo Pr|Central|Lilongwe|-14.015400|33.783890
+Kamalizeni, Joe N. Tachira Pri|Central|Lilongwe|-14.019160|33.728490
+Kamatenda Private Clinic|Central|Lilongwe|-14.007520|33.822030
+Kambiya, Paulino A M. Demera P|Central|Lilongwe|-13.824330|33.446620
+Kamiza, Mary Z. Kim's Medical|Central|Lilongwe|-13.990030|33.773820
+Kasmani, Mohamed I M. Hasani M|Central|Lilongwe|-13.976680|33.751300
+Kawale Medical Services|Central|Lilongwe|-13.990340|33.797170
+Lingadzi Private Clinic, Kayam|Central|Lilongwe|-13.973840|33.760030
+Khama Private Clinic|Central|Lilongwe|-14.009160|33.816860
+Kharodia, Ahmed I.|Central|Lilongwe|-13.989240|33.777410
+Malola, Lemson F. Umoyo Privat|Central|Lilongwe|-14.000770|33.783370
+Manjolo, Khamalake F, Feroz Me|Central|Lilongwe|-13.992520|33.772000
+Masida Private|Central|Lilongwe|-13.994770|33.810850
+Masm Medi Clinic Lilongwe (Are|Central|Lilongwe|-13.931900|33.810070
+Medical Aid Society of Malawi|Central|Lilongwe|-13.964710|33.777710
+Mkhaya, Anakalet A. Mphatso Pr|Central|Lilongwe|-14.038770|33.710630
+Mlolera Womens Clinic|Central|Lilongwe|-13.951020|33.767030
+Muriya, Nemezio. Chifundo Priv|Central|Lilongwe|-13.981050|33.802230
+Mwale, Charles M C. Yankho Pri|Central|Lilongwe|-14.250070|33.776700
+Mwenyekonde, Elled. Seventh Ce|Central|Lilongwe|-14.007750|33.817260
+Nkhalango Clinic|Central|Lilongwe|-14.012910|33.704830
+Nyangulu, Daniel S.|Central|Lilongwe|-14.007170|33.784190
+Sendezera, Michael J. Tendai P|Central|Lilongwe|-13.772510|33.813450
+SOS Medical Centre|Central|Lilongwe|-14.019760|33.792750
+The Clinic|Central|Lilongwe|-13.984950|33.764150
+Westcliff Clinic|Central|Lilongwe|-14.007680|33.810130
+Blessings Hospital|Central|Lilongwe|-13.790990|33.817070
+Mlodza/Seventh Day|Central|Lilongwe|-14.007222|33.817500
+ABC Comm. Hospital|Central|Lilongwe|-13.968160|33.741290
+Adventist Health Centre Area 1|Central|Lilongwe|-13.954730|33.779300
+Area 25 BLM|Central|Lilongwe|-13.894880|33.762060
+BLM Kawale 1 Clinic|Central|Lilongwe|-13.991500|33.795140
+BLM Falls Estate Clinic|Central|Lilongwe|-13.996460|33.778970
+FPAM Clinic|Central|Lilongwe|-13.990760|33.799490
+Partners In Hope Clinic Moyo C|Central|Lilongwe|-14.023410|33.787830
+Mchinji District Hospital|Central|Mchinji|-13.802730|32.887160
+Kochilira Rural Hospital|Central|Mchinji|-13.782390|33.043850
+Chiosya Health Centre|Central|Mchinji|-13.795860|33.175340
+Chipumi Health Centre|Central|Mchinji|-13.625190|33.081510
+Kaigwazanga Health Centre|Central|Mchinji|-13.626780|32.928360
+Kapanga Health Centre|Central|Mchinji|-14.059970|33.306260
+Mikundi Health Centre|Central|Mchinji|-13.707510|33.138210
+Mkanda Health Centre|Central|Mchinji|-13.514600|32.960850
+Nkhwazi Health Centre|Central|Mchinji|-13.923690|33.226720
+Tembwe Health Centre|Central|Mchinji|-13.901130|33.062260
+Namizana Clinic|Central|Mchinji|-14.001950|33.246300
+Chimwankango Health Post|Central|Mchinji|-13.404610|32.993570
+Gumba Health Post|Central|Mchinji|-13.421250|33.111370
+Kazyozyo Health Post|Central|Mchinji|-13.575440|32.863870
+Our Lady of Mount Carmel Rural|Central|Mchinji|-13.561990|33.173690
+St. Joseph  Community Hospital|Central|Mchinji|-13.758620|32.992710
+St. Michael-Guillime|Central|Mchinji|-13.889980|33.075570
+Alinafe Private Clinic|Central|Mchinji|-13.830690|33.041170
+Chabuka Private Clinic|Central|Mchinji|-13.517750|32.958930
+Chitete, Alex . St. Alex Priva|Central|Mchinji|-13.544790|33.175790
+BLM Mchinji Clinic|Central|Mchinji|-13.795080|32.892210
+Dedza District Hospital|Central|Dedza|-14.385960|34.335470
+Chikuse Health Centre|Central|Dedza|-14.150690|34.318810
+Chimoto Health Centre|Central|Dedza|-14.442680|34.010210
+Chitowo Health Centre|Central|Dedza|-14.225840|34.039610
+Dzindevu Health Centre|Central|Dedza|-14.200040|34.359980
+Golomoti Health Centre|Central|Dedza|-14.413030|34.600920
+Kafere Health Centre|Central|Dedza|-14.431680|33.717460
+Kalulu Health Centre|Central|Dedza|-13.996950|34.197530
+Kanyezi Health Centre|Central|Dedza|-14.313910|33.953030
+Kaphuka Health Centre|Central|Dedza|-14.160130|34.190010
+Lobi Health Centre|Central|Dedza|-14.390340|34.071820
+Maonde Health Centre|Central|Dedza|-14.405700|34.115920
+Mayani Health Centre|Central|Dedza|-14.096970|34.242810
+Mganja Health Centre|Central|Dedza|-14.420480|34.523050
+Mlangali Health Centre|Central|Dedza|-14.413220|34.272740
+Mphathi Health Centre|Central|Dedza|-14.455160|34.076830
+Mtakataka Health Centre|Central|Dedza|-14.227450|34.514740
+Chongoni College of Forestry D|Central|Dedza|-14.319710|34.266770
+Kaname/Mdeza Dispensary|Central|Dedza|-14.235170|33.967700
+Mjini Dispensary|Central|Dedza|-14.044570|34.238670
+Ntakataka Police Dispensary|Central|Dedza|-14.225810|34.511190
+Tsoyo Dispensary|Central|Dedza|-14.080980|34.161380
+Mua Rural Hospital|Central|Dedza|-14.283070|34.509720
+Bembeke Health Centre|Central|Dedza|-14.358250|34.424320
+Kanyama Health Centre|Central|Dedza|-14.240150|34.323560
+Kasina Health Centre|Central|Dedza|-14.143000|34.131830
+Kaundu Health Centre|Central|Dedza|-14.293680|34.628390
+Matumba Health Centre|Central|Dedza|-14.372830|33.905940
+Mikondo Health Centre|Central|Dedza|-14.447670|33.939510
+Mphunzi Health Centre|Central|Dedza|-14.379330|34.175390
+Mtendere Health Centre|Central|Dedza|-14.322710|34.093730
+Nakalanzi Health Centre|Central|Dedza|-14.202330|34.548190
+Chiphwanya Health Centre (St.|Central|Dedza|-14.075470|34.253600
+Tiyese Maternity Clinic|Central|Dedza|-14.296130|34.162950
+Bowa, Labarson B. Kapiri Priva|Central|Dedza|-14.310200|34.655810
+Chizimba, Richard M. Vizimba P|Central|Dedza|-14.376570|34.333030
+Phuma, Damiano A. F. Tanyaze P|Central|Dedza|-14.307780|34.081230
+Dedza BLM|Central|Dedza|-14.376250|34.330350
+Ntcheu District Hospital|Central|Ntcheu|-14.816980|34.638230
+Bilila Health Centre|Central|Ntcheu|-14.824890|34.851340
+Biliwiri Health Cnetre|Central|Ntcheu|-14.817000|34.638306
+Bwanje Health Centre|Central|Ntcheu|-14.648570|34.774450
+Champiti Health Centre|Central|Ntcheu|-14.902410|34.731850
+Chikande Health Centre|Central|Ntcheu|-14.772610|34.907680
+Doviko Health Centre|Central|Ntcheu|-15.082200|34.590940
+Dzunje Health Centre|Central|Ntcheu|-14.807870|34.736080
+Kampanje Health Centre|Central|Ntcheu|-14.599470|34.586840
+Kandeu Health Centre|Central|Ntcheu|-14.602620|34.616210
+Kapeni Health Centre|Central|Ntcheu|-15.005110|34.770590
+Kasinje Health Centre|Central|Ntcheu|-14.523150|34.676420
+Katsekera Health Centre|Central|Ntcheu|-15.033360|34.640720
+Lizulu Health Centre|Central|Ntcheu|-14.517750|34.465470
+Manjawira Health Centre|Central|Ntcheu|-15.002540|34.857090
+Mlangeni Health Centre|Central|Ntcheu|-14.676620|34.536720
+Nsiyaludzu Health Centre|Central|Ntcheu|-14.936480|34.874250
+Kaloga Maternity|Central|Ntcheu|-14.907060|34.580440
+Dzonzi Mvai Dispensary|Central|Ntcheu|-14.948270|34.643060
+Masasa Dispensary|Central|Ntcheu|-14.433400|34.422430
+Mphepozinayi Dispensary|Central|Ntcheu|-14.735860|34.661150
+Namisu Dispensary|Central|Ntcheu|-15.083520|34.781380
+Phanga Dispensary|Central|Ntcheu|-14.344980|34.720160
+Likudzi U5 Clinic Health Post|Central|Ntcheu|-15.110150|34.829450
+Machereza Health Post|Central|Ntcheu|-15.206650|34.847610
+Sr. Tereza Rural Hospital|Central|Ntcheu|-14.999020|34.828150
+Chigodi Health Centre|Central|Ntcheu|-14.491940|34.541260
+Ganya Health Centre|Central|Ntcheu|-14.609640|34.618080
+Gowa Health Centre|Central|Ntcheu|-14.699060|34.590010
+Lake View Health Centre|Central|Ntcheu|-14.642510|34.553710
+Matanda Health Centre|Central|Ntcheu|-15.105160|34.668450
+Mlanda Health Centre|Central|Ntcheu|-14.478860|34.459880
+Mtonda Health Centre|Central|Ntcheu|-15.020000|34.751440
+Mzama Health Centre|Central|Ntcheu|-14.893750|34.585970
+Nsipe Health Centre|Central|Ntcheu|-14.864340|34.752330
+Senzani Health Centre|Central|Ntcheu|-15.078650|34.857830
+Sharpe Valley Health Centre|Central|Ntcheu|-14.611030|34.736900
+Tsangano Health Centre|Central|Ntcheu|-15.174010|34.611170
+Mluma Dispensary|Central|Ntcheu|-14.718940|34.635500
+Chiole Clinic|Central|Ntcheu|-14.797430|34.642650
+Chiwambo, Kinwell JBT Kanandi|Central|Ntcheu|-14.777200|34.569240
+Lipande, MacDonald. Tachira Bi|Central|Ntcheu|-14.651060|34.556600
+Pasulani, Emerson E. Chilitsen|Central|Ntcheu|-14.815170|34.643740
+Phalira, Hudson J. Machanza Pr|Central|Ntcheu|-14.650350|34.560740
+Solomon Village Clinic|Central|Ntcheu|-14.708210|34.870770
+BLM Ntcheu Clinic|Central|Ntcheu|-14.813940|34.635120
+Ntcheu FPAM Clinic|Central|Ntcheu|-14.809350|34.625610
+Mangochi District Hospital|South|Mangochi|-14.481910|35.265270
+Monkeybay Community Hospital|South|Mangochi|-14.084680|34.911040
+Namwera Health Centre|South|Mangochi|-14.363700|35.502210
+Chikole Dispensary|South|Mangochi|-14.422000|35.384270
+Chilipa Health Centre|South|Mangochi|-14.699600|34.973200
+Chilonga Health care|South|Mangochi|-14.466840|34.870970
+Chiumbangame Health Centre|South|Mangochi|-14.317390|35.557210
+Jalasi Health Centre|South|Mangochi|-14.362980|35.442530
+Katuli Health Centre|South|Mangochi|-14.179620|35.444760
+Lungwena Health Centre|South|Mangochi|-14.245010|35.248040
+Makanjira Health Centre|South|Mangochi|-13.715910|35.047040
+Malukula Health Centre|South|Mangochi|-14.443620|35.355820
+Mkumba Health Centre|South|Mangochi|-14.594600|35.525170
+Mtimabi Health Centre|South|Mangochi|-14.611110|35.082730
+Nancholi Dispensary|South|Mangochi|-14.478030|35.586670
+Nangalamu Health Centre|South|Mangochi|-14.481480|35.672880
+Nankumba Health Centre|South|Mangochi|-14.365210|34.823610
+Nyangu Health Centre|South|Mangochi|-14.060711|35.186208
+Phirilongwe Health Centre|South|Mangochi|-14.588470|34.899380
+Chiponde Dispensary|South|Mangochi|-14.373410|35.601700
+Chiunda Dispensary|South|Mangochi|-14.777440|35.439010
+Iba Dispensary|South|Mangochi|-14.307110|35.397070
+Kadango Dispensary|South|Mangochi|-14.062230|35.186290
+Kukalanga Dispensary|South|Mangochi|-14.637440|35.180310
+Maleta|South|Mangochi|-13.929420|35.263550
+Malombe Dispensary|South|Mangochi|-14.630500|35.349120
+Mbalama Dispensary|South|Mangochi|-14.714350|35.498460
+Sinyala Dispensary|South|Mangochi|-14.583860|35.576260
+Maldeco Fisheries Clinic|South|Mangochi|-14.333500|35.149200
+Ngala Health Post|South|Mangochi|-14.657730|35.077120
+Mulibwanji Hospital|South|Mangochi|-14.511450|35.587970
+St. Martins Mission Hospital|South|Mangochi|-14.347590|35.293750
+Kapire Health Centre|South|Mangochi|-14.785760|34.999450
+Katema Health Centre|South|Mangochi|-14.525630|35.037610
+Koche Health Centre|South|Mangochi|-14.333430|35.143350
+Lugola Health Centre|South|Mangochi|-13.961440|35.142850
+Lulanga Health Centre|South|Mangochi|-13.687440|34.917420
+Luwalika Health Centre|South|Mangochi|-14.237970|35.469520
+Malembo Health Centre|South|Mangochi|-14.236280|34.825240
+Mase Health Centre|South|Mangochi|-14.580960|35.363860
+Mpondasi Health Centre|South|Mangochi|-14.453470|35.243870
+Namalaka Health Centre|South|Mangochi|-14.123840|35.193010
+Nankhwali Health Centre|South|Mangochi|-14.135100|34.844880
+Nkope Health Centre|South|Mangochi|-14.197330|35.039440
+Sister Martha Health Centre|South|Mangochi|-14.385310|35.535550
+Umodzi Clinic|South|Mangochi|-14.476920|35.264300
+Assalam Clinic|South|Mangochi|-14.545370|35.192210
+Kanyerere, Stuart. Stuka Priva|South|Mangochi|-14.482450|35.261280
+Kayumba, Jerome. Tulame Privat|South|Mangochi|-14.693460|35.179770
+Mama Khadija Private Clinic Na|South|Mangochi|-14.370800|35.494050
+Perekamoyo, William D. Mphatso|South|Mangochi|-14.085750|34.914270
+Kapire Dream Centre|South|Mangochi|-14.786000|34.999020
+Billy Riordan Memorial Health|South|Mangochi|-14.032050|34.840440
+Mangochi BLM|South|Mangochi|-14.481850|35.261570
+Machinga District Hospital|South|Machinga|-15.062290|35.226300
+Chikweo Health Centre|South|Machinga|-14.765500|35.666910
+Machinga Health Centre|South|Machinga|-15.177300|35.295650
+Mangamba Health Centre|South|Machinga|-14.791450|35.436520
+Mkwepere Health Centre|South|Machinga|-14.602860|35.636350
+Namanja Health Centre|South|Machinga|-14.965430|35.679940
+Nayinunje Health Centre|South|Machinga|-14.740600|35.565030
+Nayuchi Health Centre|South|Machinga|-14.975850|35.867260
+Ngokwe Health Centre|South|Machinga|-14.707060|35.801770
+Ntaja Health Centre|South|Machinga|-14.868280|35.529110
+Nyambi Health Centre|South|Machinga|-14.689990|35.572570
+Chamba Dispensary|South|Machinga|-15.202340|35.421370
+Kawinga Dispensary|South|Machinga|-14.854680|35.571980
+Mbonechela Dispensary|South|Machinga|-14.889320|35.478180
+Mlomba Dispensary|South|Machinga|-15.019030|35.477080
+Gawanani Health Centre|South|Machinga|-15.223800|35.202930
+Mpiri Health Centre|South|Machinga|-14.771920|35.608010
+Mposa Health Centre|South|Machinga|-15.149060|35.518490
+Namandanje Health Centre|South|Machinga|-14.882110|35.483240
+Nsanama Health Centre|South|Machinga|-14.994910|35.494770
+Nthorowa Health Centre|South|Machinga|-14.994920|35.573250
+Lifune Maternity|South|Machinga|-14.695130|35.706150
+Alinafe Private|South|Machinga|-14.798530|35.443260
+Liwonde Medical Clinic, Chilik|South|Machinga|-15.067820|35.224730
+Khonje, Anaclate P, Twapochele|South|Machinga|-14.995350|35.492680
+Machinga Private Clinic|South|Machinga|-14.874010|35.529030
+Madalitso Private Clinic|South|Machinga|-14.993190|35.492190
+Malingamoyo Private Clinic|South|Machinga|-14.870310|35.529400
+Nice Private|South|Machinga|-15.067960|35.228200
+Umoyo Private Clinic|South|Machinga|-14.999870|35.490310
+Zasintha Private Clinic|South|Machinga|-14.745210|35.565320
+BLM Liwonde Clinic|South|Machinga|-15.069400|35.227660
+Zomba Central Hospital|South|Zomba|-15.399400|35.313780
+Domasi Rural Hospital|South|Zomba|-15.280990|35.399350
+Zomba Mental Hospital|South|Zomba|-15.398740|35.304770
+Police College Hospital|South|Zomba|-15.391120|35.326850
+Bimbi Health Centre|South|Zomba|-15.308760|35.479400
+Chamba Health Centre|South|Zomba|-15.465710|35.516620
+Chingale Health Centre|South|Zomba|-15.396940|35.180800
+Chisi Island|South|Zomba|-15.325620|35.605060
+Lambulira Health Centre|South|Zomba|-15.484100|35.337000
+Likangala Health Centre|South|Zomba|-15.427870|35.544610
+Machinjiri Health Centre|South|Zomba|-15.236660|35.417070
+Magomero Health Centre|South|Zomba|-15.561470|35.261010
+Makwapala Health Centre|South|Zomba|-15.369380|35.450600
+Matawale Health Centre|South|Zomba|-15.390290|35.359580
+M'mambo Health Centre|South|Zomba|-15.262640|35.159450
+Naisi Health Centre|South|Zomba|-15.357850|35.384900
+Namadidi Health Centre|South|Zomba|-15.410790|35.247360
+Namasalima Health Centre|South|Zomba|-15.231420|35.488760
+Nasawa Health Centre|South|Zomba|-15.602300|35.259560
+Ngwelelo Health Centre|South|Zomba|-15.666450|35.427180
+Sadzi Health Centre|South|Zomba|-15.408820|35.319690
+Thondwe Health Centre|South|Zomba|-15.484580|35.236960
+Zilindo Health Centre|South|Zomba|-15.380500|35.301300
+Airwing Dispensary|South|Zomba|-15.388760|35.385080
+City Clinic Zomba|South|Zomba|-15.390720|35.324160
+Changalume Barracks|South|Zomba|-15.389600|35.211840
+Cobbe Barracks|South|Zomba|-15.390940|35.305340
+Mikuyu|South|Zomba|-15.417640|35.419680
+Pirimiti Rural Hospital|South|Zomba|-15.483020|35.450480
+St. Lukes Mission Hospital|South|Zomba|-15.209140|35.352910
+Chilipa Health Centre|South|Zomba|-15.324470|35.117150
+Chipini Health Centre|South|Zomba|-15.390070|35.095310
+Matiya Health Centre|South|Zomba|-15.533710|35.547800
+Mayaka Health Centre|South|Zomba|-15.573550|35.372800
+Nkasala Health Centre|South|Zomba|-15.327780|35.216610
+Thondwe Pastoral Centre|South|Zomba|-15.494290|35.218610
+Namikango|South|Zomba|-15.477230|35.240560
+H Parker Sharp Dispensary|South|Zomba|-15.299120|35.360920
+AHI Clinic|South|Zomba|-15.383610|35.322300
+Chavula, Henry K. Mpunga Priva|South|Zomba|-15.410830|35.323920
+Chinamwali Private Clinic|South|Zomba|-15.381600|35.355840
+Mitondo, Peter R. P. Prime Pri|South|Zomba|-15.526100|35.486190
+Ntata, Anthony C.|South|Zomba|-15.389290|35.320560
+Wecare Maternity Private Clini|South|Zomba|-15.378060|35.361230
+Maela Health Centre|South|Zomba|-15.509870|35.131500
+Mwandamu Health Centre|South|Zomba|-15.498030|35.188030
+Compassionate Mission Clinic|South|Zomba|-15.324020|35.393720
+Zomba BLM|South|Zomba|-15.389190|35.319890
+Chiradzulu District Hospital|South|Chiradzulu|-15.710720|35.174190
+Chitera Health Centre|South|Chiradzulu|-15.606460|35.123060
+Mauwa Health Centre|South|Chiradzulu|-15.652830|35.249800
+Mbulumbuzi Health Centre|South|Chiradzulu|-15.638340|35.156870
+Milepa Health Centre|South|Chiradzulu|-15.687130|35.318180
+Namadzi Health Centre|South|Chiradzulu|-15.546630|35.187610
+Namitambo Health Centre|South|Chiradzulu|-15.841130|35.270190
+Ndunde Health Centre|South|Chiradzulu|-15.696150|35.233550
+Nkalo Health Centre|South|Chiradzulu|-15.970650|35.309970
+Thumbwe Health Centre|South|Chiradzulu|-15.768230|35.248490
+Malavi Dispensary|South|Chiradzulu|-15.836860|35.148670
+St. Joseph Hospital|South|Chiradzulu|-15.801730|35.168250
+PIM Health Centre|South|Chiradzulu|-15.753090|35.192300
+Akasale Private Clinic|South|Chiradzulu|-15.759600|35.114930
+Bilal Islamic Clinic|South|Chiradzulu|-15.741490|35.130470
+Namadzi Private Clinic|South|Chiradzulu|-15.549400|35.181970
+Queen Elizabeth Central Hospit|South|Blantyre|-15.802140|35.021000
+Blantyre City Assembly Clinic|South|Blantyre|-15.803330|35.038950
+Bangwe Health Centre|South|Blantyre|-15.823820|35.080460
+Chabvala Health Centre|South|Blantyre|-15.833720|34.834610
+Chikowa Health Centre|South|Blantyre|-15.671330|34.871720
+Chileka Health Centre|South|Blantyre|-15.685750|34.970140
+Chilomoni Health Centre|South|Blantyre|-15.771280|34.981560
+Chimembe Health Centre|South|Blantyre|-15.777330|34.885480
+Dziwe Health Centre|South|Blantyre|-15.563690|34.880380
+Limbe Health Centre|South|Blantyre|-15.816880|35.051760
+Lirangwe Health Centre|South|Blantyre|-15.529630|35.029730
+Lundu Health Centre|South|Blantyre|-15.421850|35.012940
+Madziabango Health Centre|South|Blantyre|-15.967800|34.908250
+Makata Health Centre|South|Blantyre|-15.629960|35.079640
+Mdeka Health Centre|South|Blantyre|-15.467690|34.942360
+Mpemba Health Centre|South|Blantyre|-15.873850|34.952300
+Namikoko Health Centre|South|Blantyre|-15.486510|35.073790
+Ndirande Health Centre|South|Blantyre|-15.778100|35.039460
+South Lunzu Health Centre|South|Blantyre|-15.726780|35.054710
+Sanjika Clinic|South|Blantyre|-15.792670|34.972880
+Zingwangwa Health Centre|South|Blantyre|-15.821400|35.011970
+Blantyre Adventist Hospital|South|Blantyre|-15.782400|35.003100
+Mlambe Hospital|South|Blantyre|-15.644660|35.017330
+Chileka SDA Health Centre|South|Blantyre|-15.659860|34.929040
+Malabada Health Centre|South|Blantyre|-15.767590|35.044460
+St Vincent Health Centre|South|Blantyre|-15.914210|34.949840
+Soche Maternity|South|Blantyre|-15.857260|35.027610
+Soche SDA Dispensary|South|Blantyre|-15.809180|35.019770
+Dr Chilemba Surgery|South|Blantyre|-15.786400|35.000800
+Dr Dzinyemba Private Clinic|South|Blantyre|-15.786090|35.006630
+Dr Kidys|South|Blantyre|-15.786620|35.007550
+Dr S. Kampondeni|South|Blantyre|-15.816410|35.066290
+Dzamalala, Charles  P. Malmed|South|Blantyre|-15.786550|35.007470
+Gatrad, Mahomed I.|South|Blantyre|-15.787070|35.006250
+Girach, Bilkis A.|South|Blantyre|-15.787210|35.004880
+Limbe Private Hospital, Kalong|South|Blantyre|-15.809020|35.059160
+Mtengoumodzi Private Hospital,|South|Blantyre|-15.724500|35.016370
+Munthali, Joyce W. Naperi medi|South|Blantyre|-15.804400|35.008200
+Mwaiwathu Private Hospital|South|Blantyre|-15.785470|35.016910
+Nyambadwe Private Hospital|South|Blantyre|-15.771390|35.023230
+Jere, Raymond M. Medicare Heal|South|Blantyre|-15.786710|35.007990
+Lumbira / Mitsidi Health Centr|South|Blantyre|-15.777020|34.968730
+Amitofo Care Centre|South|Blantyre|-15.747680|35.107470
+Ayali Private Clinic|South|Blantyre|-15.659290|35.021140
+Banzi Private|South|Blantyre|-15.816020|35.015670
+Belton Kapyepye Memorial Clini|South|Blantyre|-15.808690|34.994340
+Bernald Kachale Private Clinic|South|Blantyre|-15.780180|35.073520
+Bhuptani, Girishkumar C.|South|Blantyre|-15.788260|35.005540
+Chifundo Private Clinic, Monje|South|Blantyre|-15.775620|34.980030
+Chilani Clinic|South|Blantyre|-15.828740|35.006770
+Chilobwe Private Clinic, Banda|South|Blantyre|-15.833050|35.007420
+Chilomoni Private Clinic, Ngai|South|Blantyre|-15.774350|34.981450
+Chinjobvu Private Clinic, Phir|South|Blantyre|-15.736760|35.019200
+Chisi, John E M. Limbe Diagnos|South|Blantyre|-15.818630|35.056390
+Chitekwe, Arthur D. Arthur Gar|South|Blantyre|-15.836260|35.091930
+Dalirani Clinic|South|Blantyre|-15.825290|35.080390
+De Johnstone, Maria I M.|South|Blantyre|-15.784870|35.017680
+El-Barakah Private Clinic, Nte|South|Blantyre|-15.683370|34.965840
+Elim Private Clinic|South|Blantyre|-15.818800|35.012310
+Hale Medical Skin Clinic, Mwal|South|Blantyre|-15.810640|35.014380
+Hasco Clinic|South|Blantyre|-15.777380|35.006210
+Kanjedza MASM Medi Clinic|South|Blantyre|-15.812270|35.055040
+Khuoge, Dane.|South|Blantyre|-15.767080|35.074710
+Kotecha, Leesha D,|South|Blantyre|-15.789500|35.086160
+Limbe Health Clinic, Ngwira, W|South|Blantyre|-15.813150|35.061190
+Lungu Private Clinic, Lungu, J|South|Blantyre|-15.829990|35.078830
+Makwasa Private Clinic, Taulo,|South|Blantyre|-15.750170|35.080500
+Malamulo Day Clinic Amina|South|Blantyre|-15.803610|35.074710
+Merit Private Clinic, Masangan|South|Blantyre|-15.779270|35.043870
+Mkwaira, Ladison E. L & A Priv|South|Blantyre|-15.775280|35.047060
+Moyo Private Clinic, Manjomo,|South|Blantyre|-15.653740|35.020130
+Mt. Soche Clinic, Nyirenda, Co|South|Blantyre|-15.812890|35.022270
+Munthali, Ndikulakwanji N. Pra|South|Blantyre|-15.729150|35.055810
+Mwachira Private Clinic, Chikw|South|Blantyre|-15.655480|35.021580
+Mwaiwathu Clinic, Mbvundula, M|South|Blantyre|-15.811910|35.047880
+Mwanamanga, Happiness.|South|Blantyre|-15.762000|34.979700
+Namakhwa, Jomo. Malavi Private|South|Chiradzulu|-15.835620|35.115780
+Namboya, Felix. Limbe Central|South|Blantyre|-15.813810|35.061200
+Semema Clinic|South|Blantyre|-15.731350|35.057980
+Shifa Medical Centre|South|Blantyre|-15.787150|35.010450
+Sungani's Medical Centre, Sung|South|Blantyre|-15.728320|35.019530
+Tadala Private Clinic|South|Blantyre|-15.833040|35.085200
+Thandizo Private Clinic, Semak|South|Blantyre|-15.743370|35.016770
+Thejopal, Rita S.|South|Blantyre|-15.783920|35.002380
+Tilinanu Private Clinic, Tamao|South|Blantyre|-15.773820|35.032620
+Truzag|South|Blantyre|-15.811960|35.057530
+Ulemu Private Clinic|South|Blantyre|-15.775290|35.002070
+Viyuyi, Mathews M. Yankho Priv|South|Blantyre|-15.742510|35.077600
+Sunny Side B|South|Blantyre|-15.800250|34.996400
+Beit trust Cure International|South|Blantyre|-15.803540|35.017530
+Kachere Rehabilitation Centre|South|Blantyre|-15.803390|35.018190
+Blantyre Dream Project Clinic|South|Blantyre|-15.791820|35.012730
+Aquid Lifeline Project|South|Blantyre|-15.622170|35.056040
+BLM Chilomoni Clinic|South|Blantyre|-15.775700|34.980480
+BLM Lunzu Clinic|South|Blantyre|-15.651140|35.020280
+BLM Midima Clinic|South|Blantyre|-15.831210|35.080060
+BLM Zingwangwa Clinic|South|Blantyre|-15.818470|35.011710
+Limbe Home Based Care Centre|South|Blantyre|-15.817140|35.051870
+Macro Blantyre Clinic|South|Blantyre|-15.807050|35.029930
+Madinah Social Services Clinic|South|Blantyre|-15.829310|35.074050
+Ndirande BLM Clinic|South|Blantyre|-15.773640|35.030810
+SOS Medical Centre|South|Blantyre|-15.725620|35.058230
+Mwanza District Hospital|South|Mwanza|-15.591180|34.509980
+Kunenekude Health Centre|South|Mwanza|-15.464670|34.491420
+Thambani Health Centre|South|Mwanza|-15.726090|34.399530
+Tulonkhondo Health Centre|South|Mwanza|-15.749600|34.522770
+Tiyende Ptv Clinic|South|Mwanza|-15.594670|34.511020
+Muyendebwino Wellness Centre|South|Mwanza|-15.578350|34.477360
+Mwanza BLM Clinic|South|Mwanza|-15.597470|34.515050
+Thyolo District Hospital|South|Thyolo|-16.069370|35.148060
+Thekerani Rural Hospital|South|Thyolo|-16.321040|35.207410
+Bvumbwe Health Centre|South|Thyolo|-15.928230|35.077860
+Bvumbwe Makungwa Health Centre|South|Thyolo|-15.939810|35.026330
+Changata Health Centre|South|Thyolo|-16.232480|35.147680
+Chimaliro Health Centre|South|Thyolo|-15.977060|35.181620
+Chimvu|South|Thyolo|-15.941980|35.123080
+Chisoka Health Centre|South|Thyolo|-15.941810|35.208790
+Dzimbiri Health Centre (DiDi)|South|Thyolo|-16.060960|34.989990
+Kadango Health Centre|South|Thyolo|-16.006830|35.310090
+Khonjeni Health Centre|South|Thyolo|-16.096920|35.271290
+Mikolongwe Health Centre|South|Thyolo|-15.901490|35.183670
+Zoa Health Centre|South|Thyolo|-16.237640|35.199920
+Amalika Dispensary|South|Thyolo|-15.992030|35.031830
+Mapanga Clinic|South|Thyolo|-16.037640|35.016750
+Chingadzi Rural Hospital|South|Thyolo|-15.918420|35.205950
+Malamulo Mission Hospital|South|Thyolo|-16.171550|35.110110
+Chipho Health Centre|South|Thyolo|-16.171528|35.110222
+Makapwa Health Centre|South|Thyolo|-16.181990|35.279840
+Mitengo Health Centre|South|Thyolo|-16.111230|35.245910
+Molere Health Centre|South|Thyolo|-16.217580|35.135520
+Thomasi Health Centre|South|Thyolo|-16.028780|34.978810
+Halena Oakely/Mtambanyama Clin|South|Thyolo|-16.126680|35.084570
+Hiwa, Garfield J. Monekera Pri|South|Thyolo|-15.926860|35.086610
+Jeofia|South|Thyolo|-16.007580|35.308250
+Kaliwo, Ignacious S. Luchenza|South|Thyolo|-16.007960|35.309390
+Lumbe, John L.|South|Thyolo|-15.921530|35.084640
+Mbvundula, Presley G. Germa Pr|South|Thyolo|-15.887220|35.064430
+BLM Bvumbwe Clinic|South|Thyolo|-15.931330|35.082130
+Magunda Health Centre|South|Thyolo|-16.028840|35.261660
+Mianga Health Centre|South|Thyolo|-16.098830|35.075530
+Naming'omba Health Centre|South|Thyolo|-16.040090|35.089960
+Sambankhanga Health Centre|South|Thyolo|-16.139810|35.098520
+Satemwa Clinic|South|Thyolo|-16.076410|35.076920
+Thunga Health Centre|South|Thyolo|-16.000960|35.065320
+Gotha Dispensary|South|Thyolo|-16.092390|35.190110
+Kasembeleka|South|Thyolo|-16.121310|35.099020
+Kumadzi Dispensary|South|Thyolo|-16.100300|35.288760
+Mafisi Health Centre|South|Thyolo|-16.068050|35.251010
+Makwasa Estate Clinic|South|Thyolo|-16.194760|35.105640
+Mchima Clinic|South|Thyolo|-16.113880|35.140180
+Nasonia|South|Thyolo|-16.024750|35.156500
+Mulanje District Hospital|South|Mulanje|-16.025490|35.507850
+Bondo Health Centre|South|Mulanje|-16.042670|35.613880
+Chambe Health Centre|South|Mulanje|-15.903340|35.490750
+Chinyama Health Centre|South|Mulanje|-16.156650|35.340940
+Chisitu Health Centre|South|Mulanje|-16.001030|35.432600
+Chonde Health Centre|South|Mulanje|-15.997080|35.323330
+Dzenje Health Centre|South|Mulanje|-16.116950|35.405580
+Kambenje Health Centre|South|Mulanje|-15.853080|35.563940
+Mbiza Health Centre|South|Mulanje|-16.092900|35.346020
+Milonde Health Centre|South|Mulanje|-16.102640|35.478260
+Mimosa Dispensary|South|Mulanje|-16.085740|35.612630
+Mkomaula Health Centre|South|Mulanje|-15.721100|35.366720
+Mpala Health Centre|South|Mulanje|-16.143860|35.524790
+Mulomba Health Centre|South|Mulanje|-15.765350|35.511820
+Muloza Heath Centre|South|Mulanje|-16.062520|35.762260
+Namphungo Health Centre|South|Mulanje|-15.804070|35.349100
+Naphimba Health Centre|South|Mulanje|-16.036280|35.678540
+Thuchila Health Centre|South|Mulanje|-15.919170|35.361190
+Mulanje Mission Hospital|South|Mulanje|-16.021030|35.464360
+Namasalima Health Centre|South|Mulanje|-16.080160|35.715730
+Namulenga Health Centre|South|Mulanje|-15.865630|35.327180
+Thembe Health Centre|South|Mulanje|-16.087030|35.434170
+Fomo Clinic|South|Mulanje|-16.006030|35.481670
+Khamalathu Private Clinic|South|Mulanje|-16.106520|35.344910
+Lingalawe, Albert. Chiluli Pri|South|Mulanje|-16.009460|35.484890
+Machado, Alfred W. J. Machado|South|Mulanje|-16.026680|35.505290
+St. Mamwene Private Clinic, Nd|South|Mulanje|-15.916610|35.357950
+Saha Private Clinic, Ngulama,|South|Mulanje|-16.078940|35.731560
+Mulanje BLM Clinic|South|Mulanje|-16.014180|35.493170
+Lujeri Health Centre|South|Mulanje|-16.028260|35.655170
+Chitekesa Health Centre|South|Phalombe|-15.552180|35.572440
+Kalinde Health Centre|South|Phalombe|-15.671870|35.728380
+Migowi Health Centre|South|Phalombe|-15.719220|35.685420
+Mkhwayi Health Centre|South|Phalombe|-15.614570|35.627870
+Mpasa Health Centre|South|Phalombe|-15.757900|35.611420
+Nambazo Health Centre|South|Phalombe|-15.559190|35.815660
+Nazombe Health Centre (GoGo)|South|Phalombe|-15.752330|35.774980
+Nkhulambe Health Centre|South|Phalombe|-15.859490|35.747510
+Phalombe Health Centre|South|Phalombe|-15.806770|35.649180
+Chiringa Maternity|South|Phalombe|-15.772130|35.769650
+Nambiti 1|South|Phalombe|-15.802930|35.763920
+Waruma|South|Phalombe|-15.770850|35.550930
+Holy Family Hospital|South|Phalombe|-15.824710|35.618750
+Chiringa CHAM Health Centre|South|Phalombe|-15.765830|35.762160
+Mwanga Health Centre|South|Phalombe|-15.646320|35.532210
+Sukasanje Health Centre|South|Phalombe|-15.930380|35.766030
+Mulungu Alinafe Clinic|South|Phalombe|-15.857190|35.815520
+Chikwawa District Hospital|South|Chikwawa|-16.023100|34.793460
+Ngabu Rural Hospital|South|Chikwawa|-16.459280|34.892530
+Beleu Health Centre|South|Chikwawa|-16.151990|34.853760
+Chang'ambika Health Centre|South|Chikwawa|-15.803010|34.309280
+Chapananga Health Centre|South|Chikwawa|-16.005510|34.485670
+Chapwaila Health Centre|South|Chikwawa|-16.398420|34.775720
+Chithumba Health Centre|South|Chikwawa|-15.803690|34.476290
+Dolo Health Centre|South|Chikwawa|-16.553490|34.924230
+Gaga Health Centre|South|Chikwawa|-15.806780|34.364870
+Kakoma Health Centre|South|Chikwawa|-16.098190|34.623980
+Makhwira Health Centre|South|Chikwawa|-16.194830|35.010650
+Maperera Health Centre|South|Chikwawa|-16.105340|34.915700
+Mfera Health Centre|South|Chikwawa|-16.068180|34.867240
+Ndakwera Health Centre|South|Chikwawa|-16.223570|34.688960
+Nkumaniza Health Centre|South|Chikwawa|-16.479440|34.724310
+Kasinthula Dispensary|South|Chikwawa|-16.074160|34.816510
+Hunger Clinic|South|Chikwawa|-16.270450|34.863680
+Kubalalika Health Post|South|Chikwawa|-15.907960|34.394050
+Mitondo Health Post|South|Chikwawa|-16.268840|35.057890
+Nkhate Health Post|South|Chikwawa|-16.146700|34.958860
+St Montfort Hospital|South|Chikwawa|-16.257160|34.868310
+Misomali Health Centre|South|Chikwawa|-16.037750|34.537200
+Ngabu SDA Health Centre|South|Chikwawa|-16.465160|34.879010
+Chanza, Edwin, Erapecha Clinic|South|Chikwawa|-16.260440|34.868440
+Mabwera, Walson D. Chinyanje P|South|Chikwawa|-16.043130|34.798940
+Mainjeni, Fyson W D. Fema Priv|South|Chikwawa|-16.266760|35.062840
+Masache Private Clinic|South|Chikwawa|-16.270280|34.873440
+Ngabu BLM Clinic|South|Chikwawa|-16.466790|34.872970
+Sucoma Clinic Illovo (Armumend|South|Chikwawa|-16.403140|34.883200
+Sucoma Illovo Factory Clinic|South|Chikwawa|-16.257730|34.891810
+SUCOMA Kalulu Clinic|South|Chikwawa|-16.241440|34.911640
+SUCOMA Mangulenje Clinic|South|Chikwawa|-16.222270|34.854400
+Sucoma/Mwanza/Illovo Clinic|South|Chikwawa|-16.189400|34.880650
+SUCOMA Lengwe|South|Chikwawa|-16.200380|34.799700
+SUCOMA Mkombezi|South|Chikwawa|-16.276330|34.880540
+Nsanje District Hospital|South|Nsanje|-16.917940|35.260010
+Kalemba Community Hospital|South|Nsanje|-16.575720|35.112070
+Kamphata Health Post|South|Nsanje|-17.046800|35.216580
+Makhanga Health Centre|South|Nsanje|-16.521500|35.173470
+Masenjere Health Centre|South|Nsanje|-16.337210|35.096710
+Mbenje Health Centre|South|Nsanje|-16.994640|35.220790
+Ndamera Health Centre|South|Nsanje|-17.095690|35.219020
+Nyamithuthu Health Centre|South|Nsanje|-16.682130|35.198210
+Phokera Health Centre|South|Nsanje|-16.628310|35.156630
+Sankhulani Health Centre|South|Nsanje|-16.456861|35.258889
+Sorgin Health Centre|South|Nsanje|-16.542780|35.011590
+Tengani Health Centre|South|Nsanje|-16.733080|35.270150
+Nkhande Dispensary|South|Nsanje|-17.114890|35.156880
+Ching'oma Health Post|South|Nsanje|-16.999306|35.109333
+Kanyimbi Health Post|South|Nsanje|-16.694530|34.967000
+Mchacha Health Post|South|Nsanje|-16.491510|35.159910
+Misamvu Health Post|South|Nsanje|-16.762550|35.047390
+Mkango Health Post|South|Nsanje|-16.824720|35.304080
+Mlolo Health Post|South|Nsanje|-16.419590|35.152500
+Trinity Hospital|South|Nsanje|-16.419190|35.171540
+Chididi Health Centre|South|Nsanje|-16.914950|35.173330
+Lulwe Health Centre|South|Nsanje|-17.087650|35.114150
+Tikondane Clinic|South|Nsanje|-16.580350|35.109530
+Balaka District Hospital|South|Balaka|-14.984980|34.949590
+Chiendausiku Health Centre|South|Balaka|-15.018550|35.076530
+Kalembo Health Centre|South|Balaka|-14.842680|35.170810
+Kwitanda Health Centre|South|Balaka|-15.064950|35.093000
+Mbera Health Centre|South|Balaka|-14.910880|35.053260
+Namanolo Health Centre|South|Balaka|-15.000710|35.190040
+Namdumbo Health  Centre|South|Balaka|-14.851690|35.225520
+Phimbi Health Centre|South|Balaka|-15.250750|35.107160
+Mwima Health Post|South|Balaka|-14.929670|35.184980
+Nambira Health Post|South|Balaka|-14.802590|35.064110
+Comfort Clinic|South|Balaka|-15.003180|34.952440
+Kankao Health Centre|South|Balaka|-15.054250|34.922640
+Phalula Health Centre|South|Balaka|-15.225570|34.893220
+Ulongwe Health Centre|South|Balaka|-14.862470|35.177340
+Utale 1 Health Centre|South|Balaka|-15.177740|35.064240
+Utale 2 Health Centre|South|Balaka|-15.169810|35.072390
+Balaka Private Clinic|South|Balaka|-14.983390|34.961700
+Chithandizo Private Clinic|South|Balaka|-14.987170|34.951760
+Maku Private Clinic|South|Balaka|-14.985210|34.942690
+Balaka Dream Clinic|South|Balaka|-15.003220|34.952480
+Balaka BLM Clinic|South|Balaka|-14.988760|34.955570
+Lisungwi Community Hospital|South|Neno|-15.435570|34.778380
+Neno District Hospital|South|Neno|-15.395240|34.653490
+Chifunga Health Centre|South|Neno|-15.598250|34.698920
+Ligowe Health Centre|South|Neno|-15.473680|34.651820
+Luwani Health Centre|South|Neno|-15.479810|34.742410
+Magaleta Health Centre|South|Neno|-15.550830|34.628360
+Matandani Health Centre|South|Neno|-15.330710|34.653210
+Matope Health Centre|South|Neno|-15.353700|34.947320
+Neno Parish Health Centre|South|Neno|-15.437010|34.608430
+Nsambe Health Centre|South|Neno|-15.261350|34.613500
+Muferanji Clinic|South|Neno|-15.365140|34.654470
+Zalewa DAPP VCT Station|South|Neno|-15.449950|34.850400
+Nkula Health Centre|South|Neno|-15.521930|34.825120
+Chilumba Barracks|North|Karonga|-10.390210|34.208970
+Wovwe Escom Clinic|North|Karonga|-10.443890|34.084610
+Chombe Estate Dispensary|North|Nkhata Bay|-11.647710|34.212140
+Auction Holdings Clinic|North|Mzimba|-11.463410|34.020530
+Moyale Barracks Clinics|North|Mzimba|-11.459760|34.038290
+Mzimba Prison|North|Mzimba|-11.910700|33.584140
+Mzuzu Police Clinic|North|Mzimba|-11.462110|34.024890
+Mzuzu Sobo Clinic|North|Mzimba|-11.418530|34.006450
+Mzuzu University Clinic|North|Mzimba|-11.421750|33.995640
+SOS Medical Centre|North|Mzimba|-11.471740|34.004390
+Kasungu Prison|Central|Kasungu|-13.020950|33.457160
+Kasasa Clinic|Central|Nkhotakota|-12.537530|34.118180
+Africa Leaf Clinic Kanengo|Central|Lilongwe|-13.889800|33.804870
+Airwing Health Post|Central|Lilongwe|-13.961620|33.696790
+Alliance One Clinic|Central|Lilongwe|-13.895710|33.801080
+Area 30 Police Clinic|Central|Lilongwe|-13.927900|33.784190
+Auction Holdings Clinic|Central|Lilongwe|-13.890890|33.799520
+Bunda College Clinic|Central|Lilongwe|-14.180380|33.775540
+Carlsberg / Sobo Clinic Lilong|Central|Lilongwe|-13.901070|33.796970
+Escom Clinic Lilongwe|Central|Lilongwe|-13.991950|33.771920
+Kanengo Tobacco Processors Cli|Central|Lilongwe|-13.902000|33.806390
+Limbe Leaf Tobacco Co. Ltd. Cl|Central|Lilongwe|-13.893190|33.802630
+MoH Hq|Central|Lilongwe|-13.946280|33.788590
+Macro Lilongwe|Central|Lilongwe|-13.998190|33.776000
+Natural Resources College Clin|Central|Lilongwe|-14.022470|33.674220
+New state house Clinic|Central|Lilongwe|-13.960510|33.850890
+Reserve Bank of Malawi Clinic|Central|Lilongwe|-13.963350|33.789260
+ITES Medical Clinic|Central|Mchinji|-13.795100|32.891240
+Jumpha Private Clinic|Central|Mchinji|-13.924590|33.227570
+Malalwi Army Marine Dispensary|South|Mangochi|-14.073000|34.916840
+Ngapani Sable Clinic|South|Mangochi|-14.029600|35.337730
+St. Johns Seminary|South|Mangochi|-14.546780|35.178420
+Chancellor College|South|Zomba|-15.385330|35.332130
+State House Dispensary|South|Zomba|-15.381530|35.310270
+Zomba Central Prison Clinic|South|Zomba|-15.396110|35.312480
+Auction Holdings Clinic|South|Blantyre|-15.811950|35.064170
+Blantyre Water Board - Mudi|South|Blantyre|-15.795300|35.038110
+Blantyre Water Board - Walker'|South|Blantyre|-15.514930|34.833590
+Carlsberg Brewery Malawi Ltd.|South|Blantyre|-15.793670|35.034680
+Central East African Railways|South|Blantyre|-15.815360|35.063300
+Chichiri ESCOM Clinic|South|Blantyre|-15.793420|35.024440
+Chichiri Prison|South|Blantyre|-15.805770|35.032420
+David Whitehead|South|Blantyre|-15.790960|35.033740
+Henred Fruehauf Clinic|South|Blantyre|-15.789010|35.034580
+Limbe Leaf Tobacco Clinic Limb|South|Blantyre|-15.813610|35.070350
+Polytechnic|South|Blantyre|-15.802070|35.027180
+Portland|South|Blantyre|-15.792360|35.028160
+Press Corporation Ltd. Clinic|South|Blantyre|-15.797620|35.023110
+PVHO|South|Blantyre|-15.786050|35.018180
+Unilever South East Company Cl|South|Blantyre|-15.804390|35.060910
+Chisambo Estate Clinic|South|Mulanje|-16.038220|35.708990
+Eldorado Estate Clinic|South|Mulanje|-16.066790|35.613900
+Esparanza Estate Clinic|South|Mulanje|-16.033950|35.504750
+Glenorchy Estate Clinic|South|Mulanje|-15.983300|35.483860
+Lauderdale Estate Clinic|South|Mulanje|-16.043310|35.535150
+Likanga Estate Clinic|South|Mulanje|-16.083060|35.586090
+Limbuli Estate Clinic|South|Mulanje|-16.055040|35.721290
+Minimini Estate Clinic|South|Mulanje|-16.056760|35.584440
+Phwazi Estate Clinic|South|Mulanje|-16.017920|35.682940
+Ruo Estate Clinic|South|Mulanje|-16.089640|35.665070
+Sayama Clinic|South|Mulanje|-16.071070|35.547100
+Thornwood Estate Clinic|South|Mulanje|-16.069360|35.630330
+Kapichira Clinic|South|Chikwawa|-15.895050|34.757700
+Good Health Private Clinic|Central|Lilongwe|-13.943320|33.820000
+St. Louis Private Clinic|Central|Lilongwe|-13.931570|33.769950
+Thoto Dispensary|North|Nkhata Bay|-11.453150|34.277320
+Bethsaida Hospital|Central|Lilongwe|-13.933870|33.792020
+Lumbadzi Masm Clinic|Central|Lilongwe|-13.758180|33.811830
+Chithebe Health Centre|South|Thyolo|-16.002180|35.012940
+Madalitso Private Clinic|Central|Mchinji|-13.422560|33.111030
+Dzimbiri Health Post|South|Thyolo|-16.102020|34.997220
+Internals Private Clinic|Central|Kasungu|-12.927440|33.796160
+Medicare Private Hospital|South|Blantyre|-15.796480|35.007970
+Kadidi Health Centre|South|Blantyre|-15.660830|35.022120
+Lisa Private Clinic|Central|Kasungu|-13.439410|33.393420
+Mwatitha Private Clinic|Central|Kasungu|-13.435520|33.389800
+Monekera Private Clinic|South|Blantyre|-15.835270|35.008300
+Matchereza Health Post|Central|Ntcheu|-15.206750|34.847900
+St. Lucious Private Clinic|South|Chikwawa|-16.404590|34.862090
+Mota-Engil Clinic - Mkwinda Ca|South|Neno|-15.414260|34.824290

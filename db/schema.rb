@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_16_131710) do
+ActiveRecord::Schema.define(version: 2019_06_14_213433) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -61,7 +61,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["person_id"], name: "fk_rails_0250a15bd9"
   end
 
-  create_table "countries", primary_key: "country_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "countries", primary_key: "country_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
     t.boolean "voided", default: false, null: false
     t.integer "voided_by"
@@ -230,7 +230,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["test_type_id"], name: "fk_rails_4bfd585752"
   end
 
-  create_table "locations", primary_key: "location_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "locations", primary_key: "location_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", null: false
     t.integer "parent_location"
     t.string "description"
@@ -250,6 +250,8 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -409,15 +411,6 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["person_id"], name: "fk_rails_eb9d05724a"
     t.index ["traditional_authority_id"], name: "fk_rails_c3837dd6a4"
     t.index ["village_id"], name: "fk_rails_723872d48a"
-  end
-
-  create_table "person_has_types", primary_key: "person_has_type_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.bigint "person_id"
-    t.bigint "person_type_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["person_id"], name: "fk_rails_282ec6b71b"
-    t.index ["person_type_id"], name: "fk_rails_7858ca9698"
   end
 
   create_table "person_names", primary_key: "person_name_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -675,8 +668,6 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   add_foreign_key "person_addresses", "locations", column: "traditional_authority_id", primary_key: "location_id"
   add_foreign_key "person_addresses", "locations", column: "village_id", primary_key: "location_id"
   add_foreign_key "person_addresses", "people", primary_key: "person_id"
-  add_foreign_key "person_has_types", "people", primary_key: "person_id"
-  add_foreign_key "person_has_types", "person_types", primary_key: "person_type_id"
   add_foreign_key "person_names", "people", primary_key: "person_id"
   add_foreign_key "potential_duplicates", "duplicate_statuses", primary_key: "duplicate_status_id"
   add_foreign_key "potential_duplicates", "people", column: "person_id_a", primary_key: "person_id"
