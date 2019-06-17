@@ -5,8 +5,7 @@ class CreateDiagnosis < ActiveRecord::Migration[5.2]
     create_table :diagnosis, primary_key: :diagnosis_id do |t|
       t.bigint  :encounter_id
       t.bigint  :concept_id
-      t.boolean :primary_diagnosis
-      t.boolean :secondary_diagnosis
+      t.bigint :diagnosis_type_id
       t.boolean :voided, null: false, default: 0
       t.bigint  :voided_by
       t.datetime :voided_date

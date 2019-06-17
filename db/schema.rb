@@ -61,13 +61,11 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["person_id"], name: "fk_rails_0250a15bd9"
   end
 
-  create_table "countries", primary_key: "country_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "countries", primary_key: "country_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
     t.boolean "voided", default: false, null: false
     t.integer "voided_by"
     t.integer "void_reason"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "de_duplicators", primary_key: "de_duplicator_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -96,8 +94,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   create_table "diagnosis", primary_key: "diagnosis_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id"
     t.bigint "concept_id"
-    t.boolean "primary_diagnosis"
-    t.boolean "secondary_diagnosis"
+    t.bigint "diagnosis_type_id"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -108,6 +105,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_adf3d8ea32"
+    t.index ["diagnosis_type_id"], name: "fk_rails_de28a556c1"
     t.index ["encounter_id"], name: "fk_rails_8d8afe9ece"
   end
 
@@ -230,7 +228,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["test_type_id"], name: "fk_rails_4bfd585752"
   end
 
-  create_table "locations", primary_key: "location_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "locations", primary_key: "location_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", null: false
     t.integer "parent_location"
     t.string "description"
@@ -244,8 +242,10 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   end
 
   create_table "master_definitions", primary_key: "master_definition_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.string "definition"
-    t.string "description"
+    t.string "definition", null: false
+    t.text "description"
+    t.integer "openmrs_metadata_id", null: false
+    t.string "openmrs_entity_name", null: false
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -562,7 +562,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["side_effect_id"], name: "fk_rails_5c0c6cd6a9"
   end
 
-  create_table "site_types", primary_key: "site_type_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "site_types", primary_key: "site_type_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "description"
     t.string "site_type"
     t.boolean "voided", default: false, null: false
@@ -572,7 +572,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "sites", primary_key: "site_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "sites", primary_key: "site_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "site_name"
     t.string "short_name"
     t.string "site_description"
@@ -656,6 +656,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   add_foreign_key "de_identified_identifiers", "people", primary_key: "person_id"
   add_foreign_key "diagnosis", "encounters", primary_key: "encounter_id"
   add_foreign_key "diagnosis", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
+  add_foreign_key "diagnosis", "master_definitions", column: "diagnosis_type_id", primary_key: "master_definition_id"
   add_foreign_key "encounters", "master_definitions", column: "encounter_type_id", primary_key: "master_definition_id"
   add_foreign_key "encounters", "master_definitions", column: "program_id", primary_key: "master_definition_id"
   add_foreign_key "encounters", "people", primary_key: "person_id"
