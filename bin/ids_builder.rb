@@ -365,8 +365,6 @@ SQL
   end
 end
 
-# populate Diagnosis
-
 # populate users in IDS
 def populate_users
   # person_id, username, user_role
@@ -392,6 +390,16 @@ def populate_users
       puts 'Ending script'
       break
     end
+  end
+end
+
+def populate_encounters
+  encounters = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.encounter
+SQL
+
+  encounters.each do |encounter|
+    raise encounter.inspect
   end
 end
 
@@ -503,7 +511,20 @@ QUERY
 end
 
 def populate_vitals
+end
 
+def categorize_address(addresses)
+  address_types = {"home_address" => {"home_district" => "", "home_ta" => "", "home_village" => ""}, "current_address" =>
+                  {"current_district" => "", "current_ta" => "", "current_village" => ""} }
+  addresses.each do |key, value|
+    address_types['home_address'].merge!({"home_district" => "#{value}"}) if key == 'address2'
+    address_types['home_address'].merge!({"home_ta" => "#{value}"}) if key == 'county_district'
+    address_types['home_address'].merge!({"home_village" => "#{value}"}) if key == 'neigborhood_cell'
+    address_types['current_address'].merge!({"current_district" => "#{value}"}) if key == 'state_province'
+    address_types['current_address'].merge!({"current_ta" => "#{value}"}) if key == 'township_division'
+    address_types['current_address'].merge!({"current_village" => "#{value}"}) if key == 'city_village'
+  end
+  return address_types
 end
 
 def populate_person_address
@@ -513,25 +534,28 @@ def populate_person_address
   SELECT * FROM #{@rds_db}.person_address WHERE updated_at >= '#{last_updated}' order by updated_at;
 SQL
   person_addresses.each do |person_address|
-    #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Need to add code to get elements from master definition table
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # grouped_address = categorize_address(person_address)
+  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  # Need to add code to get elements from master definition table
+  # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    grouped_address = categorize_address(person_address)
+    home_district_id = get_district_id(grouped_address['home_address']['home_district']) rescue get_district_id('other')
+    curent_district_id = get_district_id(grouped_address['current_address']['current_district']) rescue get_district_id('other')
+
     puts "Updating Person Address for person_id: #{person_address['person_id']}"
 
     person_address_exist = PersonAddress.find_by(person_address_id: person_address['person_address_id'])
 
     if person_address_exist.blank?
-      PersonAddress.create(person_id: person_address['person_id'],
-                           home_district_id: 1, home_traditional_authority_id: 1, home_village_id: 1, country_id: 1,
-                           current_district_id: 1, current_traditional_authority_id: 1, current_village_id: 1, country_id: 1,
+      PersonAddress.create(person_address_id: person_address['person_address_id'], person_id: person_address['person_id'],
+                           home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1,country_id: 1,
+                           current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1,country_id: 1,
                            creator: person_address['creator'], landmark: person_address['landmark'],
                            app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
     else
-      person_address_exist.update(home_district_id: 1, home_traditional_authority_id: 1, home_village_id: 1, country_id: 1,
-                                  current_district_id: 1, current_traditional_authority_id: 1, current_village_id: 1, country_id: 1,
-                                  creator: person_address['creator'], landmark: person_address['landmark'],
-                                  app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
+      person_address_exist.update( home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1,country_id: 1,
+                                   current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1,country_id: 1,
+                                   creator: person_address['creator'], landmark: person_address['landmark'],
+                                   app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
     end
     update_last_update('PersonAddress', person_address['updated_at'])
   end
@@ -547,3 +571,4 @@ initiate_deduplication
 
 populate_encounters
 populate_diagnosis
+
