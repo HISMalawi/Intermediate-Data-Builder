@@ -3,24 +3,19 @@
 require 'yaml'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
-File.open("#{Rails.root}/log/last_update.yml", 'w') { |file| file.puts 'Person: 1900-01-01 00:00:00' } # Create a tracking file if it does not exist
+File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
 @last_updated = YAML.load_file("#{Rails.root}/log/last_update.yml")
 @batch_size = 50_000
 @threshold = 85
 
 def get_all_rds_people
-  if @last_updated.include?('Person')
-    @last_updated['Person'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['Person']
-  else
-    last_updated = '1900-01-01 00:00:00'
-  end
+  last_updated = get_last_updated('Person')
 
   rds_people = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person where date_created >= '#{last_updated}'
 	OR date_changed >= '#{last_updated}'
 	OR date_voided  >= '#{last_updated}'
-	AND person_id NOT IN (SELECT person_id FROM #{@rds_db}.users)
-  ORDER BY date_created, date_changed, date_voided;
+	ORDER BY date_created, date_changed, date_voided;
 
 QUERY
 end
@@ -67,8 +62,8 @@ end
 
 # get all rds users
 def get_rds_users
-  if @last_updated.include?('Person')
-    @last_updated['Person'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['Person']
+  if @last_updated.include?('Users')
+    @last_updated['Users'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['Users']
   else
     last_updated = '1900-01-01 00:00:00'
   end
@@ -171,55 +166,30 @@ def populate_people
 
     puts "processiong person_id #{person['person_id']}"
 
-    if Person.find_by(person_id: person['person_id']).blank?
-      ActiveRecord::Base.connection.execute <<QUERY
-			INSERT INTO people (person_id,birthdate,birthdate_est, \
-									person_type_id, gender, death_date,  \
-									cause_of_death, dead, voided, \
-									voided_by,voided_date,void_reason,app_date_created, \
-									app_date_updated,created_at,updated_at ) \
-									values  (#{person['person_id'].to_i}, \
-							  				#{dob}, \
-							  				#{person['birthdate_estimated'].to_i}, \
-							  				1, \
-							   				#{gender.to_i}, \
-							   				#{dod}, \
-							   				'#{person['cause_of_death']}', \
-							   				#{person['dead'].to_i}, \
-							  				#{person['voided'].to_i}, \
-							 				  #{person['voided_by'].to_i}, \
-							 				 #{voided_date}, \
-							  				#{person['void_reason'].to_i}, \
-							  				#{app_created_at}, \
-							  				#{app_updated_at}, \
-							  				now(), \
-							     			now());
-QUERY
+    person_exits = Person.find_by(person_id: person['person_id'])
+
+    if person_exits.blank?
+      Person.create(person_id: person['person_id'].to_i, birthdate: dob, birthdate_est: person['birthdate_estimated'].to_i,
+                    gender: gender.to_i, death_date: dod, cause_of_death: person['cause_of_death'], dead: person['dead'].to_i,
+                    voided: person['voided'].to_i, voided_by: person['voided_by'].to_i, voided_date: voided_date,
+                    void_reason: person['void_reason'].to_i, app_date_created: app_created_at, app_date_updated: app_updated_at )
     else
-      ActiveRecord::Base.connection.execute <<QUERY
-			UPDATE people SET person_id				= 	#{person['person_id'].to_i}, \
-							  birthdate				=   #{dob}, \
-							  birthdate_est 		=	#{person['birthdate_estimated'].to_i}, \
-							  person_type_id		=	1, \
-							  gender 				= 	#{gender.to_i}, \
-							  death_date 			= 	#{dod}, \
-							  cause_of_death		=	'#{person['cause_of_death']}', \
-							  dead 					=	#{person['dead'].to_i}, \
-							  voided 				=	#{person['voided'].to_i}, \
-							  voided_by 			= 	#{person['voided_by'].to_i}, \
-							  voided_date			=	#{voided_date}, \
-							  void_reason 			=	1, \
-							  app_date_created		=	#{app_created_at}, \
-							  app_date_updated		=	#{app_updated_at}, \
-							  updated_at			=    now()  \
-							  where person_id 		= 	 #{person['person_id']};
-QUERY
+      person_exits.update(birthdate: dob, birthdate_est: person['birthdate_estimated'].to_i,
+                    gender: gender.to_i, death_date: dod, cause_of_death: person['cause_of_death'], dead: person['dead'].to_i,
+                    voided: person['voided'].to_i, voided_by: person['voided_by'].to_i, voided_date: voided_date,
+                    void_reason: person['void_reason'].to_i, app_date_created: app_created_at, app_date_updated: app_updated_at )
+
+      puts 'Updating'
     end
-    current_update_date = {}
-    current_update_date['Person'] = person['date_created'].strftime('%Y-%m-%d %H:%M:%S')
-    File.open('log/last_update.yml', 'w') do |file|
-      file.write current_update_date.to_yaml
-    end
+    update_last_update('Person', person['date_created'])
+  end
+end
+
+def update_last_update(model, timestamp)
+  current_update_date = YAML.load_file("#{Rails.root}/log/last_update.yml") || {}
+  current_update_date[model] = timestamp.strftime('%Y-%m-%d %H:%M:%S')
+  File.open('log/last_update.yml', 'w') do |file|
+    file.write current_update_date.to_yaml
   end
 end
 
@@ -232,6 +202,36 @@ def initiate_deduplication
     demographics.update("person_address": get_rds_person_addresses(person['person_id']))
 
     check_for_duplicate(demographics)
+  end
+end
+
+def populate_personnames
+  last_updated = get_last_updated('PersonNames')
+  person_names = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.person_name WHERE date_created >= '#{last_updated}' OR date_changed >= '#{last_updated}'
+  OR date_voided = '#{last_updated}';
+SQL
+
+  person_names.each do |person_name|
+    puts "Updating Person Name for person_id: #{person_name['person_id']}"
+    person_name_exist = PersonName.find_by(person_name_id: person_name['person_name_id'])
+
+    if person_name_exist.blank?
+      PersonName.create(person_name_id: person_name['person_name_id'], person_id: person_name['person_id'],
+                        given_name: person_name['given_name'], family_name: person_name['family_name'],
+                        middle_name: person_name['middle_name'], maiden_name: person_name['maiden_name'],
+                        creator: person_name['creator'], voided: person_name['voided'], voided_by: person_name['voided_by'],
+                        void_reason: person_name['void_reason'], app_date_created: person_name['date_created'],
+                        app_date_updated: person_name['date_updated'])
+    else
+      person_name_exist.update(person_name_id: person_name['person_name_id'], person_id: person_name['person_id'],
+                               given_name: person_name['given_name'], family_name: person_name['family_name'],
+                               middle_name: person_name['middle_name'], maiden_name: person_name['maiden_name'],
+                               creator: person_name['creator'], voided: person_name['voided'], voided_by: person_name['voided_by'],
+                               void_reason: person_name['void_reason'], app_date_created: person_name['date_created'],
+                               app_date_updated: person_name['date_updated'])
+    end
+    update_last_update('PersonName', person_name['date_created'])
   end
 end
 
@@ -396,9 +396,64 @@ def populate_users
   end
 end
 
+def get_last_updated(model)
+  if @last_updated
+    if @last_updated.include?(model)
+       @last_updated[model].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated[model]
+    else
+      last_updated = '1900-01-01 00:00:00'
+    end
+  else
+    last_updated = '1900-01-01 00:00:00'
+  end
+end
 
-# populate_people # load person records into IDS
+def update_person_type
+
+#Updating users type in person_type table
+  last_updated = get_last_updated('User')
+
+  users = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.users WHERE date_created >= '#{last_updated}'
+  OR date_changed >= '#{last_updated}' OR date_retired >= '#{last_updated}';
+SQL
+  users.each do |user|
+    PersonHasType.create(person_id: user['person_id'], person_type_id: 4) unless PersonHasType.find_by(person_id: user['person_id'],person_type_id: 4)
+    update_last_update('User', user['date_created'])
+  end
+
+#Updating Guardians in person type table
+
+  last_updated = get_last_updated('Relationship')
+
+  guardians = ActiveRecord::Base.connection.select_one <<SQL
+  SELECT * FROM #{@rds_db}.relationship WHERE date_created >= '#{last_updated}'
+  AND relationship = 6;
+SQL
+
+  guardians.each do |guardian|
+    PersonHasType.create(person_id: guardian['person_id'], person_type_id: 5) unless PersonHasType.find_by(person_id: guardian['person_id'],person_type_id: 5)
+    update_last_update('Relationship', guardian['date_created'])
+  end
+
+#Updating Guardians in person type table
+  last_updated = get_last_updated('Patient')
+
+  patients = ActiveRecord::Base.connection.select_one <<SQL
+  SELECT * FROM #{@rds_db}.patient WHERE date_created >= '#{last_updated}'
+  OR date_changed >= '#{last_updated}' OR date_voided >= '#{last_updated}';
+SQL
+
+  patients.each do |patient|
+    PersonHasType.create(person_id: patient['person_id'], person_type_id: 1) unless PersonHasType.find_by(person_id: patient['person_id'],person_type_id: 1)
+    update_last_update('Relationship', patient['date_created'])
+  end
+end
+
+populate_people # load person records into IDS
+#update_person_type
 # initiate_deduplication # initate deduplication on people
 # populate_contact_details # load contact details
-#populate_users
-populate_encounters
+#populate_encounters
+populate_personnames
+

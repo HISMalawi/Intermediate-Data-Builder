@@ -21,7 +21,7 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.datetime "voided_date"
     t.string "void_reason"
     t.datetime "app_date_created", null: false
-    t.datetime "app_date_updated", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["encounter_id"], name: "fk_rails_20191c09ff"
@@ -35,6 +35,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_45a3b8051f"
@@ -52,12 +54,14 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["person_id"], name: "fk_rails_0250a15bd9"
   end
 
-  create_table "countries", primary_key: "country_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "countries", primary_key: "country_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
     t.boolean "voided", default: false, null: false
     t.integer "voided_by"
@@ -82,6 +86,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["person_id"], name: "fk_rails_a018965096"
@@ -96,6 +102,9 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.bigint "creator"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_adf3d8ea32"
@@ -110,7 +119,7 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
   end
 
   create_table "encounters", primary_key: "encounter_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.bigint "encounter_type_id"
+    t.bigint "encounter_type_id", null: false
     t.bigint "program_id"
     t.bigint "person_id"
     t.datetime "visit_date"
@@ -118,6 +127,9 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.bigint "creator"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["encounter_type_id"], name: "fk_rails_cf33a2decd"
@@ -133,6 +145,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["encounter_id"], name: "fk_rails_b43e4283a3"
@@ -148,7 +162,7 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.integer "void_reason"
     t.datetime "app_date_created", null: false
-    t.datetime "app_date_updated", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["person_id"], name: "fk_rails_b6d962a153"
@@ -167,6 +181,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["encounter_id"], name: "fk_rails_f70a4c1055"
@@ -181,6 +197,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["encounter_id"], name: "fk_rails_88083b6bd1"
@@ -202,6 +220,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.integer "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["lab_order_id"], name: "fk_rails_c4c5f50f57"
@@ -210,7 +230,7 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.index ["test_type_id"], name: "fk_rails_4bfd585752"
   end
 
-  create_table "locations", primary_key: "location_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "locations", primary_key: "location_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", null: false
     t.integer "parent_location"
     t.string "description"
@@ -219,8 +239,6 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.integer "void_reason"
-    t.datetime "app_date_created", null: false
-    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -232,6 +250,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -244,6 +264,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["drug_id"], name: "fk_rails_0ca1abbeae"
@@ -257,6 +279,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["medication_prescription_id"], name: "fk_rails_51fd85fc50"
@@ -281,6 +305,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["drug_id"], name: "fk_rails_2ae6a3ad59"
@@ -293,6 +319,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -305,6 +333,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.integer "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["occupation"], name: "fk_rails_3dc8df391a"
@@ -321,6 +351,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_b0b07ac345"
@@ -335,6 +367,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_b9e7ab44d4"
@@ -344,7 +378,6 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
   create_table "people", primary_key: "person_id", id: :bigint, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.date "birthdate", null: false
     t.boolean "birthdate_est", null: false
-    t.bigint "person_type_id", null: false
     t.bigint "gender", null: false
     t.date "death_date"
     t.bigint "creator"
@@ -358,7 +391,6 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["person_type_id"], name: "fk_rails_4385f9c280"
   end
 
   create_table "person_addresses", primary_key: "person_address_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -370,6 +402,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "creator", null: false
     t.string "landmark"
     t.boolean "ancestry", default: false, null: false
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["country_id"], name: "fk_rails_525c1ee58a"
@@ -390,7 +424,7 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.integer "void_reason"
     t.datetime "app_date_created", null: false
-    t.datetime "app_date_updated", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["person_id"], name: "fk_rails_546377d8eb"
@@ -430,6 +464,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_1f3f5dcd65"
@@ -444,6 +480,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_ab3111fcf9"
@@ -457,8 +495,6 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.integer "void_reason"
-    t.datetime "app_date_created", null: false
-    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["person_name_id"], name: "fk_rails_39ca42bc7d"
@@ -475,7 +511,7 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.datetime "voided_date"
     t.string "void_reason"
     t.datetime "app_date_created", null: false
-    t.datetime "app_date_updated", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["person_id_a"], name: "fk_rails_4a655159ef"
@@ -491,6 +527,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_2ecd253a4e"
@@ -512,8 +550,6 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.boolean "voided", default: false, null: false
     t.integer "voided_by"
     t.integer "void_reason"
-    t.datetime "app_date_created", null: false
-    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -526,8 +562,6 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.integer "void_reason"
-    t.datetime "app_date_created", null: false
-    t.datetime "app_date_updated", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["site_type_id"], name: "fk_rails_e9088cf59b"
@@ -541,6 +575,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_e32867fc03"
@@ -555,6 +591,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["encounter_id"], name: "fk_rails_e6659727a6"
@@ -569,6 +607,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["person_id"], name: "fk_rails_fa67535741"
@@ -582,6 +622,8 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_49a56b35f0"
@@ -621,7 +663,6 @@ ActiveRecord::Schema.define(version: 2019_06_14_213433) do
   add_foreign_key "outcomes", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "patient_histories", "encounters", primary_key: "encounter_id"
   add_foreign_key "patient_histories", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
-  add_foreign_key "people", "person_types", primary_key: "person_type_id"
   add_foreign_key "person_addresses", "countries", primary_key: "country_id"
   add_foreign_key "person_addresses", "locations", column: "district_id", primary_key: "location_id"
   add_foreign_key "person_addresses", "locations", column: "traditional_authority_id", primary_key: "location_id"
