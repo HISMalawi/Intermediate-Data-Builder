@@ -10,6 +10,6 @@ class CreateCountries < ActiveRecord::Migration[5.2]
 			t.timestamps
 
 		end
-		change_column :countries, :country_id, :integer
+		change_column :countries, :country_id, :integer,  auto_increment: true
 	end
 end
