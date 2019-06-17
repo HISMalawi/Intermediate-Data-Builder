@@ -6,6 +6,11 @@ class CreateVitals < ActiveRecord::Migration[5.2]
       t.bigint  :encounter_id
       t.bigint  :concept_id
       t.bigint  :value_coded
+      t.bigint  :value_numeric
+      t.bigint  :value_text
+      t.bigint  :value_modifier
+      t.bigint  :value_min
+      t.bigint  :value_max
       t.boolean :voided, null: false, default: 0
       t.bigint  :voided_by
       t.datetime :voided_date

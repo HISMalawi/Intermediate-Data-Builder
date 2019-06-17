@@ -93,9 +93,8 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
 
   create_table "diagnosis", primary_key: "diagnosis_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id"
-    t.bigint "concept_id"
-    t.boolean "primary_diagnosis"
-    t.boolean "secondary_diagnosis"
+    t.bigint "primary_diagnosis"
+    t.bigint "secondary_diagnosis"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -105,8 +104,9 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["concept_id"], name: "fk_rails_adf3d8ea32"
     t.index ["encounter_id"], name: "fk_rails_8d8afe9ece"
+    t.index ["primary_diagnosis"], name: "fk_rails_0a7dc9fd37"
+    t.index ["secondary_diagnosis"], name: "fk_rails_2ae6eb8b86"
   end
 
   create_table "duplicate_statuses", primary_key: "duplicate_status_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -393,22 +393,31 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
 
   create_table "person_addresses", primary_key: "person_address_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "person_id", null: false
-    t.integer "district_id", null: false
-    t.integer "traditional_authority_id", null: false
-    t.integer "village_id", null: false
-    t.integer "country_id"
+    t.integer "home_district_id", null: false
+    t.integer "home_traditional_authority_id", null: false
+    t.integer "home_village_id", null: false
+    t.integer "current_district_id", null: false
+    t.integer "current_traditional_authority_id", null: false
+    t.integer "current_village_id", null: false
+    t.integer "country_id", null: false
     t.bigint "creator", null: false
     t.string "landmark"
-    t.boolean "ancestry", default: false, null: false
+    t.boolean "voided", default: false, null: false
+    t.bigint "voided_by"
+    t.datetime "voided_date"
+    t.string "void_reason"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["country_id"], name: "fk_rails_525c1ee58a"
-    t.index ["district_id"], name: "fk_rails_5e629c94e1"
+    t.index ["current_district_id"], name: "fk_rails_60b44a0ad8"
+    t.index ["current_traditional_authority_id"], name: "fk_rails_f3cd017b99"
+    t.index ["current_village_id"], name: "fk_rails_699ba28162"
+    t.index ["home_district_id"], name: "fk_rails_61172ae8e3"
+    t.index ["home_traditional_authority_id"], name: "fk_rails_08b0a4cf4b"
+    t.index ["home_village_id"], name: "fk_rails_879155a8df"
     t.index ["person_id"], name: "fk_rails_eb9d05724a"
-    t.index ["traditional_authority_id"], name: "fk_rails_c3837dd6a4"
-    t.index ["village_id"], name: "fk_rails_723872d48a"
   end
 
   create_table "person_has_types", primary_key: "person_has_type_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -422,8 +431,8 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
 
   create_table "person_names", primary_key: "person_name_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "person_id", null: false
-    t.string "given_name", null: false
-    t.string "family_name", null: false
+    t.string "given_name"
+    t.string "family_name"
     t.string "middle_name"
     t.string "maiden_name"
     t.bigint "creator", null: false
@@ -625,6 +634,11 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.bigint "encounter_id"
     t.bigint "concept_id"
     t.bigint "value_coded"
+    t.bigint "value_numeric"
+    t.bigint "value_text"
+    t.bigint "value_modifier"
+    t.bigint "value_min"
+    t.bigint "value_max"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -644,7 +658,8 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   add_foreign_key "de_duplicators", "people", primary_key: "person_id"
   add_foreign_key "de_identified_identifiers", "people", primary_key: "person_id"
   add_foreign_key "diagnosis", "encounters", primary_key: "encounter_id"
-  add_foreign_key "diagnosis", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
+  add_foreign_key "diagnosis", "master_definitions", column: "primary_diagnosis", primary_key: "master_definition_id"
+  add_foreign_key "diagnosis", "master_definitions", column: "secondary_diagnosis", primary_key: "master_definition_id"
   add_foreign_key "encounters", "master_definitions", column: "encounter_type_id", primary_key: "master_definition_id"
   add_foreign_key "encounters", "master_definitions", column: "program_id", primary_key: "master_definition_id"
   add_foreign_key "encounters", "people", primary_key: "person_id"
@@ -671,9 +686,12 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   add_foreign_key "patient_histories", "encounters", primary_key: "encounter_id"
   add_foreign_key "patient_histories", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "person_addresses", "countries", primary_key: "country_id"
-  add_foreign_key "person_addresses", "locations", column: "district_id", primary_key: "location_id"
-  add_foreign_key "person_addresses", "locations", column: "traditional_authority_id", primary_key: "location_id"
-  add_foreign_key "person_addresses", "locations", column: "village_id", primary_key: "location_id"
+  add_foreign_key "person_addresses", "locations", column: "current_district_id", primary_key: "location_id"
+  add_foreign_key "person_addresses", "locations", column: "current_traditional_authority_id", primary_key: "location_id"
+  add_foreign_key "person_addresses", "locations", column: "current_village_id", primary_key: "location_id"
+  add_foreign_key "person_addresses", "locations", column: "home_district_id", primary_key: "location_id"
+  add_foreign_key "person_addresses", "locations", column: "home_traditional_authority_id", primary_key: "location_id"
+  add_foreign_key "person_addresses", "locations", column: "home_village_id", primary_key: "location_id"
   add_foreign_key "person_addresses", "people", primary_key: "person_id"
   add_foreign_key "person_has_types", "people", primary_key: "person_id"
   add_foreign_key "person_has_types", "person_types", primary_key: "person_type_id"
