@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'yaml'
+require_relative 'ids_diagnosis.rb'
+require_relative 'rds_end'
+# require File.join File.dirname(__FILE__), 'ids_vitals.rb'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -12,7 +15,7 @@ def get_all_rds_people
   last_updated = get_last_updated('Person')
 
   rds_people = ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.person where created_at >= '#{last_updated}' ORDER BY created_at;
+	SELECT * FROM #{@rds_db}.person where date_created >= '#{last_updated}' ORDER BY date_created;
 QUERY
 end
 
@@ -41,7 +44,7 @@ end
 
 # get person attributes from rds
 def get_rds_person_attributes
-  @last_updated['PersonAttribute'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['PersonAttribute']
+  last_updated = get_last_updated('PersonAttribute')
   person_attribute = []
   rds_attribute = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_attribute WHERE person_attribute_type_id IN (12,14,15)
@@ -165,12 +168,12 @@ def populate_people
       Person.create(person_id: person['person_id'].to_i, birthdate: dob, birthdate_est: person['birthdate_estimated'].to_i,
                     gender: gender.to_i, death_date: dod, cause_of_death: person['cause_of_death'], dead: person['dead'].to_i,
                     voided: person['voided'].to_i, voided_by: person['voided_by'].to_i, voided_date: voided_date,
-                    void_reason: person['void_reason'].to_i, app_date_created: app_created_at, app_date_updated: app_updated_at )
+                    void_reason: person['void_reason'].to_i, app_date_created: app_created_at, app_date_updated: app_updated_at)
     else
       person_exits.update(birthdate: dob, birthdate_est: person['birthdate_estimated'].to_i,
-                    gender: gender.to_i, death_date: dod, cause_of_death: person['cause_of_death'], dead: person['dead'].to_i,
-                    voided: person['voided'].to_i, voided_by: person['voided_by'].to_i, voided_date: voided_date,
-                    void_reason: person['void_reason'].to_i, app_date_created: app_created_at, app_date_updated: app_updated_at )
+                          gender: gender.to_i, death_date: dod, cause_of_death: person['cause_of_death'], dead: person['dead'].to_i,
+                          voided: person['voided'].to_i, voided_by: person['voided_by'].to_i, voided_date: voided_date,
+                          void_reason: person['void_reason'].to_i, app_date_created: app_created_at, app_date_updated: app_updated_at)
 
       puts 'Updating'
     end
@@ -198,7 +201,7 @@ def initiate_deduplication
   end
 end
 
-def populate_personnames
+def populate_person_names
   last_updated = get_last_updated('PersonNames')
   person_names = ActiveRecord::Base.connection.select_all <<SQL
   SELECT * FROM #{@rds_db}.person_name WHERE date_created >= '#{last_updated}' OR date_changed >= '#{last_updated}'
@@ -246,7 +249,7 @@ def populate_contact_details
     when 15
       work_phone_number = attribute_value
 
-      # TODO Add email address code
+      # TODO: Add email address code
       # email_address to be added when applications having email addresses start pushing to IDS
     end
 
@@ -305,13 +308,69 @@ def populate_contact_details
   end
 end
 
+# populate Encounters in IDS
+def populate_encounters
+  @last_updated['Encounter'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['Encounter']
+  encounters = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.encounter WHERE  (date_created >= '#{last_updated}'
+	OR date_voided  >=  '#{last_updated}');
+SQL
+
+  encounters.each do |rds_encounter|
+    puts "processing person_id #{rds_encounter['patient_id']}"
+    rds_prog_id =  rds_encounter['program_id']
+    program_name = ActiveRecord::Base.connection.select_all <<SQL
+    SELECT name FROM #{@rds_db}.program  WHERE program_id = #{rds_prog_id}  limit 1
+SQL
+    rds_encounter_type_id = rds_encounter['encounter_type']
+    rds_encounter_type = ActiveRecord::Base.connection.select_all <<SQL
+    SELECT name FROM #{@rds_db}.encounter_type WHERE encounter_type_id = #{rds_encounter_type_id} limit 1
+SQL
+    ids_encounter_type_name = rds_encounter_type.first
+    ids_prog_name = program_name.first
+    master_definition_prog_id = MasterDefinition.find_by(definition: ids_prog_name['name'])
+    master_definition_encounter_id = MasterDefinition.find_by(definition: ids_encounter_type_name['name'])
+
+    if Encounter.find_by(person_id: rds_encounter).blank?
+      encounter = Encounter.new
+      encounter.encounter_type_id = master_definition_encounter_id['master_definition_id']
+      encounter.program_id  = master_definition_prog_id['master_definition_id']
+      encounter.person_id   = rds_encounter['patient_id']
+      encounter.visit_date  = rds_encounter['encounter_datetime']
+      encounter.voided      = rds_encounter['voided']
+      encounter.voided_by   = rds_encounter['voided_by']
+      encounter.voided_date = rds_encounter['date_voided']
+      encounter.void_reason = rds_encounter['void_reason']
+      encounter.app_date_created = rds_encounter['date_created']
+      encounter.app_date_updated = rds_encounter['date_changed']
+      encounter.save
+
+      puts "Successfully populated encounter with record for person #{rds_encounter['patient_id']}"
+    else
+      encounter = Encounter.where(person_id: rds_encounter['patient_id'])
+      encounter.update(encounter_type_id: rds_encounter[''])
+      encounter.update(program_id: 52)
+      encounter.update(person_id: rds_encounter['patient_id'])
+      encounter.update(visit_date: rds_encounter['encounter_datetime'])
+      encounter.update(voided: rds_encounter['voided'])
+      encounter.update(voided_by: rds_encounter['voided_by'])
+      encounter.update(voided_date: rds_encounter['date_voided'])
+      encounter.update(void_reason: rds_encounter['void_reason'])
+      encounter.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+      encounter.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+
+      puts "Successfully updated encounter details with record for person #{rds_encounter['patient_id']}"
+    end
+  end
+end
+
 # populate users in IDS
 def populate_users
   # person_id, username, user_role
   get_rds_users.each do |rds_user|
     person = Person.find_by(person_id: rds_user['person_id'])
 
-    # TODO code for getting all people skipping user, to talk about this
+    # TODO: code for getting all people skipping user, to talk about this
     if person
       if User.find_by(person_id: rds_user['person_id']).blank?
         user = User.new
@@ -346,7 +405,7 @@ end
 def get_last_updated(model)
   if @last_updated
     if @last_updated.include?(model)
-       @last_updated[model].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated[model]
+      @last_updated[model].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated[model]
     else
       last_updated = '1900-01-01 00:00:00'
     end
@@ -356,8 +415,7 @@ def get_last_updated(model)
 end
 
 def update_person_type
-
-#Updating users type in person_type table
+  # Updating users type in person_type table
   last_updated = get_last_updated('User')
 
   users = ActiveRecord::Base.connection.select_all <<SQL
@@ -365,11 +423,11 @@ def update_person_type
   OR date_changed >= '#{last_updated}' OR date_retired >= '#{last_updated}';
 SQL
   users.each do |user|
-    PersonHasType.create(person_id: user['person_id'], person_type_id: 4) unless PersonHasType.find_by(person_id: user['person_id'],person_type_id: 4)
+    PersonHasType.create(person_id: user['person_id'], person_type_id: 4) unless PersonHasType.find_by(person_id: user['person_id'], person_type_id: 4)
     update_last_update('User', user['date_created'])
   end
 
-#Updating Guardians in person type table
+  # Updating Guardians in person type table
 
   last_updated = get_last_updated('Relationship')
 
@@ -379,11 +437,11 @@ SQL
 SQL
 
   guardians.each do |guardian|
-    PersonHasType.create(person_id: guardian['person_id'], person_type_id: 5) unless PersonHasType.find_by(person_id: guardian['person_id'],person_type_id: 5)
+    PersonHasType.create(person_id: guardian['person_id'], person_type_id: 5) unless PersonHasType.find_by(person_id: guardian['person_id'], person_type_id: 5)
     update_last_update('Relationship', guardian['date_created'])
   end
 
-#Updating Guardians in person type table
+  # Updating Guardians in person type table
   last_updated = get_last_updated('Patient')
 
   patients = ActiveRecord::Base.connection.select_one <<SQL
@@ -392,8 +450,37 @@ SQL
 SQL
 
   patients.each do |patient|
-    PersonHasType.create(person_id: patient['person_id'], person_type_id: 1) unless PersonHasType.find_by(person_id: patient['person_id'],person_type_id: 1)
+    PersonHasType.create(person_id: patient['person_id'], person_type_id: 1) unless PersonHasType.find_by(person_id: patient['person_id'], person_type_id: 1)
     update_last_update('Relationship', patient['date_created'])
+  end
+end
+
+def get_rds_diagnosis
+  last_updated = get_last_updated('Diagnosis')
+
+  ActiveRecord::Base.connection.select_all <<QUERY
+	SELECT * FROM #{@rds_db}.obs ob
+  INNER JOIN #{@rds_db}.encounter en
+  ON ob.encounter_id = en.encounter_id
+  WHERE ob.concept_id IN (6542,6543)
+	AND (ob.date_created >= '#{last_updated}'
+	OR ob.date_voided  >=  '#{last_updated}');
+
+QUERY
+end
+
+def populate_diagnosis
+  primary_diagnosis = 6542
+  secondary_diagnosis = 6543
+
+  get_rds_diagnosis.each do |diagnosis|
+    diagnosis = Diagnosis.new
+    diagnosis.encounter_id = diagnosis['encounter_id']
+    diagnosis.primary_diagnosis = (diagnosis['concept_id'] == primary_diagnosis ? diagnosis['value_coded'] : '')
+    diagnosis.secondary_diagnosis = (diagnosis['concept_id'] == secondary_diagnosis ? diagnosis['value_coded'] : '')
+    diagnosis.app_date_created = diagnosis['encounter_datetime']
+    diagnosis.save!
+    update_last_update('Diagnosis', diagnosis['encounter_datetime'])
   end
 end
 
@@ -447,12 +534,16 @@ SQL
     end
     update_last_update('PersonAddress', person_address['updated_at'])
   end
-
 end
-#populate_people # load person records into IDS
-#update_person_type
-# initiate_deduplication # initate deduplication on people
-# populate_contact_details # load contact details
-#populate_encounters
-#populate_personnames
+
+populate_people
+populate_person_names
+populate_contact_details
 populate_person_address
+update_person_type
+
+initiate_deduplication
+
+populate_encounters
+populate_diagnosis
+
