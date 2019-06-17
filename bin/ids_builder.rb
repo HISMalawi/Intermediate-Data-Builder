@@ -312,6 +312,65 @@ def populate_contact_details
   end
 end
 
+#populate Encounters in IDS
+def populate_encounters
+  @last_updated['Encounter'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['Encounter']
+  encounters = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.encounter WHERE  (date_created >= '#{last_updated}'
+	OR date_voided  >=  '#{last_updated}');
+SQL
+
+  encounters.each do |rds_encounter|
+
+    puts "processing person_id #{rds_encounter['patient_id']}"
+    rds_prog_id =  rds_encounter['program_id']
+    program_name = ActiveRecord::Base.connection.select_all <<SQL
+    SELECT name FROM #{@rds_db}.program  WHERE program_id = #{rds_prog_id}  limit 1
+SQL
+    rds_encounter_type_id = rds_encounter['encounter_type']
+    rds_encounter_type = ActiveRecord::Base.connection.select_all <<SQL
+    SELECT name FROM #{@rds_db}.encounter_type WHERE encounter_type_id = #{rds_encounter_type_id} limit 1
+SQL
+    ids_encounter_type_name = rds_encounter_type.first
+    ids_prog_name = program_name.first
+    master_definition_prog_id = MasterDefinition.find_by(definition: ids_prog_name['name'])
+    master_definition_encounter_id = MasterDefinition.find_by(definition: ids_encounter_type_name['name'])
+
+    if Encounter.find_by(person_id: rds_encounter).blank?
+      encounter = Encounter.new
+      encounter.encounter_type_id =  master_definition_encounter_id['master_definition_id']
+      encounter.program_id  = master_definition_prog_id['master_definition_id']
+      encounter.person_id   = rds_encounter['patient_id']
+      encounter.visit_date  = rds_encounter['encounter_datetime']
+      encounter.voided      = rds_encounter['voided']
+      encounter.voided_by   = rds_encounter['voided_by']
+      encounter.voided_date = rds_encounter['date_voided']
+      encounter.void_reason = rds_encounter['void_reason']
+      encounter.app_date_created = rds_encounter['date_created']
+      encounter.app_date_updated = rds_encounter['date_changed']
+      encounter.save
+
+      puts "Successfully populated encounter with record for person #{rds_encounter['patient_id']}"
+    else
+      encounter = Encounter.where(person_id: rds_encounter['patient_id'])
+      encounter.update(encounter_type_id: rds_encounter[''])
+      encounter.update(program_id: 52)
+      encounter.update(person_id: rds_encounter['patient_id'])
+      encounter.update(visit_date: rds_encounter['encounter_datetime'])
+      encounter.update(voided: rds_encounter['voided'])
+      encounter.update(voided_by: rds_encounter['voided_by'])
+      encounter.update(voided_date: rds_encounter['date_voided'])
+      encounter.update(void_reason:  rds_encounter['void_reason'])
+      encounter.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+      encounter.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+
+      puts "Successfully updated encounter details with record for person #{rds_encounter['patient_id']}"
+    end
+  end
+end
+
+#populate Diagnosis
+
 # populate users in IDS
 def populate_users
   # person_id, username, user_role
@@ -337,16 +396,6 @@ def populate_users
       puts 'Ending script'
       break
     end
-  end
-end
-
-def populate_encounters
-  encounters = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.encounter
-SQL
-
-  encounters.each do |encounter|
-    raise encounter.inspect
   end
 end
 
@@ -403,9 +452,12 @@ SQL
     update_last_update('Relationship', patient['date_created'])
   end
 end
-populate_people # load person records into IDS
+
+#populate_people # load person records into IDS
 #update_person_type
 # initiate_deduplication # initate deduplication on people
 # populate_contact_details # load contact details
 #populate_encounters
-populate_personnames
+# populate_personnames
+ #populate_diagnosis
+
