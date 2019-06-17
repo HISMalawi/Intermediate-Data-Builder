@@ -46,7 +46,6 @@ CSV.foreach("#{Rails.root}/app/assets/data/country.csv", :headers => true) do |r
 puts "========================================================"
 puts "======== All : #{Country.count} Countries Saved Successfully ======"
 puts "========================================================"
-puts "========================================================"
 puts "======== Initializing Districts In Malawi ======"
 puts "========================================================"
 CSV.foreach("#{Rails.root}/app/assets/data/districts_with_codes.csv", :headers => true) do |row|
@@ -62,6 +61,19 @@ CSV.foreach("#{Rails.root}/app/assets/data/districts_with_codes.csv", :headers =
 end
 puts "========================================================"
 puts "======= All : #{Location.count} Districts Saved Successfully ======"
+puts "========================================================"
+puts "======= Initializing Site Types  ======"
+puts "========================================================"
+CSV.foreach("#{Rails.root}/app/assets/data/site_types.csv", :headers => true) do |row|
+  next if row[0].blank?
+  site = SiteType.new
+  site.site_type = row[0]
+  site.description = row[1]
+  site.save!
+  puts "...#{site.site_type } Saved Successfully..."
+end
+puts "========================================================"
+puts "======== All : #{SiteType.count} Sites Saved Successfully ======"
 puts "========================================================"
 
 # ending loading metadata into database
