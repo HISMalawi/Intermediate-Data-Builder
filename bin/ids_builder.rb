@@ -3,7 +3,7 @@
 require 'yaml'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
-File.open("#{Rails.root}/log/last_update.yml", 'w') { |file| file.puts 'Person: 1900-01-01 00:00:00' } # Create a tracking file if it does not exist
+File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
 @last_updated = YAML.load_file("#{Rails.root}/log/last_update.yml")
 @batch_size = 50_000
 @threshold = 85
@@ -166,37 +166,28 @@ def populate_people
 
     puts "processiong person_id #{person['person_id']}"
 
-    if Person.find_by(person_id: person['person_id']).blank?
+    person_exits = Person.find_by(person_id: person['person_id'])
+
+    if person_exits.blank?
       Person.create(person_id: person['person_id'].to_i, birthdate: dob, birthdate_est: person['birthdate_estimated'].to_i,
                     gender: gender.to_i, death_date: dod, cause_of_death: person['cause_of_death'], dead: person['dead'].to_i,
                     voided: person['voided'].to_i, voided_by: person['voided_by'].to_i, voided_date: voided_date,
                     void_reason: person['void_reason'].to_i, app_date_created: app_created_at, app_date_updated: app_updated_at )
     else
-      ActiveRecord::Base.connection.execute <<QUERY
-			UPDATE people SET birthdate				=   #{dob}, \
-							  birthdate_est 		=	#{person['birthdate_estimated'].to_i}, \
-							  gender 				= 	#{gender.to_i}, \
-							  death_date 			= 	#{dod}, \
-							  cause_of_death		=	'#{person['cause_of_death']}', \
-							  dead 					=	#{person['dead'].to_i}, \
-							  voided 				=	#{person['voided'].to_i}, \
-							  voided_by 			= 	#{person['voided_by'].to_i}, \
-							  voided_date			=	#{voided_date}, \
-							  void_reason 			=	1, \
-							  app_date_created		=	#{app_created_at}, \
-							  app_date_updated		=	#{app_updated_at}, \
-							  updated_at			=    now()  \
-							  where person_id 		= 	 #{person['person_id']};
-QUERY
+      person_exits.update(birthdate: dob, birthdate_est: person['birthdate_estimated'].to_i,
+                    gender: gender.to_i, death_date: dod, cause_of_death: person['cause_of_death'], dead: person['dead'].to_i,
+                    voided: person['voided'].to_i, voided_by: person['voided_by'].to_i, voided_date: voided_date,
+                    void_reason: person['void_reason'].to_i, app_date_created: app_created_at, app_date_updated: app_updated_at )
+
       puts 'Updating'
     end
-    update_last_update('Person', person['date_created'].strftime('%Y-%m-%d %H:%M:%S'))
+    update_last_update('Person', person['date_created'])
   end
 end
 
-def update_last_update(model,timestamp)
-  current_update_date = {}
-  current_update_date['#{model}'] = timestamp
+def update_last_update(model, timestamp)
+  current_update_date = YAML.load_file("#{Rails.root}/log/last_update.yml") || {}
+  current_update_date[model] = timestamp.strftime('%Y-%m-%d %H:%M:%S')
   File.open('log/last_update.yml', 'w') do |file|
     file.write current_update_date.to_yaml
   end
@@ -211,6 +202,36 @@ def initiate_deduplication
     demographics.update("person_address": get_rds_person_addresses(person['person_id']))
 
     check_for_duplicate(demographics)
+  end
+end
+
+def populate_personnames
+  last_updated = get_last_updated('PersonNames')
+  person_names = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.person_name WHERE date_created >= '#{last_updated}' OR date_changed >= '#{last_updated}'
+  OR date_voided = '#{last_updated}';
+SQL
+
+  person_names.each do |person_name|
+    puts "Updating Person Name for person_id: #{person_name['person_id']}"
+    person_name_exist = PersonName.find_by(person_name_id: person_name['person_name_id'])
+
+    if person_name_exist.blank?
+      PersonName.create(person_name_id: person_name['person_name_id'], person_id: person_name['person_id'],
+                        given_name: person_name['given_name'], family_name: person_name['family_name'],
+                        middle_name: person_name['middle_name'], maiden_name: person_name['maiden_name'],
+                        creator: person_name['creator'], voided: person_name['voided'], voided_by: person_name['voided_by'],
+                        void_reason: person_name['void_reason'], app_date_created: person_name['date_created'],
+                        app_date_updated: person_name['date_updated'])
+    else
+      person_name_exist.update(person_name_id: person_name['person_name_id'], person_id: person_name['person_id'],
+                               given_name: person_name['given_name'], family_name: person_name['family_name'],
+                               middle_name: person_name['middle_name'], maiden_name: person_name['maiden_name'],
+                               creator: person_name['creator'], voided: person_name['voided'], voided_by: person_name['voided_by'],
+                               void_reason: person_name['void_reason'], app_date_created: person_name['date_created'],
+                               app_date_updated: person_name['date_updated'])
+    end
+    update_last_update('PersonName', person_name['date_created'])
   end
 end
 
@@ -330,8 +351,12 @@ SQL
 end
 
 def get_last_updated(model)
-  if @last_updated.include?('#{model}')
-     @last_updated['#{model}'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['#{model}']
+  if @last_updated
+    if @last_updated.include?(model)
+       @last_updated[model].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated[model]
+    else
+      last_updated = '1900-01-01 00:00:00'
+    end
   else
     last_updated = '1900-01-01 00:00:00'
   end
@@ -378,8 +403,9 @@ SQL
     update_last_update('Relationship', patient['date_created'])
   end
 end
-#populate_people # load person records into IDS
-update_person_type
+populate_people # load person records into IDS
+#update_person_type
 # initiate_deduplication # initate deduplication on people
 # populate_contact_details # load contact details
 #populate_encounters
+populate_personnames

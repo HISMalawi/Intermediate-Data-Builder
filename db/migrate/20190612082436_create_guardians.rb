@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 class CreateGuardians < ActiveRecord::Migration[5.2]
   def change
-    create_table :guardians, :primary_key => :guardian_id do |t|
-
+    create_table :guardians, primary_key: :guardian_id do |t|
       t.bigint  :person_id, null: false
       t.bigint  :person_a, null: false
       t.bigint  :person_b, null: false

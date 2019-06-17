@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
 #
@@ -9,28 +11,29 @@
 # Creation of other records in Ruby above ...
 
 # Load metadata into database
+puts '================ Loading SQL Metadata ====================='
 
+metadata_sql_files = %w(person_types master_definitions)
 connection = ActiveRecord::Base.connection
-puts "========================================================"
-puts "================ Loading Person Types ====================="
-puts "========================================================"
-sql = File.read('db/seed_dumps/person_types.sql') # Change path and filename as necessary
-statements = sql.split(/;$/)
-statements.pop
+(metadata_sql_files || []).each do |metadata_sql_file|
+  puts "Loading #{metadata_sql_file} metadata sql file"
+  sql = File.read("db/seed_dumps/#{metadata_sql_file}.sql")
+  statements = sql.split(/;$/)
+  statements.pop
 
-ActiveRecord::Base.transaction do
-  statements.each do |statement|
-    connection.execute(statement)
+  ActiveRecord::Base.transaction do
+    statements.each do |statement|
+      connection.execute(statement)
+    end
   end
+  puts "Loaded #{metadata_sql_file} metadata sql file successfully"
+  puts ''
 end
-puts "========================================================"
-puts "================= Person Types Loaded ====================="
-puts "========================================================"
 
-
-puts "========================================================"
-puts "================= Initializing Nations ========================"
-puts "========================================================"
+puts '================= SQL Metadata End ====================='
+puts ''
+puts ''
+puts '================= Initializing Countries ========================'
 
 CSV.foreach("#{Rails.root}/app/assets/data/country.csv", :headers => true) do |row|
 
@@ -46,7 +49,6 @@ puts "========================================================"
 puts "========================================================"
 puts "======== Initializing Districts In Malawi ======"
 puts "========================================================"
-
 CSV.foreach("#{Rails.root}/app/assets/data/districts_with_codes.csv", :headers => true) do |row|
  # Location.count
   next if row[0].blank?
