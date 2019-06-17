@@ -15,11 +15,7 @@ def get_all_rds_people
   last_updated = get_last_updated('Person')
 
   rds_people = ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.person where date_created >= '#{last_updated}'
-	OR date_changed >= '#{last_updated}'
-	OR date_voided  >= '#{last_updated}'
-	ORDER BY date_created, date_changed, date_voided;
-
+	SELECT * FROM #{@rds_db}.person where date_created >= '#{last_updated}' ORDER BY date_created;
 QUERY
 end
 
@@ -28,10 +24,7 @@ def get_rds_person_name(person_id)
   person_name = []
   rds_person_name = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_name where person_id = #{person_id}
-	AND (date_created >= '#{last_updated}'
-	OR date_changed >= '#{last_updated}'
-	OR date_voided  >=  '#{last_updated}');
-
+	AND (created_at >= '#{last_updated}');
 QUERY
   rds_person_name.each { |name| person_name << name }
 end
@@ -167,7 +160,7 @@ def populate_people
 
     gender = person['gender'] == 'M' ? 1 : 0
 
-    puts "processiong person_id #{person['person_id']}"
+    puts "processing person_id #{person['person_id']}"
 
     person_exits = Person.find_by(person_id: person['person_id'])
 
@@ -315,6 +308,64 @@ def populate_contact_details
   end
 end
 
+# populate Encounters in IDS
+def populate_encounters
+  @last_updated['Encounter'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['Encounter']
+  encounters = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.encounter WHERE  (date_created >= '#{last_updated}'
+	OR date_voided  >=  '#{last_updated}');
+SQL
+
+  encounters.each do |rds_encounter|
+    puts "processing person_id #{rds_encounter['patient_id']}"
+    rds_prog_id =  rds_encounter['program_id']
+    program_name = ActiveRecord::Base.connection.select_all <<SQL
+    SELECT name FROM #{@rds_db}.program  WHERE program_id = #{rds_prog_id}  limit 1
+SQL
+    rds_encounter_type_id = rds_encounter['encounter_type']
+    rds_encounter_type = ActiveRecord::Base.connection.select_all <<SQL
+    SELECT name FROM #{@rds_db}.encounter_type WHERE encounter_type_id = #{rds_encounter_type_id} limit 1
+SQL
+    ids_encounter_type_name = rds_encounter_type.first
+    ids_prog_name = program_name.first
+    master_definition_prog_id = MasterDefinition.find_by(definition: ids_prog_name['name'])
+    master_definition_encounter_id = MasterDefinition.find_by(definition: ids_encounter_type_name['name'])
+
+    if Encounter.find_by(person_id: rds_encounter).blank?
+      encounter = Encounter.new
+      encounter.encounter_type_id = master_definition_encounter_id['master_definition_id']
+      encounter.program_id  = master_definition_prog_id['master_definition_id']
+      encounter.person_id   = rds_encounter['patient_id']
+      encounter.visit_date  = rds_encounter['encounter_datetime']
+      encounter.voided      = rds_encounter['voided']
+      encounter.voided_by   = rds_encounter['voided_by']
+      encounter.voided_date = rds_encounter['date_voided']
+      encounter.void_reason = rds_encounter['void_reason']
+      encounter.app_date_created = rds_encounter['date_created']
+      encounter.app_date_updated = rds_encounter['date_changed']
+      encounter.save
+
+      puts "Successfully populated encounter with record for person #{rds_encounter['patient_id']}"
+    else
+      encounter = Encounter.where(person_id: rds_encounter['patient_id'])
+      encounter.update(encounter_type_id: rds_encounter[''])
+      encounter.update(program_id: 52)
+      encounter.update(person_id: rds_encounter['patient_id'])
+      encounter.update(visit_date: rds_encounter['encounter_datetime'])
+      encounter.update(voided: rds_encounter['voided'])
+      encounter.update(voided_by: rds_encounter['voided_by'])
+      encounter.update(voided_date: rds_encounter['date_voided'])
+      encounter.update(void_reason: rds_encounter['void_reason'])
+      encounter.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+      encounter.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+
+      puts "Successfully updated encounter details with record for person #{rds_encounter['patient_id']}"
+    end
+  end
+end
+
+# populate Diagnosis
+
 # populate users in IDS
 def populate_users
   # person_id, username, user_role
@@ -340,16 +391,6 @@ def populate_users
       puts 'Ending script'
       break
     end
-  end
-end
-
-def populate_encounters
-  encounters = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.encounter
-SQL
-
-  encounters.each do |encounter|
-    raise encounter.inspect
   end
 end
 
@@ -431,14 +472,52 @@ def populate_diagnosis
     diagnosis.secondary_diagnosis = (diagnosis['concept_id'] == secondary_diagnosis ? diagnosis['value_coded'] : '')
     diagnosis.app_date_created = diagnosis['encounter_datetime']
     diagnosis.save!
-    diag = Diagnosis.last
-    raise diag.inspect
+    update_last_update('Diagnosis', diagnosis['encounter_datetime'])
   end
 end
-# populate_people # load person records into IDS
-# update_person_type
-# initiate_deduplication # initate deduplication on people
-# populate_contact_details # load contact details
+
+def get_district_id(district)
+  Location.find_by(name: district)['location_id'].to_i
+end
+
+def populate_person_address
+  last_updated = get_last_updated('PersonAddress')
+
+  person_addresses = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.person_address WHERE updated_at >= '#{last_updated}' order by updated_at;
+SQL
+  person_addresses.each do |person_address|
+    #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Need to add code to get elements from master definition table
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # grouped_address = categorize_address(person_address)
+    puts "Updating Person Address for person_id: #{person_address['person_id']}"
+
+    person_address_exist = PersonAddress.find_by(person_address_id: person_address['person_address_id'])
+
+    if person_address_exist.blank?
+      PersonAddress.create(person_id: person_address['person_id'],
+                           home_district_id: 1, home_traditional_authority_id: 1, home_village_id: 1, country_id: 1,
+                           current_district_id: 1, current_traditional_authority_id: 1, current_village_id: 1, country_id: 1,
+                           creator: person_address['creator'], landmark: person_address['landmark'],
+                           app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
+    else
+      person_address_exist.update(home_district_id: 1, home_traditional_authority_id: 1, home_village_id: 1, country_id: 1,
+                                  current_district_id: 1, current_traditional_authority_id: 1, current_village_id: 1, country_id: 1,
+                                  creator: person_address['creator'], landmark: person_address['landmark'],
+                                  app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
+    end
+    update_last_update('PersonAddress', person_address['updated_at'])
+  end
+end
+
+populate_people
+populate_person_names
+populate_contact_details
+populate_person_address
+update_person_type
+
+initiate_deduplication
+
 populate_encounters
-# populate_person_names
-# populate_diagnosis
+populate_diagnosis
