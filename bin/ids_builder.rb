@@ -189,7 +189,7 @@ def update_last_update(model, timestamp)
   end
 end
 
-def initiate_deduplication
+def initiate_de_duplication
   rds_people = get_all_rds_people
   rds_people.each do |person|
     demographics = {}
@@ -567,8 +567,9 @@ populate_contact_details
 populate_person_address
 update_person_type
 
-initiate_deduplication
+initiate_de_duplication
 
 populate_encounters
 populate_diagnosis
+populate_vitals
 
