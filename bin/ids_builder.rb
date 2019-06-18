@@ -470,20 +470,7 @@ def populate_diagnosis
   secondary_diagnosis = 6543
 
   (get_rds_diagnosis || []).each do |diag|
-    person = Person.find_by(person_id: diag['person_id'])
-
-    if person
-      diagnosis = Diagnosis.new
-      diagnosis.encounter_id = diag['encounter_id']
-      diagnosis.primary_diagnosis = (diag['concept_id'] == primary_diagnosis ? diag['value_coded'] : '')
-      diagnosis.secondary_diagnosis = (diag['concept_id'] == secondary_diagnosis ? diag['value_coded'] : '')
-      diagnosis.app_date_created = diag['encounter_datetime']
-      diagnosis.save!
-      puts "Successfully populated diagnosis with person id #{diag['person_id']}"
-      update_last_update('Diagnosis', diag['encounter_datetime'])
-    else
-      puts 'diagnosis update code not available yet'
-    end
+    rds_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
   end
 end
 
@@ -599,9 +586,9 @@ def methods_init
   # # initiate_de_duplication
   #
   # populate_encounters
-  # populate_diagnosis
+  populate_diagnosis
   # populate_pregnant_status
-  populate_vitals
+  # populate_vitals
   # populate_patient_history
 end
 
