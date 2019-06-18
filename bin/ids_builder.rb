@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
 require 'yaml'
-require_relative 'ids_diagnosis.rb'
+require_relative 'ids_commons'
+require_relative 'ids_diagnosis'
+require_relative 'ids_patient_history'
 require_relative 'rds_end'
-# require File.join File.dirname(__FILE__), 'ids_vitals.rb'
+require_relative 'ids_person_address'
+require_relative 'ids_vitals'
+require_relative 'ids_patient_symptoms'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -334,13 +338,13 @@ SQL
     if Encounter.find_by(person_id: rds_encounter).blank?
       encounter = Encounter.new
       encounter.encounter_type_id = master_definition_encounter_id['master_definition_id']
-      encounter.program_id  = master_definition_prog_id['master_definition_id']
-      encounter.person_id   = rds_encounter['patient_id']
-      encounter.visit_date  = rds_encounter['encounter_datetime']
-      encounter.voided      = rds_encounter['voided']
-      encounter.voided_by   = rds_encounter['voided_by']
-      encounter.voided_date = rds_encounter['date_voided']
-      encounter.void_reason = rds_encounter['void_reason']
+      encounter.program_id        = master_definition_prog_id['master_definition_id']
+      encounter.person_id        = rds_encounter['patient_id']
+      encounter.visit_date       = rds_encounter['encounter_datetime']
+      encounter.voided           = rds_encounter['voided']
+      encounter.voided_by        = rds_encounter['voided_by']
+      encounter.voided_date      = rds_encounter['date_voided']
+      encounter.void_reason      = rds_encounter['void_reason']
       encounter.app_date_created = rds_encounter['date_created']
       encounter.app_date_updated = rds_encounter['date_changed']
       encounter.save
@@ -426,7 +430,9 @@ SQL
 SQL
 
   (guardians || []).each do |guardian|
-    PersonHasType.create(person_id: guardian['person_id'], person_type_id: 5) unless PersonHasType.find_by(person_id: guardian['person_id'], person_type_id: 5)
+    unless PersonHasType.find_by(person_id: guardian['person_id'], person_type_id: 5)
+      PersonHasType.create(person_id: guardian['person_id'], person_type_id: 5)
+    end
     update_last_update('Relationship', guardian['date_created'])
   end
 
@@ -438,8 +444,8 @@ SQL
   OR date_changed >= '#{last_updated}' OR date_voided >= '#{last_updated}';
 SQL
 
-  patients.each do |patient|
-    unless PersonHasType.find_by(person_id: patient['person_id'], person_type_id: 1.to_i)
+  (patients || []).each do |patient|
+    unless PersonHasType.find_by(person_id: patient['person_id'], person_type_id: 1)
       PersonHasType.create(person_id: patient['person_id'], person_type_id: 1)
     end
     update_last_update('Relationship', patient['date_created'])
@@ -465,20 +471,7 @@ def populate_diagnosis
   secondary_diagnosis = 6543
 
   (get_rds_diagnosis || []).each do |diag|
-    person = Person.find_by(person_id: person_attribute['person_id'])
-
-    if person
-      diagnosis = Diagnosis.new
-      diagnosis.encounter_id = diag['encounter_id']
-      diagnosis.primary_diagnosis = (diag['concept_id'] == primary_diagnosis ? diag['value_coded'] : '')
-      diagnosis.secondary_diagnosis = (diag['concept_id'] == secondary_diagnosis ? diag['value_coded'] : '')
-      diagnosis.app_date_created = diag['encounter_datetime']
-      diagnosis.save!
-      puts "Successfully populated diagnosis with person id #{diag['person_id']}"
-      update_last_update('Diagnosis', diag['encounter_datetime'])
-    else
-      puts 'diagnosis update code not available yet'
-    end
+    rds_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
   end
 end
 
@@ -505,57 +498,6 @@ def get_rds_vitals
   QUERY
 end
 
-def vital_value_coded(vital)
-  person = Person.find_by_person_id(vital['person_id'])
-
-  if person
-    vitals = Vital.new
-    vitals.encounter_id = vital['encounter_id']
-    vitals.concept_id = vital['concept_id']
-    vitals.value_coded = begin
-      vital['value_coded']
-                         rescue StandardError
-                           nil
-    end
-    vitals.value_numeric = begin
-      vital['value_numeric']
-                           rescue StandardError
-                             nil
-    end
-    vitals.value_text = begin
-      vital['value_text']
-                        rescue StandardError
-                          nil
-    end
-    vitals.value_modifier = begin
-      vital['value_modifier']
-                            rescue StandardError
-                              nil
-    end
-    vitals.value_min = begin
-      ''
-                       rescue StandardError
-                         nil
-    end
-    vitals.value_max = begin
-      ''
-                       rescue StandardError
-                         nil
-    end
-    vitals.value_max = begin
-      ''
-                       rescue StandardError
-                         nil
-    end
-    vitals.app_date_created = vital['obs_datetime']
-    vitals.save!
-    puts 'Loading vitals...'
-  else
-    puts "No person record with person id #{vital['person_id']}"
-  end
-  update_last_update('Vital', vital[:date_created])
-end
-
 def populate_vitals
   (get_rds_vitals || []).each(&method(:vital_value_coded))
 end
@@ -574,61 +516,95 @@ def categorize_address(addresses)
   address_types
 end
 
+def get_master_def_id(openmrs_metadata_id)
+  MasterDefinition.find_by_openmrs_metadata_id(openmrs_metadata_id).master_definition_id
+rescue StandardError
+  nil
+end
+
+def populate_pregnant_status
+  last_updated = get_last_updated('PregnantStatus')
+
+  pregnant_status = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.obs WHERE updated_at >= '#{last_updated}' and concept_id in (1755,6131) order by updated_at;
+SQL
+
+  pregnant_status.each do |pregnant|
+    puts "Updating Pregnant Status for person_id: #{pregnant['person_id']}"
+    pregnant_status_exist = PregnantStatus.find_by(concept_id: pregnant['concept_id'],
+                                                   encounter_id: pregnant['encounter_id'])
+
+    # TODO
+    # get_master_def_id() # get_master_def_id('Pregnant?')
+    value_coded = MasterDefinition.find_by_definition('Pregnant?')['master_definition_id']
+    if pregnant_status_exist.blank?
+      PregnantStatus.create(concept_id: pregnant['concept_id'], encounter_id: pregnant['encounter_id'],
+                            value_coded: value_coded, voided: pregnant['voided'], voided_by: pregnant['voided_by'],
+                            voided_date: pregnant['voided_date'], void_reason: pregnant['void_reason'], app_date_created: pregnant['date_created'],
+                            app_date_updated: pregnant['date_updated'])
+    else
+      pregnant_status_exist.update(concept_id: pregnant['concept_id'], encounter_id: pregnant['encounter_id'],
+                                   value_coded: value_coded, voided: pregnant['voided'],
+                                   voided_by: pregnant['voided_by'], voided_date: pregnant['voided_date'],
+                                   app_date_created: pregnant['date_created'], app_date_updated: pregnant_status['date_updated'])
+    end
+    update_last_update('PregnantStatus', pregnant['updated_at'])
+  end
+end
+
 def populate_person_address
   last_updated = get_last_updated('PersonAddress')
 
   person_addresses = ActiveRecord::Base.connection.select_all <<SQL
   SELECT * FROM #{@rds_db}.person_address WHERE date_created >= '#{last_updated}' order by date_created;
 SQL
-  person_addresses.each do |person_address|
-    #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Need to add code to get elements from master definition table
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    grouped_address = categorize_address(person_address)
-    home_district_id = begin
-                         get_district_id(grouped_address['home_address']['home_district'])
-                       rescue StandardError
-                         get_district_id('other')
-                       end
-    curent_district_id = begin
-                           get_district_id(grouped_address['current_address']['current_district'])
-                         rescue StandardError
-                           get_district_id('other')
-                         end
+  person_addresses.each(&method(:grouped_address))
+end
 
-    puts "Updating Person Address for person_id: #{person_address['person_id']}"
+def populate_patient_history
+  last_updated = get_last_updated('PatientHistory')
 
-    person_address_exist = PersonAddress.find_by(person_address_id: person_address['person_address_id'])
+  patient_histories = ActiveRecord::Base.connection.select_all <<~SQL
+    SELECT * FROM #{@rds_db}.obs ob
+                      INNER JOIN #{@rds_db}.encounter en
+                                 ON ob.encounter_id = en.encounter_id
+                      INNER JOIN #{@rds_db}.encounter_type et
+                                 ON en.encounter_type = et.encounter_type_id
+    WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%history%')
+    AND ob.updated_at >= '#{last_updated}';
+  SQL
 
-    if person_address_exist.blank?
-      PersonAddress.create(person_address_id: person_address['person_address_id'], person_id: person_address['person_id'],
-                           home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1, country_id: 1,
-                           current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1, country_id: 1,
-                           creator: person_address['creator'], landmark: person_address['landmark'],
-                           app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
-    else
-      person_address_exist.update(home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1, country_id: 1,
-                                  current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1, country_id: 1,
-                                  creator: person_address['creator'], landmark: person_address['landmark'],
-                                  app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
-    end
-    update_last_update('PersonAddress', person_address['updated_at'])
-  end
+  (patient_histories || []).each(&method(:ids_patient_history))
+end
+
+def populate_symptoms
+  last_updated = get_last_updated('Symptoms')
+
+  patient_symptoms = ActiveRecord::Base.connection.select_all <<~SQL
+    SELECT * FROM #{@rds_db}.obs ob
+                      INNER JOIN #{@rds_db}.encounter en
+                                 ON ob.encounter_id = en.encounter_id
+                      INNER JOIN #{@rds_db}.encounter_type et
+                                 ON en.encounter_type = et.encounter_type_id
+    WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%symptoms')
+    AND ob.updated_at >= '#{last_updated}';
+  SQL
+
+  (patient_symptoms || []).each(&method(:ids_patient_symptoms))
 end
 
 def populate_outcomes
   last_updated = get_last_updated('Outcome')
 
- outcomes = ActiveRecord::Base.connection.select_all <<SQL
+  outcomes = ActiveRecord::Base.connection.select_all <<SQL
  SELECT patient_id,pp.program_id,state FROM #{@rds_db}.patient_program pp
  INNER JOIN #{@rds_db}.patient_state ps ON  pp.patient_program_id = ps.patient_program_id
  INNER JOIN  #{@rds_db}.program_workflow pw ON pp.program_id = pw.program_id
  WHERE  (pp.date_created >= '#{last_updated}'
  OR pp.date_voided  >=  '#{last_updated}');
-
 SQL
-  ids_outcomes = outcomes.first
-  ids_outcomes.each do |rds_outcomes|
+
+  outcomes.each do |rds_outcomes|
 
     if Outcome.find_by(person_id: rds_outcomes['patient_id']).blank?
       outcome = Outcome.new
@@ -650,15 +626,25 @@ SQL
     end
   end
 end
-#populate_people
-#populate_person_names
-# populate_contact_details
-# populate_person_address
-# update_person_type
 
-# initiate_de_duplication
+def methods_init
+    populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
+  # update_person_type
+  #
+  # # # initiate_de_duplication
+  #
+  # populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_vitals
+  # populate_patient_history
+  # populate_symptoms
 
-# populate_encounters
-# populate_diagnosis
-# populate_vitals
- populate_outcomes
+  #populate_outcomes
+end
+
+methods_init
+
