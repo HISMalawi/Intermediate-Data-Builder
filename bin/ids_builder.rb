@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require 'yaml'
-require_relative 'ids_diagnosis.rb'
+require_relative 'ids_commons'
+require_relative 'ids_diagnosis'
+require_relative 'ids_patient_history'
 require_relative 'rds_end'
 # require File.join File.dirname(__FILE__), 'ids_vitals.rb'
 
@@ -581,6 +583,8 @@ end
 
 def get_master_def_id(openmrs_metadata_id)
   MasterDefinition.find_by_openmrs_metadata_id(openmrs_metadata_id).master_definition_id
+rescue StandardError
+  nil
 end
 
 def populate_pregnant_status
@@ -655,19 +659,55 @@ SQL
   end
 end
 
+def populate_patient_history
+  last_updated = get_last_updated('PatientHistory')
+
+  patient_histories = ActiveRecord::Base.connection.select_all <<~SQL
+    SELECT * FROM #{@rds_db}.obs ob
+                      INNER JOIN #{@rds_db}.encounter en
+                                 ON ob.encounter_id = en.encounter_id
+                      INNER JOIN #{@rds_db}.encounter_type et
+                                 ON en.encounter_type = et.encounter_type_id
+    WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%history')
+    AND ob.updated_at >= '#{last_updated}';
+  SQL
+
+  (patient_histories || []).each do |patient_history|
+    ids_patient_history = PatientHistory.find_by(encounter_id: patient_history['encounter_id'], concept_id: patient_history['concept_id'])
+
+    concept_id = get_master_def_id(patient_history['concept_id'])
+    value_coded = get_master_def_id(patient_history['value_coded'])
+
+    if ids_patient_history.blank?
+      puts "Creating patient history for #{patient_history['person_id']}"
+      ids_patient_history = PatientHistory.new
+      ids_patient_history.concept_id = concept_id
+      ids_patient_history.encounter_id = patient_history['encounter_id']
+      ids_patient_history.value_coded = value_coded
+    else
+      puts "Updating patient history for #{patient_history['person_id']}"
+      ids_patient_history.concept_id = concept_id
+      ids_patient_history.encounter_id = patient_history['encounter_id']
+      ids_patient_history.value_coded = value_coded
+    end
+    ids_patient_history.save!
+  end
+end
+
 def methods_init
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
+  # update_person_type
 
-# initiate_de_duplication
+  # initiate_de_duplication
 
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_vitals
+  # populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_vitals
+  populate_patient_history
 end
 
 methods_init
