@@ -426,7 +426,9 @@ SQL
 SQL
 
   (guardians || []).each do |guardian|
-    PersonHasType.create(person_id: guardian['person_id'], person_type_id: 5) unless PersonHasType.find_by(person_id: guardian['person_id'], person_type_id: 5)
+    unless PersonHasType.find_by(person_id: guardian['person_id'], person_type_id: 5)
+      PersonHasType.create(person_id: guardian['person_id'], person_type_id: 5)
+    end
     update_last_update('Relationship', guardian['date_created'])
   end
 
@@ -438,7 +440,7 @@ SQL
   OR date_changed >= '#{last_updated}' OR date_voided >= '#{last_updated}';
 SQL
 
-  patients.each do |patient|
+  (patients || []).each do |patient|
     unless PersonHasType.find_by(person_id: patient['person_id'], person_type_id: 1)
       PersonHasType.create(person_id: patient['person_id'], person_type_id: 1)
     end
@@ -508,12 +510,15 @@ end
 def vital_value_coded(vital)
   person = Person.find_by_person_id(vital['person_id'])
 
+  concept_id = MasterDefinition.find_by_openmrs_metadata_id(vital['concept_id'])
+  value_coded = MasterDefinition.find_by_openmrs_metadata_id(vital['value_coded'])
+
   if person
     vitals = Vital.new
     vitals.encounter_id = vital['encounter_id']
-    vitals.concept_id = vital['concept_id']
+    vitals.concept_id = concept_id
     vitals.value_coded = begin
-      vital['value_coded']
+      value_coded
                          rescue StandardError
                            nil
     end
