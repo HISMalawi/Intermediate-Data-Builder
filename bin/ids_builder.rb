@@ -314,10 +314,9 @@ def populate_contact_details
 end
 
 def populate_encounters
-  @last_updated['Encounter'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['Encounter']
+  last_updated = get_last_updated('Encounter')
   encounters = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.encounter WHERE  (date_created >= '#{last_updated}'
-	OR date_voided  >=  '#{last_updated}');
+  SELECT * FROM #{@rds_db}.encounter WHERE  (date_created >= '#{last_updated}');
 SQL
 
   encounters.each do |rds_encounter|
@@ -353,7 +352,7 @@ SQL
     else
       encounter = Encounter.where(person_id: rds_encounter['patient_id'])
       encounter.update(encounter_type_id: rds_encounter[''])
-      encounter.update(program_id: 52)
+      encounter.update(program_id: master_definition_prog_id['master_definition_id'])
       encounter.update(person_id: rds_encounter['patient_id'])
       encounter.update(visit_date: rds_encounter['encounter_datetime'])
       encounter.update(voided: rds_encounter['voided'])
@@ -597,38 +596,51 @@ def populate_outcomes
   last_updated = get_last_updated('Outcome')
 
   outcomes = ActiveRecord::Base.connection.select_all <<SQL
- SELECT patient_id,pp.program_id,state FROM #{@rds_db}.patient_program pp
- INNER JOIN #{@rds_db}.patient_state ps ON  pp.patient_program_id = ps.patient_program_id
- INNER JOIN  #{@rds_db}.program_workflow pw ON pp.program_id = pw.program_id
- WHERE  (pp.date_created >= '#{last_updated}'
- OR pp.date_voided  >=  '#{last_updated}');
+    SELECT * FROM #{@rds_db}.patient_program pp
+    INNER JOIN #{@rds_db}.patient_state ps ON  pp.patient_program_id = ps.patient_program_id
+    INNER JOIN  #{@rds_db}.program_workflow pw ON pp.program_id = pw.program_id
+   INNER JOIN #{@rds_db}.program_workflow_state pws ON pw.program_workflow_id = pws.program_workflow_id
+   WHERE  (pp.date_created >= '#{last_updated}' );
 SQL
-
-  outcomes.each do |rds_outcomes|
+   outcomes.each do |rds_outcomes|
 
     if Outcome.find_by(person_id: rds_outcomes['patient_id']).blank?
       outcome = Outcome.new
       outcome.person_id        = rds_outcomes['patient_id']
-      outcome.concept_id       = rds_outcomes['']
-      outcome.outcome_reason   = MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['state'])
-      outcome.outcome_source   = MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id'].definition)
-      outcome.visit_date       = rds_outcomes['encounter_datetime']
+      outcome.concept_id       = rds_outcomes['concept_id']
+      outcome.outcome_reason   = MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id'])
+      outcome.outcome_source   = MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id'])
       outcome.voided           = rds_outcomes['voided']
       outcome.voided_by        = rds_outcomes['voided_by']
       outcome.voided_date      = rds_outcomes['date_voided']
       outcome.void_reason      = rds_outcomes['void_reason']
       outcome.app_date_created = rds_outcomes['date_created']
       outcome.app_date_updated = rds_outcomes['date_changed']
-      raise outcome.inspect
       outcome.save
 
-      puts "Successfully populated encounter with record for person #{rds_outcomes['patient_id']}"
+      puts "Successfully populated Outcome with record for person #{rds_outcomes['patient_id']}"
+    else
+      outcome = Outcome.where(person_id: rds_encounter['patient_id'])
+      outcome.update(person_id: rds_outcomes['patient_id'])
+      outcome.update(concept_id: rds_outcomes['concept_id'])
+      outcome.update(outcome_reason: MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id']))
+      outcome.update(outcome_source: MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id']))
+      outcome.update(voided: rds_outcomes['voided'])
+      outcome.update(voided_by: rds_outcomes['voided_by'])
+      outcome.update(voided_date: rds_outcomes['date_voided'])
+      outcome.update(void_reason: rds_outcomes['void_reason'])
+      encounter.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+      encounter.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+
+      puts "Successfully updated outcome details with record for person #{rds_outcomes['patient_id']}"
     end
   end
 end
 
+
+
 def methods_init
-    populate_people
+  # populate_people
   # populate_person_names
   # populate_contact_details
   # populate_person_address
@@ -643,7 +655,7 @@ def methods_init
   # populate_patient_history
   # populate_symptoms
 
-  #populate_outcomes
+   populate_outcomes
 end
 
 methods_init
