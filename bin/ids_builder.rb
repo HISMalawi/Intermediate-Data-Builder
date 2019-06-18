@@ -5,6 +5,7 @@ require_relative 'ids_commons'
 require_relative 'ids_diagnosis'
 require_relative 'ids_patient_history'
 require_relative 'rds_end'
+require_relative 'ids_person_address'
 # require File.join File.dirname(__FILE__), 'ids_vitals.rb'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
@@ -623,40 +624,7 @@ def populate_person_address
   person_addresses = ActiveRecord::Base.connection.select_all <<SQL
   SELECT * FROM #{@rds_db}.person_address WHERE date_created >= '#{last_updated}' order by date_created;
 SQL
-  person_addresses.each do |person_address|
-    #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Need to add code to get elements from master definition table
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    grouped_address = categorize_address(person_address)
-    home_district_id = begin
-                         get_district_id(grouped_address['home_address']['home_district'])
-                       rescue StandardError
-                         get_district_id('other')
-                       end
-    curent_district_id = begin
-                           get_district_id(grouped_address['current_address']['current_district'])
-                         rescue StandardError
-                           get_district_id('other')
-                         end
-
-    puts "Updating Person Address for person_id: #{person_address['person_id']}"
-
-    person_address_exist = PersonAddress.find_by(person_address_id: person_address['person_address_id'])
-
-    if person_address_exist.blank?
-      PersonAddress.create(person_address_id: person_address['person_address_id'], person_id: person_address['person_id'],
-                           home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1, country_id: 1,
-                           current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1, country_id: 1,
-                           creator: person_address['creator'], landmark: person_address['landmark'],
-                           app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
-    else
-      person_address_exist.update(home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1, country_id: 1,
-                                  current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1, country_id: 1,
-                                  creator: person_address['creator'], landmark: person_address['landmark'],
-                                  app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
-    end
-    update_last_update('PersonAddress', person_address['updated_at'])
-  end
+  person_addresses.each(&method(:grouped_address))
 end
 
 def populate_patient_history
@@ -672,42 +640,23 @@ def populate_patient_history
     AND ob.updated_at >= '#{last_updated}';
   SQL
 
-  (patient_histories || []).each do |patient_history|
-    ids_patient_history = PatientHistory.find_by(encounter_id: patient_history['encounter_id'], concept_id: patient_history['concept_id'])
-
-    concept_id = get_master_def_id(patient_history['concept_id'])
-    value_coded = get_master_def_id(patient_history['value_coded'])
-
-    if ids_patient_history.blank?
-      puts "Creating patient history for #{patient_history['person_id']}"
-      ids_patient_history = PatientHistory.new
-      ids_patient_history.concept_id = concept_id
-      ids_patient_history.encounter_id = patient_history['encounter_id']
-      ids_patient_history.value_coded = value_coded
-    else
-      puts "Updating patient history for #{patient_history['person_id']}"
-      ids_patient_history.concept_id = concept_id
-      ids_patient_history.encounter_id = patient_history['encounter_id']
-      ids_patient_history.value_coded = value_coded
-    end
-    ids_patient_history.save!
-  end
+  (patient_histories || []).each(&method(:ids_patient_history))
 end
 
 def methods_init
-  populate_people
-  populate_person_names
-  populate_contact_details
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
   populate_person_address
-  update_person_type
-
-  # initiate_de_duplication
-
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_vitals
-  populate_patient_history
+  # update_person_type
+  #
+  # # initiate_de_duplication
+  #
+  # populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_vitals
+  # populate_patient_history
 end
 
 methods_init
