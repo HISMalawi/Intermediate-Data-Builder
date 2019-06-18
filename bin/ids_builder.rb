@@ -180,7 +180,11 @@ end
 
 def update_last_update(model, timestamp)
   current_update_date = YAML.load_file("#{Rails.root}/log/last_update.yml") || {}
-  current_update_date[model] = timestamp.strftime('%Y-%m-%d %H:%M:%S') rescue nil
+  current_update_date[model] = begin
+                                 timestamp.strftime('%Y-%m-%d %H:%M:%S')
+                               rescue StandardError
+                                 nil
+                               end
   File.open('log/last_update.yml', 'w') do |file|
     file.write current_update_date.to_yaml
   end
@@ -421,7 +425,7 @@ SQL
   AND relationship = 6;
 SQL
 
-  guardians.each do |guardian|
+  (guardians || []).each do |guardian|
     PersonHasType.create(person_id: guardian['person_id'], person_type_id: 5) unless PersonHasType.find_by(person_id: guardian['person_id'], person_type_id: 5)
     update_last_update('Relationship', guardian['date_created'])
   end
@@ -435,7 +439,9 @@ SQL
 SQL
 
   patients.each do |patient|
-    PersonHasType.create(person_id: patient['person_id'], person_type_id: 1) unless PersonHasType.find_by(person_id: patient['person_id'], person_type_id: 1)
+    unless PersonHasType.find_by(person_id: patient['person_id'], person_type_id: 1)
+      PersonHasType.create(person_id: patient['person_id'], person_type_id: 1)
+    end
     update_last_update('Relationship', patient['date_created'])
   end
 end
