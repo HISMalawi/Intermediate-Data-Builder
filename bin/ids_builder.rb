@@ -10,6 +10,7 @@ require_relative 'ids_vitals'
 require_relative 'ids_patient_symptoms'
 require_relative 'ids_presenting_complaints'
 require_relative 'ids_side_effects'
+require_relative 'ids_tb_statuses'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -620,11 +621,27 @@ def populate_presenting_complaints
                                  ON ob.encounter_id = en.encounter_id
                       INNER JOIN #{@rds_db}.encounter_type et
                                  ON en.encounter_type = et.encounter_type_id
-    WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type where encounter_type_id = 122)
+    WHERE et.encounter_type_id = 122
     AND ob.updated_at >= '#{last_updated}';
   SQL
 
   (presenting_complaints || []).each(&method(:ids_presenting_complaints))
+end
+
+def populate_tb_statuses
+  last_updated = get_last_updated('TbStatus')
+
+  tb_statuses = ActiveRecord::Base.connection.select_all <<~SQL
+    SELECT * FROM #{@rds_db}.obs ob
+                      INNER JOIN #{@rds_db}.encounter en
+                                 ON ob.encounter_id = en.encounter_id
+                      INNER JOIN #{@rds_db}.encounter_type et
+                                 ON en.encounter_type = et.encounter_type_id
+    WHERE et.encounter_type_id = 7459
+    AND ob.updated_at >= '#{last_updated}';
+  SQL
+
+  (tb_statuses || []).each(&method(:ids_tb_statuses))
 end
 
 def methods_init
@@ -644,6 +661,7 @@ def methods_init
   populate_symptoms
   populate_side_effects
   populate_presenting_complaints
+  populate_tb_statuses
 end
 
 methods_init
