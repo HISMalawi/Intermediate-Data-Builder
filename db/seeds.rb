@@ -62,6 +62,24 @@ end
 puts "========================================================"
 puts "======= All : #{Location.count} Districts Saved Successfully ======"
 puts "========================================================"
+file = File.open("#{Rails.root}/app/assets/data/districts.json").read
+json = JSON.parse(file)
+puts "======== Initialising TAs ==============="
+json.each do |district, traditional_authorities|
+  traditional_authorities.each do |ta, villages|
+    d = Location.find_by_name(district).location_id rescue nil
+    next if d.blank?
+    next if ta.blank?
+    d_ta = Location.new()
+    d_ta.parent_location = d
+    d_ta.name = ta
+    d_ta.save!
+    puts "TA #{d_ta.name} of #{district} Was Saved Successfully"
+  end
+end
+puts "TA count : #{Location.all.count}"
+
+
 puts "======= Initializing Site Types  ======"
 puts "========================================================"
 CSV.foreach("#{Rails.root}/app/assets/data/site_types.csv", :headers => true) do |row|
