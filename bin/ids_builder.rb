@@ -575,7 +575,7 @@ def categorize_address(addresses)
 end
 
 def get_master_def_id(name)
-  master_id = MasterDefinition.find_by(definition: name)['definition'].to_i
+  master_id = MasterDefinition.find_by(definition: name)['master_definition_id'].to_i
   return master_id
 end
 
