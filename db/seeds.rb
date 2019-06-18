@@ -73,7 +73,20 @@ CSV.foreach("#{Rails.root}/app/assets/data/site_types.csv", :headers => true) do
   puts "...#{site.site_type } Saved Successfully..."
 end
 puts "========================================================"
-puts "======== All : #{SiteType.count} Sites Saved Successfully ======"
+puts "======== All : #{SiteType.count} Sites Types Saved Successfully ======"
+puts "========================================================"
+puts "======= Initializing Duplicate Statuses  ======"
+puts "========================================================"
+CSV.foreach("#{Rails.root}/app/assets/data/duplicate_status.csv", :headers => true) do |row|
+  next if row[0].blank?
+    duplicate = DuplicateStatus.new
+    duplicate.status =  row[0]
+    duplicate.description = row[1]
+    duplicate.save!
+    puts "...#{duplicate.status} Saved Successfully..."
+end
+puts "========================================================"
+puts "======== All : #{DuplicateStatus.count} Duplicate Statuses Saved Successfully ======"
 puts "========================================================"
 
 # ending loading metadata into database
