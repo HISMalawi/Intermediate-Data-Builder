@@ -614,21 +614,21 @@ def populate_presenting_complaints
 end
 
 def methods_init
-  # populate_people
-  # populate_person_names
-  # populate_contact_details
-  # populate_person_address
-  # update_person_type
+  populate_people
+  populate_person_names
+  populate_contact_details
+  populate_person_address
+  update_person_type
 
   # # initiate_de_duplication
 
-  # populate_encounters
-  # populate_diagnosis
-  # populate_pregnant_status
-  # populate_vitals
-  # populate_patient_history
-  # populate_symptoms
-  # populate_side_effects
+  populate_encounters
+  populate_diagnosis
+  populate_pregnant_status
+  populate_vitals
+  populate_patient_history
+  populate_symptoms
+  populate_side_effects
   populate_presenting_complaints
 end
 
