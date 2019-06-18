@@ -7,6 +7,7 @@ require_relative 'ids_patient_history'
 require_relative 'rds_end'
 require_relative 'ids_person_address'
 require_relative 'ids_vitals'
+require_relative 'ids_patient_symptoms'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -569,27 +570,44 @@ def populate_patient_history
                                  ON ob.encounter_id = en.encounter_id
                       INNER JOIN #{@rds_db}.encounter_type et
                                  ON en.encounter_type = et.encounter_type_id
-    WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%history')
+    WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%history%')
     AND ob.updated_at >= '#{last_updated}';
   SQL
 
   (patient_histories || []).each(&method(:ids_patient_history))
 end
 
+def populate_symptoms
+  last_updated = get_last_updated('Symptoms')
+
+  patient_symptoms = ActiveRecord::Base.connection.select_all <<~SQL
+    SELECT * FROM #{@rds_db}.obs ob
+                      INNER JOIN #{@rds_db}.encounter en
+                                 ON ob.encounter_id = en.encounter_id
+                      INNER JOIN #{@rds_db}.encounter_type et
+                                 ON en.encounter_type = et.encounter_type_id
+    WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%symptoms')
+    AND ob.updated_at >= '#{last_updated}';
+  SQL
+
+  (patient_symptoms || []).each(&method(:ids_patient_symptoms))
+end
+
 def methods_init
-  # populate_people
-  # populate_person_names
-  # populate_contact_details
-  # populate_person_address
-  # update_person_type
-  #
+  populate_people
+  populate_person_names
+  populate_contact_details
+  populate_person_address
+  update_person_type
+
   # # initiate_de_duplication
-  #
-  # populate_encounters
+
+  populate_encounters
   populate_diagnosis
-  # populate_pregnant_status
-  # populate_vitals
-  # populate_patient_history
+  populate_pregnant_status
+  populate_vitals
+  populate_patient_history
+  populate_symptoms
 end
 
 methods_init
