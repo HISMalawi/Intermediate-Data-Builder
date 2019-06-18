@@ -6,7 +6,7 @@ require_relative 'ids_diagnosis'
 require_relative 'ids_patient_history'
 require_relative 'rds_end'
 require_relative 'ids_person_address'
-# require File.join File.dirname(__FILE__), 'ids_vitals.rb'
+require_relative 'ids_vitals'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -510,60 +510,6 @@ def get_rds_vitals
   QUERY
 end
 
-def vital_value_coded(vital)
-  person = Person.find_by_person_id(vital['person_id'])
-
-  concept_id = get_master_def_id(vital['concept_id'])
-  value_coded = get_master_def_id(vital['value_coded'])
-
-  if person
-    vitals = Vital.new
-    vitals.encounter_id = vital['encounter_id']
-    vitals.concept_id = concept_id
-    vitals.value_coded = begin
-      value_coded
-                         rescue StandardError
-                           nil
-    end
-    vitals.value_numeric = begin
-      vital['value_numeric']
-                           rescue StandardError
-                             nil
-    end
-    vitals.value_text = begin
-      vital['value_text']
-                        rescue StandardError
-                          nil
-    end
-    vitals.value_modifier = begin
-      vital['value_modifier']
-                            rescue StandardError
-                              nil
-    end
-    vitals.value_min = begin
-      ''
-                       rescue StandardError
-                         nil
-    end
-    vitals.value_max = begin
-      ''
-                       rescue StandardError
-                         nil
-    end
-    vitals.value_max = begin
-      ''
-                       rescue StandardError
-                         nil
-    end
-    vitals.app_date_created = vital['obs_datetime']
-    vitals.save!
-    puts 'Loading vitals...'
-  else
-    puts "No person record with person id #{vital['person_id']}"
-  end
-  update_last_update('Vital', vital[:date_created])
-end
-
 def populate_vitals
   (get_rds_vitals || []).each(&method(:vital_value_coded))
 end
@@ -647,7 +593,7 @@ def methods_init
   # populate_people
   # populate_person_names
   # populate_contact_details
-  populate_person_address
+  # populate_person_address
   # update_person_type
   #
   # # initiate_de_duplication
@@ -655,7 +601,7 @@ def methods_init
   # populate_encounters
   # populate_diagnosis
   # populate_pregnant_status
-  # populate_vitals
+  populate_vitals
   # populate_patient_history
 end
 
