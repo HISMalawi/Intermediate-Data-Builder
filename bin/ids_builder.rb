@@ -510,8 +510,8 @@ end
 def vital_value_coded(vital)
   person = Person.find_by_person_id(vital['person_id'])
 
-  concept_id = MasterDefinition.find_by_openmrs_metadata_id(vital['concept_id'])
-  value_coded = MasterDefinition.find_by_openmrs_metadata_id(vital['value_coded'])
+  concept_id = get_master_def_id(vital['concept_id'])
+  value_coded = get_master_def_id(vital['value_coded'])
 
   if person
     vitals = Vital.new
@@ -579,9 +579,8 @@ def categorize_address(addresses)
   address_types
 end
 
-def get_master_def_id(name)
-  master_id = MasterDefinition.find_by(definition: name)['definition'].to_i
-  return master_id
+def get_master_def_id(openmrs_metadata_id)
+  MasterDefinition.find_by_openmrs_metadata_id(openmrs_metadata_id).master_definition_id
 end
 
 def populate_pregnant_status
@@ -595,13 +594,15 @@ SQL
     puts "Updating Pregnant Status for person_id: #{pregnant['person_id']}"
     pregnant_status_exist = PregnantStatus.find_by(concept_id: pregnant['concept_id'],
                                                    encounter_id: pregnant['encounter_id'])
-    debugger
-     value_coded = get_master_def_id('Pregnant?')
+
+    # TODO
+    # get_master_def_id() # get_master_def_id('Pregnant?')
+    value_coded = MasterDefinition.find_by_definition(definition: 'Pregnant?')['master_definition_id'].to_i
     if pregnant_status_exist.blank?
       PregnantStatus.create(concept_id: pregnant['concept_id'], encounter_id: pregnant['encounter_id'],
-                           value_coded: value_coded, voided: pregnant['voided'], voided_by: pregnant['voided_by'],
-                           voided_date: pregnant['voided_date'],void_reason: pregnant['void_reason'], app_date_created: pregnant['date_created'],
-                           app_date_updated: pregnant['date_updated'])
+                            value_coded: value_coded, voided: pregnant['voided'], voided_by: pregnant['voided_by'],
+                            voided_date: pregnant['voided_date'], void_reason: pregnant['void_reason'], app_date_created: pregnant['date_created'],
+                            app_date_updated: pregnant['date_updated'])
     else
       pregnant_status_exist.update(concept_id: pregnant['concept_id'], encounter_id: pregnant['encounter_id'],
                                    value_coded: value_coded, voided: pregnant['voided'],
@@ -610,7 +611,6 @@ SQL
     end
     update_last_update('PregnantStatus', pregnant['updated_at'])
   end
-
 end
 
 def populate_person_address
@@ -655,15 +655,15 @@ SQL
   end
 end
 
-#populate_people
-#populate_person_names
-#populate_contact_details
-#populate_person_address
-#update_person_type
-
-#initiate_de_duplication
-
-#populate_encounters
-#populate_diagnosis
-populate_pregnant_status
-#populate_vitals
+# populate_people
+# populate_person_names
+populate_contact_details
+# populate_person_address
+# update_person_type
+#
+# initiate_de_duplication
+#
+# populate_encounters
+# populate_diagnosis
+# populate_pregnant_status
+# populate_vitals
