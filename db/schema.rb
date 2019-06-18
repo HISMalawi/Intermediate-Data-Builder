@@ -109,7 +109,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["secondary_diagnosis"], name: "fk_rails_2ae6eb8b86"
   end
 
-  create_table "duplicate_statuses", primary_key: "duplicate_status_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "duplicate_statuses", primary_key: "duplicate_status_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "status"
     t.string "description"
     t.datetime "created_at", null: false
@@ -456,10 +456,10 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "potential_duplicates", primary_key: "potential_duplicate_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "potential_duplicates", primary_key: "potential_duplicate_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "person_id_a", null: false
     t.bigint "person_id_b", null: false
-    t.bigint "duplicate_status_id"
+    t.integer "duplicate_status_id"
     t.float "score", null: false
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"

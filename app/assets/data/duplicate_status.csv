@@ -1,0 +1,4 @@
+Type,Description
+Exact,Record of the same person
+Mistake,This is a record that was entered wrongly
+Merged,This is a record after merging the duplicate records
