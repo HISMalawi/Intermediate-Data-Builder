@@ -439,7 +439,7 @@ SQL
 SQL
 
   patients.each do |patient|
-    unless PersonHasType.find_by(person_id: patient['person_id'], person_type_id: 1.to_i)
+    unless PersonHasType.find_by(person_id: patient['person_id'], person_type_id: 1)
       PersonHasType.create(person_id: patient['person_id'], person_type_id: 1)
     end
     update_last_update('Relationship', patient['date_created'])
@@ -465,7 +465,7 @@ def populate_diagnosis
   secondary_diagnosis = 6543
 
   (get_rds_diagnosis || []).each do |diag|
-    person = Person.find_by(person_id: person_attribute['person_id'])
+    person = Person.find_by(person_id: diag['person_id'])
 
     if person
       diagnosis = Diagnosis.new
@@ -616,14 +616,14 @@ SQL
   end
 end
 
-populate_people
-populate_person_names
-populate_contact_details
-populate_person_address
-update_person_type
-
-initiate_de_duplication
-
-populate_encounters
-populate_diagnosis
+# populate_people
+# populate_person_names
+# populate_contact_details
+# populate_person_address
+# update_person_type
+#
+# initiate_de_duplication
+#
+# populate_encounters
+# populate_diagnosis
 populate_vitals
