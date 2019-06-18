@@ -36,51 +36,57 @@ puts ''
 puts '================= Initializing Countries ========================'
 
 CSV.foreach("#{Rails.root}/app/assets/data/country.csv", :headers => true) do |row|
-
   next if row[0].blank?
-    country = Country.new
-    country.name = row[3]
-    country.save!
-    puts "...#{country.name} Saved Successfully..."
-  end
+  country = Country.new
+  country.name = row[3]
+  country.save!
+  puts "...#{country.name} Saved Successfully..."
+end
 puts "========================================================"
 puts "======== All : #{Country.count} Countries Saved Successfully ======"
 puts "========================================================"
 puts "======== Initializing Districts In Malawi ======"
 puts "========================================================"
 CSV.foreach("#{Rails.root}/app/assets/data/districts_with_codes.csv", :headers => true) do |row|
- # Location.count
+  # Location.count
   next if row[0].blank?
   row[1] = 'Nkhata-bay' if row[1].match(/Nkhata/i)
-    location = Location.new
-    location.name = row[1]
-    location.latitude = row[3]
-    location.longitude = row[4]
-    location.save!
-    puts "...#{location.name} Saved Successfully..."
+  location = Location.new
+  location.name = row[1]
+  location.latitude = row[3]
+  location.longitude = row[4]
+  location.save!
+  puts "...#{location.name} Saved Successfully..."
 end
 puts "========================================================"
 puts "======= All : #{Location.count} Districts Saved Successfully ======"
 puts "========================================================"
 file = File.open("#{Rails.root}/app/assets/data/districts.json").read
 json = JSON.parse(file)
-puts "======== Initialising TAs ==============="
+puts "======== Initialising TAs  and Their Respective Villages ======="
 json.each do |district, traditional_authorities|
+  district_id = Location.find_by_name(district).location_id rescue nil
+  next if district_id.blank?
   traditional_authorities.each do |ta, villages|
-    d = Location.find_by_name(district).location_id rescue nil
-    next if d.blank?
     next if ta.blank?
-    d_ta = Location.new()
-    d_ta.parent_location = d
-    d_ta.name = ta
-    d_ta.save!
-    puts "TA #{d_ta.name} of #{district} Was Saved Successfully"
+    district_ta = Location.new
+    district_ta.parent_location = district_id
+    district_ta.name = ta
+    district_ta.save!
+    ta_id = district_ta.location_id
+    villages.each do |village|
+      ta_village = Location.new
+      ta_village.parent_location =  ta_id
+      ta_village.name = village
+      ta_village.save!
+      puts "Village #{ta_village.name} of TA #{district_ta.name} of #{district} Was Saved Successfully"
+    end
   end
 end
-puts "TA count : #{Location.all.count}"
-
-
-puts "======= Initializing Site Types  ======"
+puts "========================================================"
+puts "============= TAs and Villages Loaded Successfully ================"
+puts "========================================================"
+puts "================= Initializing Site Types  =================="
 puts "========================================================"
 CSV.foreach("#{Rails.root}/app/assets/data/site_types.csv", :headers => true) do |row|
   next if row[0].blank?
@@ -97,11 +103,11 @@ puts "======= Initializing Duplicate Statuses  ======"
 puts "========================================================"
 CSV.foreach("#{Rails.root}/app/assets/data/duplicate_status.csv", :headers => true) do |row|
   next if row[0].blank?
-    duplicate = DuplicateStatus.new
-    duplicate.status =  row[0]
-    duplicate.description = row[1]
-    duplicate.save!
-    puts "...#{duplicate.status} Saved Successfully..."
+  duplicate = DuplicateStatus.new
+  duplicate.status =  row[0]
+  duplicate.description = row[1]
+  duplicate.save!
+  puts "...#{duplicate.status} Saved Successfully..."
 end
 puts "========================================================"
 puts "======== All : #{DuplicateStatus.count} Duplicate Statuses Saved Successfully ======"
@@ -113,7 +119,7 @@ CSV.foreach("#{Rails.root}/app/assets/data/health_facilities.csv", :headers => t
   site = Site.new
   site_type  = ""
   if  row[5].downcase.include?("district")
-      site_type = "District Hospital"
+    site_type = "District Hospital"
   elsif row[5]=="Central"
     site_type = "Central Hospital"
   else
@@ -128,6 +134,9 @@ CSV.foreach("#{Rails.root}/app/assets/data/health_facilities.csv", :headers => t
 end
 puts "========================================================"
 puts "======== All : #{Site.count} Sites Saved Successfully ======"
+puts "========================================================"
+puts ""
+puts "======== Application Set Up Done Successfully ======"
 puts "========================================================"
 
 # ending loading metadata into database
