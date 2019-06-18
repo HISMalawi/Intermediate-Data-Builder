@@ -233,7 +233,7 @@ end
 
 # populate contact details in IDS
 def populate_contact_details
-  get_rds_person_attributes.each do |person_attribute|
+  (get_rds_person_attributes || []).each do |person_attribute|
     attribute_value = person_attribute['value']
 
     cell_phone_number = ''
@@ -474,18 +474,18 @@ def populate_diagnosis
   primary_diagnosis = 6542
   secondary_diagnosis = 6543
 
-  get_rds_diagnosis.each do |diagnosis|
+  (get_rds_diagnosis || []).each do |diag|
     person = Person.find_by(person_id: person_attribute['person_id'])
 
     if person
       diagnosis = Diagnosis.new
-      diagnosis.encounter_id = diagnosis['encounter_id']
-      diagnosis.primary_diagnosis = (diagnosis['concept_id'] == primary_diagnosis ? diagnosis['value_coded'] : '')
-      diagnosis.secondary_diagnosis = (diagnosis['concept_id'] == secondary_diagnosis ? diagnosis['value_coded'] : '')
-      diagnosis.app_date_created = diagnosis['encounter_datetime']
+      diagnosis.encounter_id = diag['encounter_id']
+      diagnosis.primary_diagnosis = (diag['concept_id'] == primary_diagnosis ? diag['value_coded'] : '')
+      diagnosis.secondary_diagnosis = (diag['concept_id'] == secondary_diagnosis ? diag['value_coded'] : '')
+      diagnosis.app_date_created = diag['encounter_datetime']
       diagnosis.save!
-      puts "Successfully populated diagnosis with person id #{diagnosis['person_id']}"
-      update_last_update('Diagnosis', diagnosis['encounter_datetime'])
+      puts "Successfully populated diagnosis with person id #{diag['person_id']}"
+      update_last_update('Diagnosis', diag['encounter_datetime'])
     else
       puts 'diagnosis update code not available yet'
     end
@@ -497,34 +497,91 @@ def get_district_id(district)
 end
 
 def get_rds_vitals
-  last_updated = get_last_updated('Diagnosis')
+  last_updated = get_last_updated('Vital')
 
-  ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.obs ob
-  INNER JOIN #{@rds_db}.encounter en
-  ON ob.encounter_id = en.encounter_id
-  WHERE ob.concept_id IN (6542,6543)
-	AND (ob.date_created >= '#{last_updated}'
-	OR ob.date_voided  >=  '#{last_updated}');
+  ActiveRecord::Base.connection.select_all <<~QUERY
+    SELECT * FROM bht_rds_development.obs ob
+    INNER JOIN bht_rds_development.encounter en
+    on ob.encounter_id = en.encounter_id
+    INNER JOIN bht_rds_development.encounter_type et
+    ON en.encounter_type = et.encounter_type_id
+    INNER JOIN bht_rds_development.concept_name cn
+    ON cn.concept_id = ob.concept_id
+    WHERE et.encounter_type_id = 6
+    AND ob.concept_id IN (5085,5086,5087,5088,5089,5090,5092)
+    AND (ob.date_created >= '#{last_updated}'
+    OR ob.date_voided  >=  '#{last_updated}');
 
-QUERY
+  QUERY
+end
+
+def vital_value_coded(vital)
+  person = Person.find_by_person_id(vital['person_id'])
+
+  if person
+    vitals = Vital.new
+    vitals.encounter_id = vital['encounter_id']
+    vitals.concept_id = vital['concept_id']
+    vitals.value_coded = begin
+      vital['value_coded']
+                         rescue StandardError
+                           nil
+    end
+    vitals.value_numeric = begin
+      vital['value_numeric']
+                           rescue StandardError
+                             nil
+    end
+    vitals.value_text = begin
+      vital['value_text']
+                        rescue StandardError
+                          nil
+    end
+    vitals.value_modifier = begin
+      vital['value_modifier']
+                            rescue StandardError
+                              nil
+    end
+    vitals.value_min = begin
+      ''
+                       rescue StandardError
+                         nil
+    end
+    vitals.value_max = begin
+      ''
+                       rescue StandardError
+                         nil
+    end
+    vitals.value_max = begin
+      ''
+                       rescue StandardError
+                         nil
+    end
+    vitals.app_date_created = vital['obs_datetime']
+    vitals.save!
+    puts 'Loading vitals...'
+  else
+    puts "No person record with person id #{vital['person_id']}"
+  end
+  update_last_update('Vital', vital[:date_created])
 end
 
 def populate_vitals
+  (get_rds_vitals || []).each(&method(:vital_value_coded))
 end
 
 def categorize_address(addresses)
-  address_types = {"home_address" => {"home_district" => "", "home_ta" => "", "home_village" => ""}, "current_address" =>
-                  {"current_district" => "", "current_ta" => "", "current_village" => ""} }
+  address_types = { 'home_address' => { 'home_district' => '', 'home_ta' => '', 'home_village' => '' }, 'current_address' =>
+                  { 'current_district' => '', 'current_ta' => '', 'current_village' => '' } }
   addresses.each do |key, value|
-    address_types['home_address'].merge!({"home_district" => "#{value}"}) if key == 'address2'
-    address_types['home_address'].merge!({"home_ta" => "#{value}"}) if key == 'county_district'
-    address_types['home_address'].merge!({"home_village" => "#{value}"}) if key == 'neigborhood_cell'
-    address_types['current_address'].merge!({"current_district" => "#{value}"}) if key == 'state_province'
-    address_types['current_address'].merge!({"current_ta" => "#{value}"}) if key == 'township_division'
-    address_types['current_address'].merge!({"current_village" => "#{value}"}) if key == 'city_village'
+    address_types['home_address'].merge!('home_district' => value.to_s) if key == 'address2'
+    address_types['home_address'].merge!('home_ta' => value.to_s) if key == 'county_district'
+    address_types['home_address'].merge!('home_village' => value.to_s) if key == 'neigborhood_cell'
+    address_types['current_address'].merge!('current_district' => value.to_s) if key == 'state_province'
+    address_types['current_address'].merge!('current_ta' => value.to_s) if key == 'township_division'
+    address_types['current_address'].merge!('current_village' => value.to_s) if key == 'city_village'
   end
-  return address_types
+  address_types
 end
 
 def populate_person_address
@@ -534,12 +591,20 @@ def populate_person_address
   SELECT * FROM #{@rds_db}.person_address WHERE updated_at >= '#{last_updated}' order by updated_at;
 SQL
   person_addresses.each do |person_address|
-  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  # Need to add code to get elements from master definition table
-  # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Need to add code to get elements from master definition table
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     grouped_address = categorize_address(person_address)
-    home_district_id = get_district_id(grouped_address['home_address']['home_district']) rescue get_district_id('other')
-    curent_district_id = get_district_id(grouped_address['current_address']['current_district']) rescue get_district_id('other')
+    home_district_id = begin
+                         get_district_id(grouped_address['home_address']['home_district'])
+                       rescue StandardError
+                         get_district_id('other')
+                       end
+    curent_district_id = begin
+                           get_district_id(grouped_address['current_address']['current_district'])
+                         rescue StandardError
+                           get_district_id('other')
+                         end
 
     puts "Updating Person Address for person_id: #{person_address['person_id']}"
 
@@ -547,29 +612,28 @@ SQL
 
     if person_address_exist.blank?
       PersonAddress.create(person_address_id: person_address['person_address_id'], person_id: person_address['person_id'],
-                           home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1,country_id: 1,
-                           current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1,country_id: 1,
+                           home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1, country_id: 1,
+                           current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1, country_id: 1,
                            creator: person_address['creator'], landmark: person_address['landmark'],
                            app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
     else
-      person_address_exist.update( home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1,country_id: 1,
-                                   current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1,country_id: 1,
-                                   creator: person_address['creator'], landmark: person_address['landmark'],
-                                   app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
+      person_address_exist.update(home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1, country_id: 1,
+                                  current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1, country_id: 1,
+                                  creator: person_address['creator'], landmark: person_address['landmark'],
+                                  app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
     end
     update_last_update('PersonAddress', person_address['updated_at'])
   end
 end
 
-populate_people
-populate_person_names
-populate_contact_details
-populate_person_address
-update_person_type
-
-initiate_de_duplication
-
-populate_encounters
-populate_diagnosis
+# populate_people
+# populate_person_names
+# populate_contact_details
+# populate_person_address
+# update_person_type
+#
+# initiate_de_duplication
+#
+# populate_encounters
+# populate_diagnosis
 populate_vitals
-
