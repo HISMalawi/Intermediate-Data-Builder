@@ -426,7 +426,9 @@ SQL
 SQL
 
   (guardians || []).each do |guardian|
-    PersonHasType.create(person_id: guardian['person_id'], person_type_id: 5) unless PersonHasType.find_by(person_id: guardian['person_id'], person_type_id: 5)
+    unless PersonHasType.find_by(person_id: guardian['person_id'], person_type_id: 5)
+      PersonHasType.create(person_id: guardian['person_id'], person_type_id: 5)
+    end
     update_last_update('Relationship', guardian['date_created'])
   end
 
@@ -438,7 +440,7 @@ SQL
   OR date_changed >= '#{last_updated}' OR date_voided >= '#{last_updated}';
 SQL
 
-  patients.each do |patient|
+  (patients || []).each do |patient|
     unless PersonHasType.find_by(person_id: patient['person_id'], person_type_id: 1)
       PersonHasType.create(person_id: patient['person_id'], person_type_id: 1)
     end
@@ -508,12 +510,15 @@ end
 def vital_value_coded(vital)
   person = Person.find_by_person_id(vital['person_id'])
 
+  concept_id = get_master_def_id(vital['concept_id'])
+  value_coded = get_master_def_id(vital['value_coded'])
+
   if person
     vitals = Vital.new
     vitals.encounter_id = vital['encounter_id']
-    vitals.concept_id = vital['concept_id']
+    vitals.concept_id = concept_id
     vitals.value_coded = begin
-      vital['value_coded']
+      value_coded
                          rescue StandardError
                            nil
     end
@@ -574,6 +579,40 @@ def categorize_address(addresses)
   address_types
 end
 
+def get_master_def_id(openmrs_metadata_id)
+  MasterDefinition.find_by_openmrs_metadata_id(openmrs_metadata_id).master_definition_id
+end
+
+def populate_pregnant_status
+  last_updated = get_last_updated('PregnantStatus')
+
+  pregnant_status = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.obs WHERE updated_at >= '#{last_updated}' and concept_id in (1755,6131) order by updated_at;
+SQL
+
+  pregnant_status.each do |pregnant|
+    puts "Updating Pregnant Status for person_id: #{pregnant['person_id']}"
+    pregnant_status_exist = PregnantStatus.find_by(concept_id: pregnant['concept_id'],
+                                                   encounter_id: pregnant['encounter_id'])
+
+    # TODO
+    # get_master_def_id() # get_master_def_id('Pregnant?')
+    value_coded = MasterDefinition.find_by_definition('Pregnant?')['master_definition_id']
+    if pregnant_status_exist.blank?
+      PregnantStatus.create(concept_id: pregnant['concept_id'], encounter_id: pregnant['encounter_id'],
+                            value_coded: value_coded, voided: pregnant['voided'], voided_by: pregnant['voided_by'],
+                            voided_date: pregnant['voided_date'], void_reason: pregnant['void_reason'], app_date_created: pregnant['date_created'],
+                            app_date_updated: pregnant['date_updated'])
+    else
+      pregnant_status_exist.update(concept_id: pregnant['concept_id'], encounter_id: pregnant['encounter_id'],
+                                   value_coded: value_coded, voided: pregnant['voided'],
+                                   voided_by: pregnant['voided_by'], voided_date: pregnant['voided_date'],
+                                   app_date_created: pregnant['date_created'], app_date_updated: pregnant_status['date_updated'])
+    end
+    update_last_update('PregnantStatus', pregnant['updated_at'])
+  end
+end
+
 def populate_person_address
   last_updated = get_last_updated('PersonAddress')
 
@@ -616,14 +655,15 @@ SQL
   end
 end
 
-# populate_people
-# populate_person_names
-# populate_contact_details
-# populate_person_address
-# update_person_type
-#
+populate_people
+populate_person_names
+populate_contact_details
+populate_person_address
+update_person_type
+
 # initiate_de_duplication
-#
-# populate_encounters
-# populate_diagnosis
+
+populate_encounters
+populate_diagnosis
+populate_pregnant_status
 populate_vitals
