@@ -439,7 +439,7 @@ SQL
 SQL
 
   patients.each do |patient|
-    unless PersonHasType.find_by(person_id: patient['person_id'], person_type_id: 1)
+    unless PersonHasType.find_by(person_id: patient['person_id'], person_type_id: 1.to_i)
       PersonHasType.create(person_id: patient['person_id'], person_type_id: 1)
     end
     update_last_update('Relationship', patient['date_created'])
