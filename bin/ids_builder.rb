@@ -180,7 +180,7 @@ end
 
 def update_last_update(model, timestamp)
   current_update_date = YAML.load_file("#{Rails.root}/log/last_update.yml") || {}
-  current_update_date[model] = timestamp.strftime('%Y-%m-%d %H:%M:%S')
+  current_update_date[model] = timestamp.strftime('%Y-%m-%d %H:%M:%S') rescue nil
   File.open('log/last_update.yml', 'w') do |file|
     file.write current_update_date.to_yaml
   end
@@ -572,7 +572,7 @@ def populate_person_address
   last_updated = get_last_updated('PersonAddress')
 
   person_addresses = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.person_address WHERE updated_at >= '#{last_updated}' order by updated_at;
+  SELECT * FROM #{@rds_db}.person_address WHERE date_created >= '#{last_updated}' order by date_created;
 SQL
   person_addresses.each do |person_address|
     #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
