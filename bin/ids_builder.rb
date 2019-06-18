@@ -42,7 +42,6 @@ QUERY
   rds_address.each { |address| person_address << address }
 end
 
-# get person attributes from rds
 def get_rds_person_attributes
   last_updated = get_last_updated('PersonAttribute')
   person_attribute = []
@@ -56,7 +55,6 @@ QUERY
   rds_attribute.each { |attribute| person_attribute << attribute }
 end
 
-# get all rds users
 def get_rds_users
   if @last_updated.include?('Users')
     @last_updated['Users'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['Users']
@@ -145,7 +143,6 @@ def check_for_duplicate(demographics)
   process_duplicates(duplicates, demographics[:person]['person_id']) unless duplicates.blank?
 end
 
-# populate people in IDS
 def populate_people
   get_all_rds_people.each do |person|
     person['birthdate'].blank? ? dob = "'1900-01-01'" : dob = "'#{person['birthdate'].to_date}'"
@@ -231,7 +228,6 @@ SQL
   end
 end
 
-# populate contact details in IDS
 def populate_contact_details
   (get_rds_person_attributes || []).each do |person_attribute|
     attribute_value = person_attribute['value']
@@ -309,7 +305,6 @@ def populate_contact_details
   end
 end
 
-# populate Encounters in IDS
 def populate_encounters
   @last_updated['Encounter'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['Encounter']
   encounters = ActiveRecord::Base.connection.select_all <<SQL
@@ -365,7 +360,6 @@ SQL
   end
 end
 
-# populate users in IDS
 def populate_users
   # person_id, username, user_role
   get_rds_users.each do |rds_user|
@@ -390,16 +384,6 @@ def populate_users
       puts 'Ending script'
       break
     end
-  end
-end
-
-def populate_encounters
-  encounters = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.encounter
-SQL
-
-  encounters.each do |encounter|
-    raise encounter.inspect
   end
 end
 
@@ -626,14 +610,14 @@ SQL
   end
 end
 
-# populate_people
-# populate_person_names
-# populate_contact_details
-# populate_person_address
-# update_person_type
-#
-# initiate_de_duplication
-#
-# populate_encounters
-# populate_diagnosis
+populate_people
+populate_person_names
+populate_contact_details
+populate_person_address
+update_person_type
+
+initiate_de_duplication
+
+populate_encounters
+populate_diagnosis
 populate_vitals
