@@ -574,6 +574,11 @@ def categorize_address(addresses)
   address_types
 end
 
+def get_master_def_id(name)
+  master_id = MasterDefinition.find_by(definition: name)['definition'].to_i
+  return master_id
+end
+
 def populate_pregnant_status
   last_updated = get_last_updated('PregnantStatus')
 
@@ -583,22 +588,22 @@ SQL
 
   pregnant_status.each do |pregnant|
     puts "Updating Pregnant Status for person_id: #{pregnant['person_id']}"
-
-    pregnant_status_exist = PregnantStatus.find_by(pregnant_status_id: person_address['person_address_id'])
-
-    if person_address_exist.blank?
-      PersonAddress.create(person_address_id: person_address['person_address_id'], person_id: person_address['person_id'],
-                           home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1,country_id: 1,
-                           current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1,country_id: 1,
-                           creator: person_address['creator'], landmark: person_address['landmark'],
-                           app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
+    pregnant_status_exist = PregnantStatus.find_by(concept_id: pregnant['concept_id'],
+                                                   encounter_id: pregnant['encounter_id'])
+    debugger
+     value_coded = get_master_def_id('Pregnant?')
+    if pregnant_status_exist.blank?
+      PregnantStatus.create(concept_id: pregnant['concept_id'], encounter_id: pregnant['encounter_id'],
+                           value_coded: value_coded, voided: pregnant['voided'], voided_by: pregnant['voided_by'],
+                           voided_date: pregnant['voided_date'],void_reason: pregnant['void_reason'], app_date_created: pregnant['date_created'],
+                           app_date_updated: pregnant['date_updated'])
     else
-      person_address_exist.update( home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1,country_id: 1,
-                                   current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1,country_id: 1,
-                                   creator: person_address['creator'], landmark: person_address['landmark'],
-                                   app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
+      pregnant_status_exist.update(concept_id: pregnant['concept_id'], encounter_id: pregnant['encounter_id'],
+                                   value_coded: value_coded, voided: pregnant['voided'],
+                                   voided_by: pregnant['voided_by'], voided_date: pregnant['voided_date'],
+                                   app_date_created: pregnant['date_created'], app_date_updated: pregnant_status['date_updated'])
     end
-    update_last_update('PersonAddress', person_address['updated_at'])
+    update_last_update('PregnantStatus', pregnant['updated_at'])
   end
 
 end
@@ -645,15 +650,15 @@ SQL
   end
 end
 
-populate_people
-populate_person_names
-populate_contact_details
-populate_person_address
-update_person_type
+#populate_people
+#populate_person_names
+#populate_contact_details
+#populate_person_address
+#update_person_type
 
-initiate_de_duplication
+#initiate_de_duplication
 
-populate_encounters
-populate_diagnosis
+#populate_encounters
+#populate_diagnosis
 populate_pregnant_status
-populate_vitals
+#populate_vitals
