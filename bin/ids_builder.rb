@@ -616,14 +616,49 @@ SQL
   end
 end
 
-populate_people
-populate_person_names
-populate_contact_details
-populate_person_address
-update_person_type
+def populate_outcomes
+  last_updated = get_last_updated('Outcome')
 
-initiate_de_duplication
+ outcomes = ActiveRecord::Base.connection.select_all <<SQL
+ SELECT patient_id,pp.program_id,state FROM #{@rds_db}.patient_program pp
+ INNER JOIN #{@rds_db}.patient_state ps ON  pp.patient_program_id = ps.patient_program_id
+ INNER JOIN  #{@rds_db}.program_workflow pw ON pp.program_id = pw.program_id
+ WHERE  (pp.date_created >= '#{last_updated}'
+ OR pp.date_voided  >=  '#{last_updated}');
 
-populate_encounters
-populate_diagnosis
-populate_vitals
+SQL
+  ids_outcomes = outcomes.first
+  ids_outcomes.each do |rds_outcomes|
+
+    if Outcome.find_by(person_id: rds_outcomes['patient_id']).blank?
+      outcome = Outcome.new
+      outcome.person_id        = rds_outcomes['patient_id']
+      outcome.concept_id       = rds_outcomes['']
+      outcome.outcome_reason   = MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['state'])
+      outcome.outcome_source   = MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id'].definition)
+      outcome.visit_date       = rds_outcomes['encounter_datetime']
+      outcome.voided           = rds_outcomes['voided']
+      outcome.voided_by        = rds_outcomes['voided_by']
+      outcome.voided_date      = rds_outcomes['date_voided']
+      outcome.void_reason      = rds_outcomes['void_reason']
+      outcome.app_date_created = rds_outcomes['date_created']
+      outcome.app_date_updated = rds_outcomes['date_changed']
+      raise outcome.inspect
+      outcome.save
+
+      puts "Successfully populated encounter with record for person #{rds_outcomes['patient_id']}"
+    end
+  end
+end
+#populate_people
+#populate_person_names
+# populate_contact_details
+# populate_person_address
+# update_person_type
+
+# initiate_de_duplication
+
+# populate_encounters
+# populate_diagnosis
+# populate_vitals
+ populate_outcomes
