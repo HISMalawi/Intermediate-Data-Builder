@@ -88,6 +88,29 @@ end
 puts "========================================================"
 puts "======== All : #{DuplicateStatus.count} Duplicate Statuses Saved Successfully ======"
 puts "========================================================"
+puts "======= Initializing Health Facilities  ======"
+puts "========================================================"
+CSV.foreach("#{Rails.root}/app/assets/data/health_facilities.csv", :headers => true) do |row|
+  next if row[0].blank?
+  site = Site.new
+  site_type  = ""
+  if  row[5].downcase.include?("district")
+      site_type = "District Hospital"
+  elsif row[5]=="Central"
+    site_type = "Central Hospital"
+  else
+    site_type = "Health Facility"
+  end
+  site.site_type_id = SiteType.find_by_site_type(site_type).site_type_id rescue nil
+  site.site_name = row[3]
+  site.short_name = row[1]
+  site.site_description = row[6]
+  site.save!
+  puts "...#{site.site_name} Saved Successfully..."
+end
+puts "========================================================"
+puts "======== All : #{Site.count} Sites Saved Successfully ======"
+puts "========================================================"
 
 # ending loading metadata into database
 
