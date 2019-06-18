@@ -340,7 +340,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   end
 
   create_table "outcomes", primary_key: "outcome_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.bigint "encounter_id"
+    t.bigint "person_id"
     t.bigint "concept_id"
     t.string "outcome_reason"
     t.string "outcome_source"
@@ -354,7 +354,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_b0b07ac345"
-    t.index ["encounter_id"], name: "fk_rails_9b5f4978ec"
+    t.index ["person_id"], name: "fk_rails_fe9ce0813a"
   end
 
   create_table "patient_histories", primary_key: "history_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -681,8 +681,8 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   add_foreign_key "medication_prescriptions", "master_definitions", column: "drug_id", primary_key: "master_definition_id"
   add_foreign_key "occupations", "master_definitions", column: "occupation", primary_key: "master_definition_id"
   add_foreign_key "occupations", "people", primary_key: "person_id"
-  add_foreign_key "outcomes", "encounters", primary_key: "encounter_id"
   add_foreign_key "outcomes", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
+  add_foreign_key "outcomes", "people", primary_key: "person_id"
   add_foreign_key "patient_histories", "encounters", primary_key: "encounter_id"
   add_foreign_key "patient_histories", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "person_addresses", "countries", primary_key: "country_id"
