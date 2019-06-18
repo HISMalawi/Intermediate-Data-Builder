@@ -8,6 +8,7 @@ require_relative 'rds_end'
 require_relative 'ids_person_address'
 require_relative 'ids_vitals'
 require_relative 'ids_patient_symptoms'
+require_relative 'ids_presenting_complaints'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -593,21 +594,42 @@ def populate_symptoms
   (patient_symptoms || []).each(&method(:ids_patient_symptoms))
 end
 
+def populate_side_effects
+end
+
+def populate_presenting_complaints
+  last_updated = get_last_updated('PresentingComplaints')
+
+  presenting_complaints = ActiveRecord::Base.connection.select_all <<~SQL
+    SELECT * FROM #{@rds_db}.obs ob
+                      INNER JOIN #{@rds_db}.encounter en
+                                 ON ob.encounter_id = en.encounter_id
+                      INNER JOIN #{@rds_db}.encounter_type et
+                                 ON en.encounter_type = et.encounter_type_id
+    WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type where encounter_type_id = 122)
+    AND ob.updated_at >= '#{last_updated}';
+  SQL
+
+  (presenting_complaints || []).each(&method(:ids_presenting_complaints))
+end
+
 def methods_init
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
+  # update_person_type
 
   # # initiate_de_duplication
 
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_vitals
-  populate_patient_history
-  populate_symptoms
+  # populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_vitals
+  # populate_patient_history
+  # populate_symptoms
+  # populate_side_effects
+  populate_presenting_complaints
 end
 
 methods_init
