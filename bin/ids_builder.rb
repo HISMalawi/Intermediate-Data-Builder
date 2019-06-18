@@ -502,6 +502,35 @@ def categorize_address(addresses)
   return address_types
 end
 
+def populate_pregnant_status
+  last_updated = get_last_updated('PregnantStatus')
+
+  pregnant_status = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.obs WHERE updated_at >= '#{last_updated}' and concept_id in (1755,6131) order by updated_at;
+SQL
+
+  pregnant_status.each do |pregnant|
+    puts "Updating Pregnant Status for person_id: #{pregnant['person_id']}"
+
+    pregnant_status_exist = PregnantStatus.find_by(pregnant_status_id: person_address['person_address_id'])
+
+    if person_address_exist.blank?
+      PersonAddress.create(person_address_id: person_address['person_address_id'], person_id: person_address['person_id'],
+                           home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1,country_id: 1,
+                           current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1,country_id: 1,
+                           creator: person_address['creator'], landmark: person_address['landmark'],
+                           app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
+    else
+      person_address_exist.update( home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1,country_id: 1,
+                                   current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1,country_id: 1,
+                                   creator: person_address['creator'], landmark: person_address['landmark'],
+                                   app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
+    end
+    update_last_update('PersonAddress', person_address['updated_at'])
+  end
+
+end
+
 def populate_person_address
   last_updated = get_last_updated('PersonAddress')
 
@@ -546,4 +575,5 @@ initiate_deduplication
 
 populate_encounters
 populate_diagnosis
+populate_pregnant_status
 
