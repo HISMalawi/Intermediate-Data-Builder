@@ -719,6 +719,47 @@ SQL
   end
 end
 
+def populate_occupation
+  last_updated = get_last_updated('Occupation')
+  occupations = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.person_attribute WHERE  person_attribute_type_id = 13
+  AND (date_created >= '#{last_updated}'
+	OR date_voided  >=  '#{last_updated}');
+SQL
+  occupations.each do |rds_occupation|
+    puts "processing person_id #{rds_occupation['person_id']}"
+
+    if Occupation.find_by(person_id: rds_occupation).blank?
+      person_occupation = Occupation.new
+      person_occupation.person_id    = rds_occupation['person_id']
+      person_occupation.occupation   = rds_occupation['value']
+      person_occupation.creator      = rds_occupation['creator']
+      person_occupation.voided       = rds_occupation['voided']
+      person_occupation.voided_by    = rds_occupation['voided_by']
+      person_occupation.voided_date  = rds_occupation['date_voided']
+      person_occupation.void_reason  = rds_occupation['void_reason']
+      person_occupation.app_date_created = rds_occupation['date_created']
+      person_occupation.app_date_updated = rds_occupation['date_changed']
+      person_occupation.save
+
+      puts "Successfully populated occupation with record for person #{rds_occupation['person_id']}"
+    else
+      person_occupation = Occupation.where(person_id: rds_occupation['person_id'])
+      person_occupation.update(eperson_id: rds_occupation['person_id'])
+      person_occupation.update(occupation: rds_occupation['value'])
+      person_occupation.update(person_id: rds_occupation['creator'])
+      person_occupation.update(voided: rds_occupation['voided'])
+      person_occupation.update(voided_by: rds_occupation['voided_by'])
+      person_occupation.update(voided_date: rds_occupation['date_voided'])
+      person_occupation.update(void_reason: rds_occupation['void_reason'])
+      person_occupation.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+      person_occupation.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+
+      puts "Successfully updated occupation details with record for person #{rds_occupation['person_id']}"
+    end
+  end
+end
+
 def methods_init
   populate_people
   populate_person_names
@@ -737,6 +778,7 @@ def methods_init
   populate_presenting_complaints
   populate_tb_statuses
   populate_outcomes
+
 end
 
 methods_init
