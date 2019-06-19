@@ -44,6 +44,11 @@ application up and running.
   
     rails db:setup
     
+**Resetting an Existing Database**
+> Run the following command to reset and initialize your database with metadata:
+  
+    rails db:reset    
+    
 > Metadata files reside in the following directory
 
     db/seed_dumps/
