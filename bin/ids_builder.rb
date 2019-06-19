@@ -419,6 +419,7 @@ def update_person_type
 SQL
   person_type_id = 4 # person type id for user
   (users || []).each do |user|
+    puts "processing person_id #{user['person_id']}"
     person_has_type(person_type_id, user)
     update_last_update('User', user['date_created'])
 
@@ -435,6 +436,7 @@ SQL
 
   person_type_id = 5 # person type id for guardian
   (guardians || []).each do |guardian|
+    puts "processing person_id #{guardian['person_id']}"
     person_has_type(person_type_id, guardian)
     update_last_update('Relationship', guardian['date_created'])
   end
@@ -448,6 +450,7 @@ SQL
 
   person_type_id = 1 # person type id for patient
   (patients || []).each do |patient|
+    puts "processing person_id #{patient['person_id']}"
     person_has_type(person_type_id, patient)
     update_last_update('Patient', patient['date_created'])
   end
@@ -456,12 +459,12 @@ SQL
   last_updated = get_last_updated('Patient')
 
   providers = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.users WHERE date_created >= '#{last_updated}'
-  OR date_changed >= '#{last_updated}' OR date_retired >= '#{last_updated}';
+  SELECT * FROM #{@rds_db}.users WHERE updated_atq >= '#{last_updated}';
 SQL
 
   person_type_id = 2 # person type id for provider
   (providers || []).each do |provider|
+    puts "processing person_id #{provider['person_id']}"
     person_has_type(person_type_id, provider)
     update_last_update('Provider', provider['date_created'])
   end
