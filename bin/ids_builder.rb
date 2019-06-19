@@ -410,6 +410,12 @@ def get_last_updated(model)
   end
 end
 
+def person_has_type(type_id, person)
+  unless PersonHasType.find_by(person_id: person['person_id'], person_type_id: type_id)
+    PersonHasType.create(person_id: person['person_id'], person_type_id: type_id)
+  end
+end
+
 def update_person_type
   # Updating users type in person_type table
   last_updated = get_last_updated('User')
@@ -418,13 +424,14 @@ def update_person_type
   SELECT * FROM #{@rds_db}.users WHERE date_created >= '#{last_updated}'
   OR date_changed >= '#{last_updated}' OR date_retired >= '#{last_updated}';
 SQL
-  users.each do |user|
-    PersonHasType.create(person_id: user['person_id'], person_type_id: 4) unless PersonHasType.find_by(person_id: user['person_id'], person_type_id: 4)
-    update_last_update('User', user['date_created'])
+
+  person_type_id = 4 # person type id for user
+  (users || []).each do |user|
+    person_has_type(person_type_id, user)
+    update_last_update('User', person['date_created'])
   end
 
   # Updating Guardians in person type table
-
   last_updated = get_last_updated('Relationship')
 
   guardians = ActiveRecord::Base.connection.select_all <<SQL
@@ -432,11 +439,10 @@ SQL
   AND relationship = 6;
 SQL
 
+  person_type_id = 5 # person type id for guardian
   (guardians || []).each do |guardian|
-    unless PersonHasType.find_by(person_id: guardian['person_id'], person_type_id: 5)
-      PersonHasType.create(person_id: guardian['person_id'], person_type_id: 5)
-    end
-    update_last_update('Relationship', guardian['date_created'])
+    person_has_type(person_type_id, guardian)
+    update_last_update('Relationship', person['date_created'])
   end
 
   # Updating Guardians in person type table
@@ -447,11 +453,10 @@ SQL
   OR date_changed >= '#{last_updated}' OR date_voided >= '#{last_updated}';
 SQL
 
+  person_type_id = 1 # person type id for patient
   (patients || []).each do |patient|
-    unless PersonHasType.find_by(person_id: patient['person_id'], person_type_id: 1)
-      PersonHasType.create(person_id: patient['person_id'], person_type_id: 1)
-    end
-    update_last_update('Relationship', patient['date_created'])
+    person_has_type(person_type_id, patient)
+    update_last_update('Patient', person['date_created'])
   end
 end
 
@@ -645,23 +650,23 @@ def populate_tb_statuses
 end
 
 def methods_init
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
   update_person_type
 
   # # initiate_de_duplication
 
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
-  populate_tb_statuses
+  # populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_vitals
+  # populate_patient_history
+  # populate_symptoms
+  # populate_side_effects
+  # populate_presenting_complaints
+  # populate_tb_statuses
 end
 
 methods_init
