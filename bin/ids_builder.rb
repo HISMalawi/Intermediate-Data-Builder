@@ -413,43 +413,49 @@ def update_person_type
   last_updated = get_last_updated('User')
 
   users = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.users WHERE date_created >= '#{last_updated}'
-  OR date_changed >= '#{last_updated}' OR date_retired >= '#{last_updated}';
+  SELECT * FROM #{@rds_db}.users WHERE updated_at >= '#{last_updated}';
 SQL
   users.each do |user|
+    puts "Updating person type for User: #{user['person_id']}"
+
     PersonHasType.create(person_id: user['person_id'], person_type_id: 4) unless PersonHasType.find_by(person_id: user['person_id'], person_type_id: 4)
     update_last_update('User', user['date_created'])
+
+    update_last_update('User', user['updated_at'])
   end
 
   # Updating Guardians in person type table
 
-  last_updated = get_last_updated('Relationship')
+  last_updated = get_last_updated('Guardian')
 
-  guardians = ActiveRecord::Base.connection.select_one <<SQL
-  SELECT * FROM #{@rds_db}.relationship WHERE date_created >= '#{last_updated}'
+  guardians = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.relationship WHERE updated_at >= '#{last_updated}'
   AND relationship = 6;
 SQL
 
   (guardians || []).each do |guardian|
+    puts "Updating person type for Guardian: #{guardian['person_id']}"
+
     unless PersonHasType.find_by(person_id: guardian['person_id'], person_type_id: 5)
       PersonHasType.create(person_id: guardian['person_id'], person_type_id: 5)
     end
-    update_last_update('Relationship', guardian['date_created'])
+    update_last_update('Guardian', guardian['updated_at'])
   end
 
   # Updating Guardians in person type table
   last_updated = get_last_updated('Patient')
 
-  patients = ActiveRecord::Base.connection.select_one <<SQL
-  SELECT * FROM #{@rds_db}.patient WHERE date_created >= '#{last_updated}'
-  OR date_changed >= '#{last_updated}' OR date_voided >= '#{last_updated}';
+  patients = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.patient WHERE updated_at >= '#{last_updated}';
 SQL
 
   (patients || []).each do |patient|
-    unless PersonHasType.find_by(person_id: patient['person_id'], person_type_id: 1)
-      PersonHasType.create(person_id: patient['person_id'], person_type_id: 1)
+    puts "Updating person type for Patient: #{patient['patient_id']}"
+
+    unless PersonHasType.find_by(person_id: patient['patient_id'], person_type_id: 1)
+      PersonHasType.create(person_id: patient['patient_id'], person_type_id: 1)
     end
-    update_last_update('Relationship', patient['date_created'])
+    update_last_update('Patient', patient['updated_at'])
   end
 end
 
@@ -614,10 +620,12 @@ def populate_presenting_complaints
 end
 
 def methods_init
+=begin
   populate_people
   populate_person_names
   populate_contact_details
   populate_person_address
+=end
   update_person_type
 
   # # initiate_de_duplication
