@@ -8,6 +8,9 @@ require_relative 'rds_end'
 require_relative 'ids_person_address'
 require_relative 'ids_vitals'
 require_relative 'ids_patient_symptoms'
+require_relative 'ids_presenting_complaints'
+require_relative 'ids_side_effects'
+require_relative 'ids_tb_statuses'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -592,6 +595,54 @@ def populate_symptoms
   (patient_symptoms || []).each(&method(:ids_patient_symptoms))
 end
 
+def populate_side_effects
+  last_updated = get_last_updated('SideEffects')
+
+  patient_side_effects = ActiveRecord::Base.connection.select_all <<~SQL
+    SELECT * FROM #{@rds_db}.obs ob
+                      INNER JOIN #{@rds_db}.encounter en
+                                 ON ob.encounter_id = en.encounter_id
+                      INNER JOIN #{@rds_db}.encounter_type et
+                                 ON en.encounter_type = et.encounter_type_id
+    WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type where name like '%hiv clinic consultation%')
+    AND ob.updated_at >= '#{last_updated}';
+  SQL
+
+  (patient_side_effects || []).each(&method(:ids_side_effects))
+end
+
+def populate_presenting_complaints
+  last_updated = get_last_updated('PresentingComplaints')
+
+  presenting_complaints = ActiveRecord::Base.connection.select_all <<~SQL
+    SELECT * FROM #{@rds_db}.obs ob
+                      INNER JOIN #{@rds_db}.encounter en
+                                 ON ob.encounter_id = en.encounter_id
+                      INNER JOIN #{@rds_db}.encounter_type et
+                                 ON en.encounter_type = et.encounter_type_id
+    WHERE et.encounter_type_id = 122
+    AND ob.updated_at >= '#{last_updated}';
+  SQL
+
+  (presenting_complaints || []).each(&method(:ids_presenting_complaints))
+end
+
+def populate_tb_statuses
+  last_updated = get_last_updated('TbStatus')
+
+  tb_statuses = ActiveRecord::Base.connection.select_all <<~SQL
+    SELECT * FROM #{@rds_db}.obs ob
+                      INNER JOIN #{@rds_db}.encounter en
+                                 ON ob.encounter_id = en.encounter_id
+                      INNER JOIN #{@rds_db}.encounter_type et
+                                 ON en.encounter_type = et.encounter_type_id
+    WHERE et.encounter_type_id = 7459
+    AND ob.updated_at >= '#{last_updated}';
+  SQL
+
+  (tb_statuses || []).each(&method(:ids_tb_statuses))
+end
+
 def populate_outcomes
   last_updated = get_last_updated('Outcome')
 
@@ -602,14 +653,15 @@ def populate_outcomes
    INNER JOIN #{@rds_db}.program_workflow_state pws ON pw.program_workflow_id = pws.program_workflow_id
    WHERE  (pp.date_created >= '#{last_updated}' );
 SQL
-   outcomes.each do |rds_outcomes|
+  outcomes.each do |rds_outcomes|
+    puts "processing person_id #{rds_outcomes['patient_id']}"
 
     if Outcome.find_by(person_id: rds_outcomes['patient_id']).blank?
       outcome = Outcome.new
       outcome.person_id        = rds_outcomes['patient_id']
       outcome.concept_id       = rds_outcomes['concept_id']
-      outcome.outcome_reason   = MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id'])
-      outcome.outcome_source   = MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id'])
+      outcome.outcome_reason   = MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id']).master_definition_id rescue nil
+      outcome.outcome_source   = MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id']).master_definition_id rescue nil
       outcome.voided           = rds_outcomes['voided']
       outcome.voided_by        = rds_outcomes['voided_by']
       outcome.voided_date      = rds_outcomes['date_voided']
@@ -618,26 +670,25 @@ SQL
       outcome.app_date_updated = rds_outcomes['date_changed']
       outcome.save
 
+
       puts "Successfully populated Outcome with record for person #{rds_outcomes['patient_id']}"
     else
-      outcome = Outcome.where(person_id: rds_encounter['patient_id'])
+      outcome = Outcome.where(person_id: rds_outcomes['patient_id'])
       outcome.update(person_id: rds_outcomes['patient_id'])
       outcome.update(concept_id: rds_outcomes['concept_id'])
-      outcome.update(outcome_reason: MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id']))
-      outcome.update(outcome_source: MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id']))
+      outcome.update(outcome_reason: MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id']).master_definition_id) rescue nil
+      outcome.update(outcome_source: MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id']).master_definition_id) rescue nil
       outcome.update(voided: rds_outcomes['voided'])
       outcome.update(voided_by: rds_outcomes['voided_by'])
       outcome.update(voided_date: rds_outcomes['date_voided'])
       outcome.update(void_reason: rds_outcomes['void_reason'])
-      encounter.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
-      encounter.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+      outcome.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+      outcome.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
 
       puts "Successfully updated outcome details with record for person #{rds_outcomes['patient_id']}"
     end
   end
 end
-
-
 
 def methods_init
   # populate_people
@@ -647,15 +698,17 @@ def methods_init
   # update_person_type
   #
   # # # initiate_de_duplication
-  #
   # populate_encounters
   # populate_diagnosis
   # populate_pregnant_status
   # populate_vitals
   # populate_patient_history
   # populate_symptoms
+  # populate_side_effects
+  # populate_presenting_complaints
+  # populate_tb_statuses
+  populate_outcomes
 
-   populate_outcomes
 end
 
 methods_init
