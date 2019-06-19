@@ -19,6 +19,6 @@ def ids_tb_statuses(tb_status)
     ids_tb_statuses.value_coded = value_coded
   end
   ids_tb_statuses.save!
-  update_last_update('PresentingComplaint', tb_status['updated_at'])
+  update_last_update('TbStatus', tb_status['updated_at'])
 end
 

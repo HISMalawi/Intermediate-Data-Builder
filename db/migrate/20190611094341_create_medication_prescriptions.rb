@@ -6,7 +6,7 @@ class CreateMedicationPrescriptions < ActiveRecord::Migration[5.2]
       t.bigint  :drug_id
       t.bigint  :encounter_id
       t.datetime  :start_date
-      t.datetime  :end_name
+      t.datetime  :end_date
       t.string :instructions
       t.boolean :voided, null: false, default: 0
       t.bigint :voided_by
