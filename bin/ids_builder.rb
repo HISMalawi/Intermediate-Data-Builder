@@ -427,7 +427,7 @@ SQL
 
   last_updated = get_last_updated('Relationship')
 
-  guardians = ActiveRecord::Base.connection.select_one <<SQL
+  guardians = ActiveRecord::Base.connection.select_all <<SQL
   SELECT * FROM #{@rds_db}.relationship WHERE date_created >= '#{last_updated}'
   AND relationship = 6;
 SQL
@@ -442,7 +442,7 @@ SQL
   # Updating Guardians in person type table
   last_updated = get_last_updated('Patient')
 
-  patients = ActiveRecord::Base.connection.select_one <<SQL
+  patients = ActiveRecord::Base.connection.select_all <<SQL
   SELECT * FROM #{@rds_db}.patient WHERE date_created >= '#{last_updated}'
   OR date_changed >= '#{last_updated}' OR date_voided >= '#{last_updated}';
 SQL
