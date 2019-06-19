@@ -536,7 +536,7 @@ def populate_pregnant_status
   SELECT * FROM #{@rds_db}.obs WHERE updated_at >= '#{last_updated}' and concept_id in (1755,6131) order by updated_at;
 SQL
 
-  pregnant_status.each do |pregnant|
+  (pregnant_status || []).each do |pregnant|
     puts "Updating Pregnant Status for person_id: #{pregnant['person_id']}"
     pregnant_status_exist = PregnantStatus.find_by(concept_id: pregnant['concept_id'],
                                                    encounter_id: pregnant['encounter_id'])
@@ -658,15 +658,24 @@ def populate_outcomes
    INNER JOIN #{@rds_db}.program_workflow_state pws ON pw.program_workflow_id = pws.program_workflow_id
    WHERE  (pp.date_created >= '#{last_updated}' );
 SQL
-  outcomes.each do |rds_outcomes|
+
+  (outcomes || []).each do |rds_outcomes|
     puts "processing person_id #{rds_outcomes['patient_id']}"
 
     if Outcome.find_by(person_id: rds_outcomes['patient_id']).blank?
       outcome = Outcome.new
       outcome.person_id        = rds_outcomes['patient_id']
       outcome.concept_id       = rds_outcomes['concept_id']
-      outcome.outcome_reason   = MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id']).master_definition_id rescue nil
-      outcome.outcome_source   = MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id']).master_definition_id rescue nil
+      outcome.outcome_reason   = begin
+                                   MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id']).master_definition_id
+                                 rescue StandardError
+                                   nil
+                                 end
+      outcome.outcome_source   = begin
+                                   MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id']).master_definition_id
+                                 rescue StandardError
+                                   nil
+                                 end
       outcome.voided           = rds_outcomes['voided']
       outcome.voided_by        = rds_outcomes['voided_by']
       outcome.voided_date      = rds_outcomes['date_voided']
@@ -675,14 +684,21 @@ SQL
       outcome.app_date_updated = rds_outcomes['date_changed']
       outcome.save
 
-
       puts "Successfully populated Outcome with record for person #{rds_outcomes['patient_id']}"
     else
       outcome = Outcome.where(person_id: rds_outcomes['patient_id'])
       outcome.update(person_id: rds_outcomes['patient_id'])
       outcome.update(concept_id: rds_outcomes['concept_id'])
-      outcome.update(outcome_reason: MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id']).master_definition_id) rescue nil
-      outcome.update(outcome_source: MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id']).master_definition_id) rescue nil
+      begin
+        outcome.update(outcome_reason: MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id']).master_definition_id)
+      rescue StandardError
+        nil
+      end
+      begin
+        outcome.update(outcome_source: MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id']).master_definition_id)
+      rescue StandardError
+        nil
+      end
       outcome.update(voided: rds_outcomes['voided'])
       outcome.update(voided_by: rds_outcomes['voided_by'])
       outcome.update(voided_date: rds_outcomes['date_voided'])
@@ -716,4 +732,3 @@ def methods_init
 end
 
 methods_init
-
