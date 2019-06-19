@@ -688,6 +688,22 @@ def populate_tb_statuses
   (tb_statuses || []).each(&method(:ids_tb_statuses))
 end
 
+def populate_family_planning
+  last_updated = get_last_updated('FamilyPlanning')
+
+  family_planning_methods = ActiveRecord::Base.connection.select_all <<~SQL
+    SELECT * FROM #{@rds_db}.obs ob
+                      INNER JOIN #{@rds_db}.encounter en
+                                 ON ob.encounter_id = en.encounter_id
+                      INNER JOIN #{@rds_db}.encounter_type et
+                                 ON en.encounter_type = et.encounter_type_id
+    WHERE et.encounter_type_id = 7459
+    AND ob.updated_at >= '#{last_updated}';
+  SQL
+
+  (family_planning_methods || []).each(&method(:ids_family_planning))
+end
+
 def populate_outcomes
   last_updated = get_last_updated('Outcome')
 
@@ -811,6 +827,7 @@ def methods_init
   populate_presenting_complaints
   populate_tb_statuses
   populate_outcomes
+  populate_family_planning
 
 end
 
