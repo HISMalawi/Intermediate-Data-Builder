@@ -409,12 +409,6 @@ def get_last_updated(model)
   end
 end
 
-def person_has_type(type_id, person)
-  unless PersonHasType.find_by(person_id: person['person_id'], person_type_id: type_id)
-    PersonHasType.create(person_id: person['person_id'], person_type_id: type_id)
-  end
-end
-
 def update_person_type
   # Updating users type in person_type table
   last_updated = get_last_updated('User')
@@ -456,6 +450,20 @@ SQL
   (patients || []).each do |patient|
     person_has_type(person_type_id, patient)
     update_last_update('Patient', person['date_created'])
+  end
+
+  # Updating Provider in person type table
+  last_updated = get_last_updated('Patient')
+
+  providers = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.users WHERE date_created >= '#{last_updated}'
+  OR date_changed >= '#{last_updated}' OR date_retired >= '#{last_updated}';
+SQL
+
+  person_type_id = 2 # person type id for provider
+  (providers || []).each do |provider|
+    person_has_type(person_type_id, provider)
+    update_last_update('Provider', provider['date_created'])
   end
 end
 
