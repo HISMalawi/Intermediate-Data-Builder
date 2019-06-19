@@ -11,6 +11,7 @@ require_relative 'ids_patient_symptoms'
 require_relative 'ids_presenting_complaints'
 require_relative 'ids_side_effects'
 require_relative 'ids_tb_statuses'
+require_relative 'ids_family_planning'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -579,7 +580,7 @@ SQL
   (breastfeeding_statuses || []).each do |breastfeeding_status|
     puts "Updating Breastfeeding Status for person_id: #{breastfeeding_status['person_id']}"
     breastfeeding_status_exist = BreastfeedingStatus.find_by(concept_id: breastfeeding_status['concept_id'],
-                                                        encounter_id: breastfeeding_status['encounter_id'])
+                                                             encounter_id: breastfeeding_status['encounter_id'])
 
     # TODO
     # get_master_def_id() # get_master_def_id('Pregnant?')
@@ -804,6 +805,52 @@ SQL
       person_occupation.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
 
       puts "Successfully updated occupation details with record for person #{rds_occupation['person_id']}"
+
+    end
+  end
+end
+
+def populate_appointment
+  last_updated = get_last_updated('Appointment')
+
+  appointments = ActiveRecord::Base.connection.select_all <<SQL
+    SELECT ob.person_id,ob.encounter_id, value_datetime,ob.voided,ob.voided_by,ob.creator,ob.date_voided,ob.void_reason,en.date_created ,en.date_changed
+    FROM #{@rds_db}.encounter en
+    INNER JOIN #{@rds_db}.obs ob on en.encounter_id = ob.encounter_id
+    WHERE ob.concept_id = 5096
+    AND (en.date_created >= '#{last_updated}' );
+SQL
+
+  (appointments || []).each do |rds_appointment|
+    puts "processing person_id #{rds_appointment['person_id']}"
+
+    if Appointment.find_by(encounter_id: rds_appointment['encounter_id']).blank?
+      appointment = Appointment.new
+      appointment.encounter_id     = rds_appointment['encounter_id']
+      appointment.appointment_date = rds_appointment['value_datetime']
+      appointment.voided           = rds_appointment['voided']
+      appointment.voided_by        = rds_appointment['voided_by']
+      appointment.creator          = rds_appointment['creator']
+      appointment.voided_date      = rds_appointment['date_voided']
+      appointment.void_reason      = rds_appointment['void_reason']
+      appointment.app_date_created = rds_appointment['date_created']
+      appointment.app_date_updated = rds_appointment['date_changed']
+      appointment.save
+
+      puts "Successfully populated appointment with record for person #{rds_appointment['person_id']}"
+    else
+      appointment = Appointment.where(encounter_id: rds_appointment['encounter_id'])
+      appointment.update(encounter_id: rds_appointment['encounter_id'])
+      appointment.update(appointment_date: rds_appointment['value_datetime'])
+      appointment.update(voided: rds_appointment['voided'])
+      appointment.update(voided_by: rds_appointment['voided_by'])
+      appointment.update(creator: rds_appointment['creator'])
+      appointment.update(voided_date: rds_appointment['date_voided'])
+      appointment.update(void_reason: rds_appointment['void_reason'])
+      appointment.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+      appointment.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+
+      puts "Successfully updated appointment details with record for person #{rds_appointment['person_id']}"
     end
   end
 end
@@ -828,7 +875,7 @@ def methods_init
   populate_tb_statuses
   populate_outcomes
   populate_family_planning
-
+  populate_appointment
 end
 
 methods_init
