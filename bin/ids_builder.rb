@@ -888,6 +888,7 @@ SQL
 end
 
 def methods_init
+  populate_people
 =begin
   populate_people
   populate_person_names
@@ -899,7 +900,7 @@ def methods_init
   # # initiate_de_duplication
   # populate_encounters
   # populate_diagnosis
-   populate_pregnant_status
+  # populate_pregnant_status
   # populate_breastfeeding_status
   # populate_vitals
   # populate_patient_history
