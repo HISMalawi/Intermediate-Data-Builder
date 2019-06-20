@@ -297,7 +297,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.bigint "drug_id"
     t.bigint "encounter_id"
     t.datetime "start_date"
-    t.datetime "end_name"
+    t.datetime "end_date"
     t.string "instructions"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
