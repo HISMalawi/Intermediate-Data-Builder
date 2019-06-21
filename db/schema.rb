@@ -186,7 +186,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["encounter_id"], name: "fk_rails_f70a4c1055"
   end
 
-  create_table "lab_orders", primary_key: "lab_order_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "lab_orders", primary_key: "lab_order_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "tracking_number"
     t.datetime "order_date"
     t.bigint "encounter_id"
@@ -202,8 +202,8 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["encounter_id"], name: "fk_rails_88083b6bd1"
   end
 
-  create_table "lab_test_results", primary_key: "test_result_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "lab_order_id", null: false
+  create_table "lab_test_results", primary_key: "test_result_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "lab_order_id", null: false
     t.integer "results_test_facility_id", null: false
     t.bigint "test_measure_id", null: false
     t.bigint "test_type_id"
