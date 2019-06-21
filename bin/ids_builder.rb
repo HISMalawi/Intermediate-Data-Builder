@@ -586,7 +586,7 @@ SQL
 
     # TODO
     # get_master_def_id() # get_master_def_id('Pregnant?')
-    value_coded = get_master_def_id(breastfeeding_status['concept_id'])
+    value_coded = get_master_def_id(breastfeeding_status['concept_id'], 'concept_name')
     if breastfeeding_status_exist.blank?
       PregnantStatus.create(concept_id: breastfeeding_status['concept_id'], encounter_id: breastfeeding_status['encounter_id'],
                             value_coded: value_coded, voided: breastfeeding_status['voided'], voided_by: breastfeeding_status['voided_by'],
@@ -893,8 +893,8 @@ def methods_init
   # update_person_type
 
   # initiate_de_duplication
-  populate_encounters
-  # populate_diagnosis
+  # populate_encounters
+  populate_diagnosis
   # populate_pregnant_status
   # populate_breastfeeding_status
   # populate_vitals
