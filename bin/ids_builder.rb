@@ -333,15 +333,15 @@ SQL
     rds_encounter_type = ActiveRecord::Base.connection.select_all <<SQL
     SELECT name FROM #{@rds_db}.encounter_type WHERE encounter_type_id = #{rds_encounter_type_id} limit 1
 SQL
-    ids_encounter_type_name = rds_encounter_type.first
-    ids_prog_name = program_name.first
-    master_definition_prog_id = get_master_def_id(rds_prog_id,'program')
-    master_definition_encounter_id = MasterDefinition.find_by(definition: ids_encounter_type_name['name'])
+
+    encounter_type_id = get_master_def_id(rds_encounter['encounter_type'], 'encounter_type')
+    program_id = get_master_def_id(rds_encounter['program_id'], 'program')
 
     if Encounter.find_by(person_id: rds_encounter).blank?
       encounter = Encounter.new
-      encounter.encounter_type_id = get_master_def_id(rds_encounter['encounter_type_id'], 'encounter_type')
-      encounter.program_id        = master_definition_prog_id
+      encounter.encounter_id = rds_encounter['encounter_id']
+      encounter.encounter_type_id = encounter_type_id
+      encounter.program_id        = program_id
       encounter.person_id        = rds_encounter['patient_id']
       encounter.visit_date       = rds_encounter['encounter_datetime']
       encounter.voided           = rds_encounter['voided']
@@ -893,8 +893,8 @@ def methods_init
   # update_person_type
 
   # initiate_de_duplication
-  # populate_encounters
-  populate_diagnosis
+  populate_encounters
+  # populate_diagnosis
   # populate_pregnant_status
   # populate_breastfeeding_status
   # populate_vitals
