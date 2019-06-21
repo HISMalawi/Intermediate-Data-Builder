@@ -3,8 +3,8 @@
 def ids_presenting_complaints(presenting_complaint)
   ids_presenting_complaints = PresentingComplaint.find_by(encounter_id: presenting_complaint['encounter_id'], concept_id: presenting_complaint['concept_id'])
 
-  concept_id = get_master_def_id(presenting_complaint['concept_id'])
-  value_coded = get_master_def_id(presenting_complaint['value_coded'])
+  concept_id = get_master_def_id(presenting_complaint['concept_id'], 'concept_name')
+  value_coded = get_master_def_id(presenting_complaint['value_coded'], 'concept_name')
 
   if ids_presenting_complaints.blank?
     puts "Creating presenting complaints for #{presenting_complaint['person_id']}"

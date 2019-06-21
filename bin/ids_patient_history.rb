@@ -2,8 +2,8 @@
 def ids_patient_history(patient_history)
   ids_patient_history = PatientHistory.find_by(encounter_id: patient_history['encounter_id'], concept_id: patient_history['concept_id'])
 
-  concept_id = get_master_def_id(patient_history['concept_id'])
-  value_coded = get_master_def_id(patient_history['value_coded'])
+  concept_id = get_master_def_id(patient_history['concept_id'], 'concept_name')
+  value_coded = get_master_def_id(patient_history['value_coded'], 'concept_name')
 
   if ids_patient_history.blank?
     puts "Creating patient history for #{patient_history['person_id']}"
