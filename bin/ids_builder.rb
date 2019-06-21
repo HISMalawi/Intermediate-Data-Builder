@@ -335,13 +335,13 @@ SQL
 SQL
     ids_encounter_type_name = rds_encounter_type.first
     ids_prog_name = program_name.first
-    master_definition_prog_id = MasterDefinition.find_by(definition: ids_prog_name['name'])
+    master_definition_prog_id = get_master_def_id(rds_prog_id,'program')
     master_definition_encounter_id = MasterDefinition.find_by(definition: ids_encounter_type_name['name'])
 
     if Encounter.find_by(person_id: rds_encounter).blank?
       encounter = Encounter.new
-      encounter.encounter_type_id = master_definition_encounter_id['master_definition_id']rds_encounter
-      encounter.program_id        = master_definition_prog_id['master_definition_id']
+      encounter.encounter_type_id = get_master_def_id(rds_encounter['encounter_type_id'], 'encounter_type')
+      encounter.program_id        = master_definition_prog_id
       encounter.person_id        = rds_encounter['patient_id']
       encounter.visit_date       = rds_encounter['encounter_datetime']
       encounter.voided           = rds_encounter['voided']
@@ -534,8 +534,8 @@ def categorize_address(addresses)
   address_types
 end
 
-def get_master_def_id(openmrs_metadata_id)
-  MasterDefinition.find_by_openmrs_metadata_id(openmrs_metadata_id).master_definition_id
+def get_master_def_id(openmrs_metadata_id,openmrs_entity_name)
+  MasterDefinition.where(openmrs_metadata_id: openmrs_metadata_id).where(openmrs_entity_name: openmrs_entity_name).first.master_definition_id
 rescue StandardError
   nil
 end
@@ -860,7 +860,9 @@ def populate_prescription
     where (en.date_created >= '#{last_updated}' );
 SQL
   (prescription || []).each do |rds_prescription|
-    ounter_id']).blank?
+    puts "processing person_id #{rds_prescription['patient_id']}"
+
+    if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id']).blank?
        MedicationPrescription.create(drug_id: rds_prescription['drug_id'],encounter_id: rds_prescription['encounter_id'],
                                      start_date: rds_prescription['start_date'],end_name: rds_prescription['date_stopped'],
                                      instructions: rds_prescription['instructions'],voided: rds_prescription['voided'],
@@ -884,22 +886,16 @@ SQL
 end
 
 def methods_init
-  populate_people
-=begin
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-=end
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
   # update_person_type
-  #
-  # # initiate_de_duplication
-  # populate_encounters
-  # populate_diagnosis
-  # populate_pregnant_status
-    puts "processing person_id #{rds_prescription['patient_id']}"
 
-    if MedicationPrescription.find_by(encounter_id: rds_prescription['enc
+  # initiate_de_duplication
+  # populate_encounters
+  populate_diagnosis
+  # populate_pregnant_status
   # populate_breastfeeding_status
   # populate_vitals
   # populate_patient_history
@@ -910,9 +906,7 @@ def methods_init
   # populate_outcomes
   # populate_family_planning
   # populate_appointment
- # populate_prescription
-
-
+  # populate_prescription
 end
 
 methods_init
