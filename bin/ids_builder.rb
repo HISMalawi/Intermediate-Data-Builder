@@ -584,8 +584,6 @@ SQL
     breastfeeding_status_exist = BreastfeedingStatus.find_by(concept_id: breastfeeding_status['concept_id'],
                                                              encounter_id: breastfeeding_status['encounter_id'])
 
-    # TODO
-    # get_master_def_id() # get_master_def_id('Pregnant?')
     value_coded = get_master_def_id(breastfeeding_status['concept_id'], 'concept_name')
     if breastfeeding_status_exist.blank?
       PregnantStatus.create(concept_id: breastfeeding_status['concept_id'], encounter_id: breastfeeding_status['encounter_id'],
