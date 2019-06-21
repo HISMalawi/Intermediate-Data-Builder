@@ -908,7 +908,7 @@ def methods_init
   #   update_person_type
   #
   #   # initiate_de_duplication
-  populate_encounters
+  #populate_encounters
   #   populate_diagnosis
   #   populate_pregnant_status
   #   populate_breastfeeding_status
