@@ -12,11 +12,12 @@ require_relative 'ids_presenting_complaints'
 require_relative 'ids_side_effects'
 require_relative 'ids_tb_statuses'
 require_relative 'ids_family_planning'
+require_relative 'ids_lab_orders'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
 @last_updated = YAML.load_file("#{Rails.root}/log/last_update.yml")
-@batch_size = 50_000
+@batch_size = 10_000
 @threshold = 85
 
 def get_all_rds_people
@@ -319,54 +320,67 @@ end
 
 def populate_encounters
   last_updated = get_last_updated('Encounter')
-  encounters = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.encounter WHERE  (date_created >= '#{last_updated}');
+
+  total_encounters = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT count(*) as count FROM #{@rds_db}.encounter  WHERE  (date_created >= '#{last_updated}');
+SQL
+  i = 0
+  while total_encounters.first['count'] - i > 0
+    encounters = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM #{@rds_db}.encounter WHERE  updated_at >= '#{last_updated}' order by updated_at limit #{@batch_size} offset #{i};
 SQL
 
-  encounters.each do |rds_encounter|
-    puts "processing person_id #{rds_encounter['patient_id']}"
-    rds_prog_id =  rds_encounter['program_id']
-    program_name = ActiveRecord::Base.connection.select_all <<SQL
+    encounters.each do |rds_encounter|
+      puts "processing person_id #{rds_encounter['patient_id']}"
+      rds_prog_id =  rds_encounter['program_id']
+      program_name = ActiveRecord::Base.connection.select_all <<SQL
     SELECT name FROM #{@rds_db}.program  WHERE program_id = #{rds_prog_id}  limit 1
 SQL
-    rds_encounter_type_id = rds_encounter['encounter_type']
-    rds_encounter_type = ActiveRecord::Base.connection.select_all <<SQL
+      rds_encounter_type_id = rds_encounter['encounter_type']
+      rds_encounter_type = ActiveRecord::Base.connection.select_all <<SQL
     SELECT name FROM #{@rds_db}.encounter_type WHERE encounter_type_id = #{rds_encounter_type_id} limit 1
 SQL
-    ids_encounter_type_name = rds_encounter_type.first
-    ids_prog_name = program_name.first
-    master_definition_prog_id = MasterDefinition.find_by(definition: ids_prog_name['name'])
-    master_definition_encounter_id = MasterDefinition.find_by(definition: ids_encounter_type_name['name'])
+      ids_encounter_type_name = rds_encounter_type.first
+      ids_prog_name = program_name.first
+      master_definition_prog_id = MasterDefinition.find_by(definition: ids_prog_name['name'])
 
-    if Encounter.find_by(person_id: rds_encounter).blank?
-      encounter = Encounter.new
-      encounter.encounter_type_id = master_definition_encounter_id['master_definition_id']
-      encounter.program_id        = master_definition_prog_id['master_definition_id']
-      encounter.person_id        = rds_encounter['patient_id']
-      encounter.visit_date       = rds_encounter['encounter_datetime']
-      encounter.voided           = rds_encounter['voided']
-      encounter.voided_by        = rds_encounter['voided_by']
-      encounter.voided_date      = rds_encounter['date_voided']
-      encounter.void_reason      = rds_encounter['void_reason']
-      encounter.app_date_created = rds_encounter['date_created']
-      encounter.app_date_updated = rds_encounter['date_changed']
-      encounter.save
+      master_definition_encounter_id = MasterDefinition.find_by(definition: ids_encounter_type_name['name'])
 
-      puts "Successfully populated encounter with record for person #{rds_encounter['patient_id']}"
-    else
-      encounter = Encounter.where(person_id: rds_encounter['patient_id'])
-      encounter.update(encounter_type_id: rds_encounter[''])
-      encounter.update(program_id: master_definition_prog_id['master_definition_id'])
-      encounter.update(person_id: rds_encounter['patient_id'])
-      encounter.update(visit_date: rds_encounter['encounter_datetime'])
-      encounter.update(voided: rds_encounter['voided'])
-      encounter.update(voided_by: rds_encounter['voided_by'])
-      encounter.update(voided_date: rds_encounter['date_voided'])
-      encounter.update(void_reason: rds_encounter['void_reason'])
-      encounter.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
-      encounter.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+      if Encounter.find_by(encounter_id: rds_encounter['encounter_id']).blank?
+        encounter = Encounter.new
+        encounter.encounter_id = rds_encounter['encounter_id']
+        encounter.encounter_type_id = master_definition_encounter_id['master_definition_id']
+        encounter.program_id        = master_definition_prog_id['master_definition_id']
+        encounter.person_id        = rds_encounter['patient_id']
+        encounter.visit_date       = rds_encounter['encounter_datetime']
+        encounter.voided           = rds_encounter['voided']
+        encounter.voided_by        = rds_encounter['voided_by']
+        encounter.voided_date      = rds_encounter['date_voided']
+        encounter.void_reason      = rds_encounter['void_reason']
+        encounter.app_date_created = rds_encounter['date_created']
+        encounter.app_date_updated = rds_encounter['date_changed']
 
-      puts "Successfully updated encounter details with record for person #{rds_encounter['patient_id']}"
+        if encounter.save
+          puts "Successfully populated encounter with record for person #{rds_encounter['patient_id']}encounter id " \
+               "#{rds_encounter['encounter_id']} record number #{i}"
+        end
+
+      else
+        encounter = Encounter.find_by(encounter_id: rds_encounter['encounter_id'])
+        if encounter.update(encounter_type_id: master_definition_encounter_id['master_definition_id'],
+                            program_id: master_definition_prog_id['master_definition_id'],
+                            person_id: rds_encounter['patient_id'], visit_date: rds_encounter['encounter_datetime'],
+                            voided: rds_encounter['voided'], voided_by: rds_encounter['voided_by'],
+                            voided_date: rds_encounter['date_voided'], void_reason: rds_encounter['void_reason'],
+                            app_date_updated: rds_encounter['date_changed'],
+                            created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'), updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+          puts "Successfully updated encounter details with record for person #{rds_encounter['patient_id']} encounter id " \
+               "#{rds_encounter['encounter_id']} record number #{i}"
+        end
+      end
+      # Updating last record processed
+      update_last_update('Encounter', rds_encounter['updated_at'])
+      i += 1
     end
   end
 end
@@ -863,13 +877,12 @@ def populate_prescription
   prescription = ActiveRecord::Base.connection.select_all <<SQL
     SELECT o.encounter_id, o.start_date,o.instructions,o.order_id,o.patient_id,obs.concept_id,drug_id,o.date_created,o.voided,o.voided_by,o.void_reason,obs.date_stopped
     FROM #{@rds_db}.encounter en
-    INNER JOIN #{@rds_db}.orders o on en.encounter_id = o.encounter_id  
+    INNER JOIN #{@rds_db}.orders o on en.encounter_id = o.encounter_id
     INNER JOIN #{@rds_db}.obs  on en.encounter_id = obs.encounter_id
     INNER JOIN #{@rds_db}.drug on obs.concept_id = drug.concept_id
     where (en.date_created >= '#{last_updated}' );
 SQL
   (prescription || []).each do |rds_prescription|
-
     puts "processing person_id #{rds_prescription['patient_id']}"
 
     if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id']).blank?
@@ -909,31 +922,28 @@ SQL
 end
 
 def methods_init
-=begin
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-=end
-  update_person_type
-
-  # initiate_de_duplication
+  #populate_people
+  #   populate_person_names
+  #   populate_contact_details
+  #   populate_person_address
+  #   update_person_type
+  #
+  #   # initiate_de_duplication
   populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_breastfeeding_status
-  populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
-  populate_tb_statuses
-  populate_outcomes
-  populate_family_planning
-  populate_appointment
-  populate_prescription
-
-
+  #   populate_diagnosis
+  #   populate_pregnant_status
+  #   populate_breastfeeding_status
+  #   populate_vitals
+  #   populate_patient_history
+  #   populate_symptoms
+  #   populate_side_effects
+  #   populate_presenting_complaints
+  #   populate_tb_statuses
+  #   populate_outcomes
+  #   populate_family_planning
+  #   populate_appointment
+  #   populate_prescription
+  populate_lab_orders
 end
 
 methods_init
