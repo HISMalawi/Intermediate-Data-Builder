@@ -823,7 +823,7 @@ def populate_appointment
     AND (en.date_created >= '#{last_updated}' );
 SQL
 
-  (appointments || []).each do |rds_appointment|
+  appointments.each do |rds_appointment|
     puts "processing person_id #{rds_appointment['person_id']}"
 
     if Appointment.find_by(encounter_id: rds_appointment['encounter_id']).blank?
@@ -909,29 +909,31 @@ SQL
 end
 
 def methods_init
+  #populate_people
 =begin
   populate_people
   populate_person_names
   populate_contact_details
   populate_person_address
 =end
-  update_person_type
-
-  # initiate_de_duplication
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_breastfeeding_status
-  populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
+  # update_person_type
+  #
+  # # initiate_de_duplication
+  # populate_encounters
+  # populate_diagnosis
+ #  populate_pregnant_status
+  # populate_breastfeeding_status
+  git status
+  git statuspopulate_vitals
+  # populate_patient_history
+  # populate_symptoms
+  # populate_side_effects
+  # populate_presenting_complaints
   populate_tb_statuses
-  populate_outcomes
-  populate_family_planning
-  populate_appointment
-  populate_prescription
+  # populate_outcomes
+  # populate_family_planning
+   #populate_appointment
+  # populate_prescription
 
 
 end
