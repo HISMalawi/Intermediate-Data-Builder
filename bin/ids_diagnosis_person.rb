@@ -1,7 +1,6 @@
 
-def rds_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
+def ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
   person = Person.find_by(person_id: diag['person_id'])
-
   if person
     diagnosis = Diagnosis.new
     diagnosis.encounter_id = diag['encounter_id']

@@ -2,7 +2,7 @@
 
 require 'yaml'
 require_relative 'ids_commons'
-require_relative 'ids_diagnosis'
+require_relative 'ids_diagnosis_person'
 require_relative 'ids_patient_history'
 require_relative 'rds_end'
 require_relative 'ids_person_address'
@@ -340,7 +340,7 @@ SQL
 
     if Encounter.find_by(person_id: rds_encounter).blank?
       encounter = Encounter.new
-      encounter.encounter_type_id = master_definition_encounter_id['master_definition_id']
+      encounter.encounter_type_id = master_definition_encounter_id['master_definition_id']rds_encounter
       encounter.program_id        = master_definition_prog_id['master_definition_id']
       encounter.person_id        = rds_encounter['patient_id']
       encounter.visit_date       = rds_encounter['encounter_datetime']
@@ -487,7 +487,7 @@ def populate_diagnosis
   secondary_diagnosis = 6543
 
   (get_rds_diagnosis || []).each do |diag|
-    rds_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
+    ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
   end
 end
 
@@ -713,7 +713,7 @@ def populate_outcomes
     INNER JOIN #{@rds_db}.patient_state ps ON  pp.patient_program_id = ps.patient_program_id
     INNER JOIN  #{@rds_db}.program_workflow pw ON pp.program_id = pw.program_id
    INNER JOIN #{@rds_db}.program_workflow_state pws ON pw.program_workflow_id = pws.program_workflow_id
-   WHERE  (pp.date_created >= '#{last_updated}' );
+   WHERE  (pp.updated_at >= '#{last_updated}' );
 SQL
 
   (outcomes || []).each do |rds_outcomes|
@@ -772,10 +772,9 @@ def populate_occupation
   last_updated = get_last_updated('Occupation')
   occupations = ActiveRecord::Base.connection.select_all <<SQL
   SELECT * FROM #{@rds_db}.person_attribute WHERE  person_attribute_type_id = 13
-  AND (date_created >= '#{last_updated}'
-	OR date_voided  >=  '#{last_updated}');
+  AND updated_at >= '#{last_updated}'
 SQL
-  occupations.each do |rds_occupation|
+  (occupations || []).each do |rds_occupation|
     puts "processing person_id #{rds_occupation['person_id']}"
 
     if Occupation.find_by(person_id: rds_occupation).blank?
