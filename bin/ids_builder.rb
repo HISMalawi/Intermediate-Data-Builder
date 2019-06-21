@@ -548,7 +548,7 @@ def categorize_address(addresses)
   address_types
 end
 
-def get_master_def_id(openmrs_metadata_id,openmrs_entity_name)
+def get_master_def_id(openmrs_metadata_id, openmrs_entity_name)
   MasterDefinition.where(openmrs_metadata_id: openmrs_metadata_id).where(openmrs_entity_name: openmrs_entity_name).first.master_definition_id
 rescue StandardError
   nil
@@ -598,8 +598,6 @@ SQL
     breastfeeding_status_exist = BreastfeedingStatus.find_by(concept_id: breastfeeding_status['concept_id'],
                                                              encounter_id: breastfeeding_status['encounter_id'])
 
-    # TODO
-    # get_master_def_id() # get_master_def_id('Pregnant?')
     value_coded = get_master_def_id(breastfeeding_status['concept_id'], 'concept_name')
     if breastfeeding_status_exist.blank?
       PregnantStatus.create(concept_id: breastfeeding_status['concept_id'], encounter_id: breastfeeding_status['encounter_id'],
@@ -810,9 +808,9 @@ SQL
     else
       person_occupation = Occupation.where(person_id: rds_occupation['person_id'])
       person_occupation.update(eperson_id: rds_occupation['person_id'], occupation: rds_occupation['value'],
-                               person_id: rds_occupation['creator'],voided: rds_occupation['voided'],
-                               voided_by: rds_occupation['voided_by'],voided_date: rds_occupation['date_voided'],
-                               void_reason: rds_occupation['void_reason'],created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
+                               person_id: rds_occupation['creator'], voided: rds_occupation['voided'],
+                               voided_by: rds_occupation['voided_by'], voided_date: rds_occupation['date_voided'],
+                               void_reason: rds_occupation['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
                                updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
 
       puts "Successfully updated occupation details with record for person #{rds_occupation['person_id']}"
@@ -851,11 +849,11 @@ SQL
       puts "Successfully populated appointment with record for person #{rds_appointment['person_id']}"
     else
       appointment = Appointment.where(encounter_id: rds_appointment['encounter_id'])
-      appointment.update(encounter_id: rds_appointment['encounter_id'],appointment_date: rds_appointment['value_datetime'],
-                        voided: rds_appointment['voided'],voided_by: rds_appointment['voided_by'],
-                        creator: rds_appointment['creator'],voided_date: rds_appointment['date_voided'],
-                        void_reason: rds_appointment['void_reason'],created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
-                        updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+      appointment.update(encounter_id: rds_appointment['encounter_id'], appointment_date: rds_appointment['value_datetime'],
+                         voided: rds_appointment['voided'], voided_by: rds_appointment['voided_by'],
+                         creator: rds_appointment['creator'], voided_date: rds_appointment['date_voided'],
+                         void_reason: rds_appointment['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
+                         updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
 
       puts "Successfully updated appointment details with record for person #{rds_appointment['person_id']}"
     end
@@ -877,21 +875,21 @@ SQL
     puts "processing person_id #{rds_prescription['patient_id']}"
 
     if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id']).blank?
-       MedicationPrescription.create(drug_id: rds_prescription['drug_id'],encounter_id: rds_prescription['encounter_id'],
-                                     start_date: rds_prescription['start_date'],end_name: rds_prescription['date_stopped'],
-                                     instructions: rds_prescription['instructions'],voided: rds_prescription['voided'],
-                                     voided_by:rds_prescription['voided_by'],voided_date: rds_prescription['date_voided'],
-                                     void_reason: rds_prescription['void_reason'],app_date_created: rds_prescription['date_created'],
-                                     app_date_updated: rds_prescription['date_changed'])
+      MedicationPrescription.create(drug_id: rds_prescription['drug_id'], encounter_id: rds_prescription['encounter_id'],
+                                    start_date: rds_prescription['start_date'], end_name: rds_prescription['date_stopped'],
+                                    instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
+                                    voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
+                                    void_reason: rds_prescription['void_reason'], app_date_created: rds_prescription['date_created'],
+                                    app_date_updated: rds_prescription['date_changed'])
 
-        puts "Successfully populated medication prescription details with record for person #{rds_prescription['patient_id']}"
+      puts "Successfully populated medication prescription details with record for person #{rds_prescription['patient_id']}"
     else
       medication_prescription = MedicationPrescription.where(encounter_id: rds_prescription['encounter_id'])
-      medication_prescription.update(drug_id:      rds_prescription['drug_id'],encounter_id: rds_prescription['encounter_id'],
-                                     start_date:   rds_prescription['start_date'],end_name:     rds_prescription['date_stopped'],
-                                     instructions: rds_prescription['instructions'],voided:       rds_prescription['voided'],
-                                     voided_by:     rds_prescription['voided_by'],voided_date:   rds_prescription['date_voided'],
-                                     void_reason:   rds_prescription['void_reason'],created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
+      medication_prescription.update(drug_id: rds_prescription['drug_id'], encounter_id: rds_prescription['encounter_id'],
+                                     start_date: rds_prescription['start_date'], end_name:     rds_prescription['date_stopped'],
+                                     instructions: rds_prescription['instructions'], voided:       rds_prescription['voided'],
+                                     voided_by: rds_prescription['voided_by'], voided_date:   rds_prescription['date_voided'],
+                                     void_reason: rds_prescription['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
                                      updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
 
       puts "Successfully updated medication prescription details with record for person #{rds_prescription['patient_id']}"
@@ -900,7 +898,6 @@ SQL
 end
 
 def methods_init
-
   #populate_people
   #   populate_person_names
   #   populate_contact_details
