@@ -861,10 +861,7 @@ def populate_prescription
     where (en.date_created >= '#{last_updated}' );
 SQL
   (prescription || []).each do |rds_prescription|
-
-    puts "processing person_id #{rds_prescription['patient_id']}"
-
-    if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id']).blank?
+    ounter_id']).blank?
        MedicationPrescription.create(drug_id: rds_prescription['drug_id'],encounter_id: rds_prescription['encounter_id'],
                                      start_date: rds_prescription['start_date'],end_name: rds_prescription['date_stopped'],
                                      instructions: rds_prescription['instructions'],voided: rds_prescription['voided'],
@@ -901,6 +898,9 @@ def methods_init
   # populate_encounters
   # populate_diagnosis
   # populate_pregnant_status
+    puts "processing person_id #{rds_prescription['patient_id']}"
+
+    if MedicationPrescription.find_by(encounter_id: rds_prescription['enc
   # populate_breastfeeding_status
   # populate_vitals
   # populate_patient_history
