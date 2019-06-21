@@ -415,14 +415,15 @@ def update_person_type
   last_updated = get_last_updated('User')
 
   users = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.users WHERE date_created >= '#{last_updated}'
-  OR date_changed >= '#{last_updated}' OR date_retired >= '#{last_updated}';
+  SELECT * FROM #{@rds_db}.users WHERE updated_at >= '#{last_updated}';
 SQL
-
   person_type_id = 4 # person type id for user
   (users || []).each do |user|
+    puts "processing person_id #{user['person_id']}"
     person_has_type(person_type_id, user)
     update_last_update('User', user['date_created'])
+
+    update_last_update('User', user['updated_at'])
   end
 
   # Updating Guardians in person type table
@@ -435,6 +436,7 @@ SQL
 
   person_type_id = 5 # person type id for guardian
   (guardians || []).each do |guardian|
+    puts "processing person_id #{guardian['person_id']}"
     person_has_type(person_type_id, guardian)
     update_last_update('Relationship', guardian['date_created'])
   end
@@ -443,12 +445,12 @@ SQL
   last_updated = get_last_updated('Patient')
 
   patients = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.patient WHERE date_created >= '#{last_updated}'
-  OR date_changed >= '#{last_updated}' OR date_voided >= '#{last_updated}';
+  SELECT * FROM #{@rds_db}.patient WHERE updated_at >= '#{last_updated}';
 SQL
 
   person_type_id = 1 # person type id for patient
   (patients || []).each do |patient|
+    puts "processing person_id #{patient['person_id']}"
     person_has_type(person_type_id, patient)
     update_last_update('Patient', patient['date_created'])
   end
@@ -457,12 +459,12 @@ SQL
   last_updated = get_last_updated('Patient')
 
   providers = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.users WHERE date_created >= '#{last_updated}'
-  OR date_changed >= '#{last_updated}' OR date_retired >= '#{last_updated}';
+  SELECT * FROM #{@rds_db}.users WHERE updated_atq >= '#{last_updated}';
 SQL
 
   person_type_id = 2 # person type id for provider
   (providers || []).each do |provider|
+    puts "processing person_id #{provider['person_id']}"
     person_has_type(person_type_id, provider)
     update_last_update('Provider', provider['date_created'])
   end
@@ -854,11 +856,64 @@ SQL
   end
 end
 
+def populate_prescription
+  last_updated = get_last_updated('MedicationPrescription')
+
+  prescription = ActiveRecord::Base.connection.select_all <<SQL
+    SELECT o.encounter_id, o.start_date,o.instructions,o.order_id,o.patient_id,obs.concept_id,drug_id,o.date_created,o.voided,o.voided_by,o.void_reason,obs.date_stopped
+    FROM #{@rds_db}.encounter en
+    INNER JOIN #{@rds_db}.orders o on en.encounter_id = o.encounter_id  
+    INNER JOIN #{@rds_db}.obs  on en.encounter_id = obs.encounter_id
+    INNER JOIN #{@rds_db}.drug on obs.concept_id = drug.concept_id
+    where (en.date_created >= '#{last_updated}' );
+SQL
+  (prescription || []).each do |rds_prescription|
+
+    puts "processing person_id #{rds_prescription['patient_id']}"
+
+    if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id']).blank?
+      medication_prescription = MedicationPrescription.new
+      medication_prescription.drug_id          = rds_prescription['drug_id']
+      medication_prescription.encounter_id     = rds_prescription['encounter_id']
+      medication_prescription.start_date       = rds_prescription['start_date']
+      medication_prescription.end_name         = rds_prescription['date_stopped']
+      medication_prescription.instructions     = rds_prescription['instructions']
+      medication_prescription.voided           = rds_prescription['voided']
+      medication_prescription.voided_by        = rds_prescription['voided_by']
+      medication_prescription.voided_date      = rds_prescription['date_voided']
+      medication_prescription.void_reason      = rds_prescription['void_reason']
+      medication_prescription.app_date_created = rds_prescription['date_created']
+      medication_prescription.app_date_updated = rds_prescription['date_changed']
+      medication_prescription.save
+
+      puts "Successfully populated medication prescription details with record for person #{rds_prescription['patient_id']}"
+    else
+      medication_prescription = MedicationPrescription.where(encounter_id: rds_prescription['encounter_id'])
+      medication_prescription.update(drug_id:      rds_prescription['drug_id'])
+      medication_prescription.update(encounter_id: rds_prescription['encounter_id'])
+      medication_prescription.update(start_date:   rds_prescription['start_date'])
+      medication_prescription.update(end_name:     rds_prescription['date_stopped'])
+      medication_prescription.update(instructions: rds_prescription['instructions'])
+      medication_prescription.update(voided:       rds_prescription['voided'])
+      medication_prescription.update(voided_by:     rds_prescription['voided_by'])
+      medication_prescription.update(voided_date:   rds_prescription['date_voided'])
+      medication_prescription.update(void_reason:   rds_prescription['void_reason'])
+      medication_prescription.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+      medication_prescription.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+
+      puts "Successfully updated medication prescription details with record for person #{rds_prescription['patient_id']}"
+
+    end
+  end
+end
+
 def methods_init
+=begin
   populate_people
   populate_person_names
   populate_contact_details
   populate_person_address
+=end
   update_person_type
 
   # initiate_de_duplication
@@ -875,6 +930,9 @@ def methods_init
   populate_outcomes
   populate_family_planning
   populate_appointment
+  populate_prescription
+
+
 end
 
 methods_init
