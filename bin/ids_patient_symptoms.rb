@@ -1,8 +1,8 @@
 def ids_patient_symptoms(patient_symptom)
   ids_patient_symptoms = Symptom.find_by(encounter_id: patient_symptom['encounter_id'], concept_id: patient_symptom['concept_id'])
 
-  concept_id = get_master_def_id(patient_symptom['concept_id'])
-  value_coded = get_master_def_id(patient_symptom['value_coded'])
+  concept_id = get_master_def_id(patient_symptom['concept_id'], 'concept_name')
+  value_coded = get_master_def_id(patient_symptom['value_coded'], 'concept_name')
 
   if ids_patient_history.blank?
     puts "Creating patient symptom for #{patient_symptom['person_id']}"
