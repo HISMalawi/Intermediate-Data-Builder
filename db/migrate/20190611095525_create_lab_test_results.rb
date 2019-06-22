@@ -3,7 +3,7 @@
 class CreateLabTestResults < ActiveRecord::Migration[5.2]
   def change
     create_table :lab_test_results, primary_key: :test_result_id do |t|
-      t.integer  :lab_order_id, null: false
+      t.bigint  :lab_order_id, null: false
       t.integer  :results_test_facility_id, null: false
       t.bigint  :test_measure_id, null: false
       t.bigint  :test_type_id
@@ -23,7 +23,5 @@ class CreateLabTestResults < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
-
-    change_column :lab_test_results, :test_result_id, :integer
-  end
+   end
 end
