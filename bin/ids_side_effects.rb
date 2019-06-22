@@ -1,8 +1,8 @@
 def ids_side_effects(patient_side_effect)
   ids_side_effects = SideEffect.find_by(encounter_id: patient_side_effect['encounter_id'], concept_id: patient_side_effect['concept_id'])
 
-  concept_id = get_master_def_id(patient_side_effect['concept_id'])
-  value_coded = get_master_def_id(patient_side_effect['value_coded'])
+  concept_id = get_master_def_id(patient_side_effect['concept_id'], 'concept_name')
+  value_coded = get_master_def_id(patient_side_effect['value_coded'], 'concept_name')
 
   if ids_side_effects.blank?
     puts "Creating patient side effects for #{patient_side_effect['person_id']}"
