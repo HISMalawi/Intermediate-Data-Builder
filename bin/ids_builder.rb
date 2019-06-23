@@ -433,7 +433,7 @@ def update_person_type
 SQL
   person_type_id = 4 # person type id for user
   (users || []).each do |user|
-    puts "processing person_id #{user['person_id']}"
+    puts "processing user with person_id #{user['person_id']}"
     person_has_type(person_type_id, user)
     update_last_update('User', user['date_created'])
 
@@ -450,7 +450,7 @@ SQL
 
   person_type_id = 5 # person type id for guardian
   (guardians || []).each do |guardian|
-    puts "processing person_id #{guardian['person_id']}"
+    puts "Processing guardian with person_id #{guardian['person_id']}"
     person_has_type(person_type_id, guardian)
     update_last_update('Relationship', guardian['date_created'])
   end
@@ -464,7 +464,7 @@ SQL
 
   person_type_id = 1 # person type id for patient
   (patients || []).each do |patient|
-    puts "processing person_id #{patient['person_id']}"
+    puts "Processing patient with person_id #{patient['person_id']}"
     person_has_type(person_type_id, patient)
     update_last_update('Patient', patient['date_created'])
   end
@@ -473,12 +473,12 @@ SQL
   last_updated = get_last_updated('Patient')
 
   providers = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.users WHERE updated_atq >= '#{last_updated}';
+  SELECT * FROM #{@rds_db}.users WHERE updated_at >= '#{last_updated}';
 SQL
 
   person_type_id = 2 # person type id for provider
   (providers || []).each do |provider|
-    puts "processing person_id #{provider['person_id']}"
+    puts "Processing provider with person_id #{provider['person_id']}"
     person_has_type(person_type_id, provider)
     update_last_update('Provider', provider['date_created'])
   end
@@ -578,7 +578,7 @@ SQL
       pregnant_status_exist.update(concept_id: pregnant['concept_id'], encounter_id: pregnant['encounter_id'],
                                    value_coded: value_coded, voided: pregnant['voided'],
                                    voided_by: pregnant['voided_by'], voided_date: pregnant['voided_date'],
-                                   app_date_created: pregnant['date_created'], app_date_updated: pregnant_status['date_updated'])
+                                   app_date_created: pregnant['date_created'], app_date_updated: pregnant['date_updated'])
     end
     update_last_update('PregnantStatus', pregnant['updated_at'])
   end
@@ -600,7 +600,7 @@ SQL
 
     value_coded = get_master_def_id(breastfeeding_status['concept_id'], 'concept_name')
     if breastfeeding_status_exist.blank?
-      PregnantStatus.create(concept_id: breastfeeding_status['concept_id'], encounter_id: breastfeeding_status['encounter_id'],
+      BreastfeedingStatus.create(concept_id: breastfeeding_status['concept_id'], encounter_id: breastfeeding_status['encounter_id'],
                             value_coded: value_coded, voided: breastfeeding_status['voided'], voided_by: breastfeeding_status['voided_by'],
                             voided_date: breastfeeding_status['voided_date'], void_reason: breastfeeding_status['void_reason'], app_date_created: breastfeeding_status['date_created'],
                             app_date_updated: breastfeeding_status['date_updated'])
@@ -898,19 +898,19 @@ SQL
 end
 
 def methods_init
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
+  # update_person_type
 
   # initiate_de_duplication
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_breastfeeding_status
-  populate_vitals
-  populate_patient_history
+  # populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_breastfeeding_status
+  # populate_vitals
+  # populate_patient_history
   populate_symptoms
   populate_side_effects
   populate_presenting_complaints
