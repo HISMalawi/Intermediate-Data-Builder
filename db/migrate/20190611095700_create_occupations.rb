@@ -15,7 +15,7 @@ class CreateOccupations < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
-
-    change_column :occupations, :occupation_id, :integer
   end
 end
+
+
