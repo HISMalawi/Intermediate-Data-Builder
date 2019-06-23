@@ -15,7 +15,5 @@ class CreateSideEffects < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
-
-    change_column :side_effects, :side_effect_id, :integer
   end
 end
