@@ -601,9 +601,9 @@ SQL
     value_coded = get_master_def_id(breastfeeding_status['concept_id'], 'concept_name')
     if breastfeeding_status_exist.blank?
       BreastfeedingStatus.create(concept_id: breastfeeding_status['concept_id'], encounter_id: breastfeeding_status['encounter_id'],
-                            value_coded: value_coded, voided: breastfeeding_status['voided'], voided_by: breastfeeding_status['voided_by'],
-                            voided_date: breastfeeding_status['voided_date'], void_reason: breastfeeding_status['void_reason'], app_date_created: breastfeeding_status['date_created'],
-                            app_date_updated: breastfeeding_status['date_updated'])
+                                 value_coded: value_coded, voided: breastfeeding_status['voided'], voided_by: breastfeeding_status['voided_by'],
+                                 voided_date: breastfeeding_status['voided_date'], void_reason: breastfeeding_status['void_reason'], app_date_created: breastfeeding_status['date_created'],
+                                 app_date_updated: breastfeeding_status['date_updated'])
     else
       breastfeeding_status_exist.update(concept_id: breastfeeding_status['concept_id'], encounter_id: breastfeeding_status['encounter_id'],
                                         value_coded: value_coded, voided: breastfeeding_status['voided'],
@@ -791,7 +791,7 @@ SQL
   (occupations || []).each do |rds_occupation|
     puts "processing person_id #{rds_occupation['person_id']}"
 
-    if Occupation.find_by(person_id: rds_occupation).blank?
+    if Occupation.find_by(person_id: rds_occupation['person_id']).blank?
       person_occupation = Occupation.new
       person_occupation.person_id    = rds_occupation['person_id']
       person_occupation.occupation   = rds_occupation['value']
@@ -807,7 +807,7 @@ SQL
       puts "Successfully populated occupation with record for person #{rds_occupation['person_id']}"
     else
       person_occupation = Occupation.where(person_id: rds_occupation['person_id'])
-      person_occupation.update(eperson_id: rds_occupation['person_id'], occupation: rds_occupation['value'],
+      person_occupation.update(person_id: rds_occupation['person_id'], occupation: rds_occupation['value'],
                                person_id: rds_occupation['creator'], voided: rds_occupation['voided'],
                                voided_by: rds_occupation['voided_by'], voided_date: rds_occupation['date_voided'],
                                void_reason: rds_occupation['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
@@ -830,7 +830,7 @@ def populate_appointment
     AND (en.date_created >= '#{last_updated}' );
 SQL
 
-  (appointments || []).each do |rds_appointment|
+  appointments.each do |rds_appointment|
     puts "processing person_id #{rds_appointment['person_id']}"
 
     if Appointment.find_by(encounter_id: rds_appointment['encounter_id']).blank?
@@ -903,7 +903,7 @@ def methods_init
   # populate_contact_details
   # populate_person_address
   # update_person_type
-
+  #
   # initiate_de_duplication
   # populate_encounters
   # populate_diagnosis
@@ -920,6 +920,7 @@ def methods_init
   populate_appointment
   populate_prescription
   populate_lab_orders
+  populate_occupation
 end
 
 methods_init

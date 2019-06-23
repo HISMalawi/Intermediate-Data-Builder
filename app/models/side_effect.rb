@@ -1,4 +1,6 @@
+# frozen_string_literal: true
+
 class SideEffect < ApplicationRecord
-	belongs_to :encounter
-	has_many   :side_effects_has_medication_prescription
+  belongs_to :encounter
+  has_many   :side_effects_has_medication_prescription
 end
