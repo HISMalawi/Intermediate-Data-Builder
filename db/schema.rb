@@ -186,7 +186,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["encounter_id"], name: "fk_rails_f70a4c1055"
   end
 
-  create_table "lab_orders", primary_key: "lab_order_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "lab_orders", primary_key: "lab_order_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "tracking_number"
     t.datetime "order_date"
     t.bigint "encounter_id"
@@ -202,8 +202,8 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["encounter_id"], name: "fk_rails_88083b6bd1"
   end
 
-  create_table "lab_test_results", primary_key: "test_result_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "lab_order_id", null: false
+  create_table "lab_test_results", primary_key: "test_result_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "lab_order_id", null: false
     t.integer "results_test_facility_id", null: false
     t.bigint "test_measure_id", null: false
     t.bigint "test_type_id"
@@ -335,6 +335,8 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["occupation"], name: "fk_rails_3dc8df391a"
+    t.index ["person_id"], name: "fk_rails_c323a82e8d"
   end
 
   create_table "outcomes", primary_key: "outcome_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -533,7 +535,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["relationship_type_id"], name: "fk_rails_d6679af8df"
   end
 
-  create_table "side_effects", primary_key: "side_effect_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "side_effects", primary_key: "side_effect_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id"
     t.bigint "concept_id"
     t.bigint "value_coded"
@@ -550,7 +552,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   end
 
   create_table "side_effects_has_medication_prescriptions", primary_key: "side_effects_has_medication_prescription_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "side_effect_id", null: false
+    t.bigint "side_effect_id", null: false
     t.integer "medication_prescription_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -677,6 +679,8 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   add_foreign_key "medication_prescription_has_medication_regimen", "medication_regimen", column: "medication_regimen_id", primary_key: "medication_regimen_id"
   add_foreign_key "medication_prescriptions", "encounters", primary_key: "encounter_id"
   add_foreign_key "medication_prescriptions", "master_definitions", column: "drug_id", primary_key: "master_definition_id"
+  add_foreign_key "occupations", "master_definitions", column: "occupation", primary_key: "master_definition_id"
+  add_foreign_key "occupations", "people", primary_key: "person_id"
   add_foreign_key "outcomes", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "outcomes", "people", primary_key: "person_id"
   add_foreign_key "patient_histories", "encounters", primary_key: "encounter_id"
