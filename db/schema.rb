@@ -535,7 +535,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["relationship_type_id"], name: "fk_rails_d6679af8df"
   end
 
-  create_table "side_effects", primary_key: "side_effect_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "side_effects", primary_key: "side_effect_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id"
     t.bigint "concept_id"
     t.bigint "value_coded"
@@ -552,8 +552,13 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   end
 
   create_table "side_effects_has_medication_prescriptions", primary_key: "side_effects_has_medication_prescription_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+<<<<<<< HEAD
     t.integer "side_effect_id", null: false
     t.bigint "medication_prescription_id", null: false
+=======
+    t.bigint "side_effect_id", null: false
+    t.integer "medication_prescription_id", null: false
+>>>>>>> origin
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["medication_prescription_id"], name: "fk_rails_5734c61ec9"
