@@ -807,7 +807,7 @@ SQL
       puts "Successfully populated occupation with record for person #{rds_occupation['person_id']}"
     else
       person_occupation = Occupation.where(person_id: rds_occupation['person_id'])
-      person_occupation.update(person_id: rds_occupation['person_id'], occupation: rds_occupation['value'],
+      person_occupation.update( occupation: rds_occupation['value'],
                                person_id: rds_occupation['creator'], voided: rds_occupation['voided'],
                                voided_by: rds_occupation['voided_by'], voided_date: rds_occupation['date_voided'],
                                void_reason: rds_occupation['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
@@ -869,14 +869,14 @@ def populate_prescription
     INNER JOIN #{@rds_db}.orders o on en.encounter_id = o.encounter_id
     INNER JOIN #{@rds_db}.obs  on en.encounter_id = obs.encounter_id
     INNER JOIN #{@rds_db}.drug on obs.concept_id = drug.concept_id
-    where (en.date_created >= '#{last_updated}' );
+    where (en.date_created >= '#{last_updated}');
 SQL
   (prescription || []).each do |rds_prescription|
     puts "processing person_id #{rds_prescription['patient_id']}"
 
     if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id']).blank?
       MedicationPrescription.create(drug_id: rds_prescription['drug_id'], encounter_id: rds_prescription['encounter_id'],
-                                    start_date: rds_prescription['start_date'], end_name: rds_prescription['date_stopped'],
+                                    start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
                                     instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
                                     voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
                                     void_reason: rds_prescription['void_reason'], app_date_created: rds_prescription['date_created'],
@@ -886,7 +886,7 @@ SQL
     else
       medication_prescription = MedicationPrescription.where(encounter_id: rds_prescription['encounter_id'])
       medication_prescription.update(drug_id: rds_prescription['drug_id'], encounter_id: rds_prescription['encounter_id'],
-                                     start_date: rds_prescription['start_date'], end_name:     rds_prescription['date_stopped'],
+                                     start_date: rds_prescription['start_date'], end_date:     rds_prescription['date_stopped'],
                                      instructions: rds_prescription['instructions'], voided:       rds_prescription['voided'],
                                      voided_by: rds_prescription['voided_by'], voided_date:   rds_prescription['date_voided'],
                                      void_reason: rds_prescription['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
@@ -897,8 +897,9 @@ SQL
   end
 end
 
+
 def methods_init
-  #   populate_people
+  #    populate_people
   #   populate_person_names
   #   populate_contact_details
   #   populate_person_address
@@ -918,9 +919,10 @@ def methods_init
   #   populate_outcomes
   #   populate_family_planning
   #   populate_appointment
-  #   populate_prescription
+    populate_prescription
   #  populate_lab_orders
  #   populate_occupation
+  #   populate_dispensation
 end
 
 methods_init
