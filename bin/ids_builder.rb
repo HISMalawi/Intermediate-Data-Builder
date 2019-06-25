@@ -13,6 +13,7 @@ require_relative 'ids_side_effects'
 require_relative 'ids_tb_statuses'
 require_relative 'ids_family_planning'
 require_relative 'ids_lab_orders'
+require_relative 'ids_relationship'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -640,7 +641,7 @@ def populate_patient_history
 end
 
 def populate_symptoms
-  last_updated = get_last_updated('Symptoms')
+  last_updated = get_last_updated('Symptom')
 
   patient_symptoms = ActiveRecord::Base.connection.select_all <<~SQL
     SELECT * FROM #{@rds_db}.obs ob
@@ -908,8 +909,7 @@ SQL
   INNER JOIN #{@rds_db}.drug_order  ON orders.order_id = drug_order.order_id
   WHERE (orders.date_created >= '#{last_updated}');
 SQL
-
-  (prescribed_drug_id || []).each do |ids_prescribed_drug|
+    (prescribed_drug_id || []).each do |ids_prescribed_drug|
 
     (drug_dispensed || []).each do |rds_dispensed_drug|
       puts "Processing dispensation record for person #{rds_dispensed_drug['patient_id']}"
@@ -924,6 +924,17 @@ SQL
   end
 end
 
+def get_related_people
+  last_updated = get_last_updated('Relationship')
+
+  ActiveRecord::Base.connection.select_all <<QUERY
+  SELECT * from #{@rds_db}.relationship where date_created >= #{last_updated}
+QUERY
+end
+
+def populate_relationships
+  (get_related_people || []).each(&method(:ids_relationship))
+end
 
 def methods_init
   populate_people
@@ -950,6 +961,7 @@ def methods_init
   populate_lab_orders
   populate_occupation
   populate_dispensation
+  populate_relationships
 end
 
 methods_init
