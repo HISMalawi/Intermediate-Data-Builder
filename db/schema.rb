@@ -255,7 +255,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   end
 
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "medication_dispensation_id"
+    t.bigint "medication_dispensation_id"
     t.bigint "drug_id"
     t.float "adherence"
     t.boolean "voided", default: false, null: false
@@ -270,9 +270,9 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["medication_dispensation_id"], name: "fk_rails_f171ad14d2"
   end
 
-  create_table "medication_dispensations", primary_key: "medication_dispensation_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "medication_dispensations", primary_key: "medication_dispensation_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.float "quantity"
-    t.integer "medication_prescription_id"
+    t.bigint "medication_prescription_id"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -285,7 +285,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   end
 
   create_table "medication_prescription_has_medication_regimen", primary_key: "medication_prescription_has_medication_regimen_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "medication_prescription_id", null: false
+    t.bigint "medication_prescription_id", null: false
     t.integer "medication_regimen_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -293,7 +293,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["medication_regimen_id"], name: "fk_rails_7d57220671"
   end
 
-  create_table "medication_prescriptions", primary_key: "medication_prescription_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "medication_prescriptions", primary_key: "medication_prescription_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "drug_id"
     t.bigint "encounter_id"
     t.datetime "start_date"
@@ -552,8 +552,13 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   end
 
   create_table "side_effects_has_medication_prescriptions", primary_key: "side_effects_has_medication_prescription_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+<<<<<<< HEAD
+    t.integer "side_effect_id", null: false
+    t.bigint "medication_prescription_id", null: false
+=======
     t.bigint "side_effect_id", null: false
     t.integer "medication_prescription_id", null: false
+>>>>>>> origin
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["medication_prescription_id"], name: "fk_rails_5734c61ec9"
