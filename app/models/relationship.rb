@@ -1,3 +1,3 @@
 class Relationship < ApplicationRecord
-	belongs_to :person_details
+  belongs_to :person
 end
