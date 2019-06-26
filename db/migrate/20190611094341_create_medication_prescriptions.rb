@@ -17,7 +17,5 @@ class CreateMedicationPrescriptions < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
-
-    change_column :medication_prescriptions, :medication_prescription_id, :integer
   end
 end
