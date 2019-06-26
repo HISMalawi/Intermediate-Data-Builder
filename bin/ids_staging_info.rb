@@ -6,7 +6,8 @@ def populate_hiv_staging_info
   patients = ActiveRecord::Base.connection.select_all <<SQL
   SELECT distinct p.patient_id, p.updated_at FROM #{@rds_db}.patient p join #{@rds_db}.patient_program pp on p.patient_id = pp.patient_id
   JOIN #{@rds_db}.patient_state ps ON pp.patient_program_id = ps.patient_program_id 
-WHERE p.updated_at >= '#{last_updated}' AND pp.program_id = 1 AND p.voided = 0 AND pp.voided = 0 order by p.updated_at;
+WHERE p.updated_at >= '#{last_updated}' AND pp.program_id = 1 AND p.voided = 0 AND pp.voided = 0  
+AND ps.state = 7 AND ps.voided = 0 order by p.updated_at;
 SQL
 
   patients.each do |patient|
@@ -140,7 +141,6 @@ def get_who_stage(patient_id)
   concept_answer_id = ActiveRecord::Base.connection.select_one <<SQL
   SELECT value_coded, value_coded_name_id, value_text FROM #{@rds_db}.obs WHERE concept_id = 7562 AND person_id = #{patient_id};
 SQL
-  debugger if concept_answer_id['value_coded'].blank?
   if concept_answer_id['value_coded'] && concept_answer_id['value_coded_name_id']
     who_stage = ActiveRecord::Base.connection.select_one <<SQL
   SELECT concept_id FROM #{@rds_db}.concept_name WHERE concept_id = #{concept_answer_id['value_coded']} 
@@ -166,12 +166,18 @@ SQL
 SQL
 
   coded_concept_id = ActiveRecord::Base.connection.select_one <<SQL
-  SELECT value_coded FROM #{@rds_db}.obs WHERE person_id = #{patient_id} AND concept_id = #{reason_concept_id['concept_id']} 
+  SELECT value_coded, value_text FROM #{@rds_db}.obs WHERE person_id = #{patient_id} AND concept_id = #{reason_concept_id['concept_id']} 
 AND voided = 0 AND obs_datetime = '#{max_obs_datetime['max_date_time']}';
 SQL
+   if coded_concept_id['value_coded']
     reason_for_art_eligibility = ActiveRecord::Base.connection.select_one <<SQL
   SELECT concept_id FROM #{@rds_db}.concept_name WHERE concept_id = #{coded_concept_id['value_coded']} AND LENGTH(name) > 0;
 SQL
+  elsif coded_concept_id['value_text']
+  reason_for_art_eligibility = ActiveRecord::Base.connection.select_one <<SQL
+  SELECT concept_id FROM #{@rds_db}.concept_name WHERE name = '#{coded_concept_id['value_text']}' AND LENGTH(name) > 0;
+SQL
+  end
 
   return get_master_def_id(reason_for_art_eligibility['concept_id'], 'concept_name')
 
