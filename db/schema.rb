@@ -168,21 +168,22 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   end
 
   create_table "hiv_staging_infos", primary_key: "staging_info_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.bigint "person_id", null: false
+    t.bigint "encounter_id"
     t.date "start_date"
     t.date "date_enrolled"
     t.integer "transfer_in"
     t.integer "re_initiated"
     t.integer "age_at_initiation"
     t.integer "age_in_days_at_initiation"
-    t.integer "who_stage"
-    t.integer "reason_for_starting"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["encounter_id"], name: "fk_rails_f70a4c1055"
   end
 
   create_table "lab_orders", primary_key: "lab_order_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -663,6 +664,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   add_foreign_key "family_plannings", "encounters", primary_key: "encounter_id"
   add_foreign_key "guardians", "master_definitions", column: "relationship_type_id", primary_key: "master_definition_id"
   add_foreign_key "guardians", "people", primary_key: "person_id"
+  add_foreign_key "hiv_staging_infos", "encounters", primary_key: "encounter_id"
   add_foreign_key "lab_orders", "encounters", primary_key: "encounter_id"
   add_foreign_key "lab_test_results", "lab_orders", primary_key: "lab_order_id"
   add_foreign_key "lab_test_results", "master_definitions", column: "test_measure_id", primary_key: "master_definition_id"
