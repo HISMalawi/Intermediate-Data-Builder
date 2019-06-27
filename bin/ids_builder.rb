@@ -14,6 +14,7 @@ require_relative 'ids_tb_statuses'
 require_relative 'ids_family_planning'
 require_relative 'ids_lab_orders'
 require_relative 'ids_staging_info'
+require_relative 'ids_regimen'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -875,18 +876,22 @@ SQL
     puts "processing person_id #{rds_prescription['patient_id']}"
 
     if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id']).blank?
-      MedicationPrescription.create(drug_id: rds_prescription['drug_id'], encounter_id: rds_prescription['encounter_id'],
-                                    start_date: rds_prescription['start_date'], end_name: rds_prescription['date_stopped'],
+      meds = MedicationPrescription.create(drug_id: rds_prescription['drug_id'], encounter_id: rds_prescription['encounter_id'],
+                                    start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
                                     instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
                                     voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
                                     void_reason: rds_prescription['void_reason'], app_date_created: rds_prescription['date_created'],
                                     app_date_updated: rds_prescription['date_changed'])
 
       puts "Successfully populated medication prescription details with record for person #{rds_prescription['patient_id']}"
+
+      meds.errors.each do | attri, msg |
+        puts "#{attri}: #{msg}"
+      end
     else
       medication_prescription = MedicationPrescription.where(encounter_id: rds_prescription['encounter_id'])
       medication_prescription.update(drug_id: rds_prescription['drug_id'], encounter_id: rds_prescription['encounter_id'],
-                                     start_date: rds_prescription['start_date'], end_name:     rds_prescription['date_stopped'],
+                                     start_date: rds_prescription['start_date'], end_date:     rds_prescription['date_stopped'],
                                      instructions: rds_prescription['instructions'], voided:       rds_prescription['voided'],
                                      voided_by: rds_prescription['voided_by'], voided_date:   rds_prescription['date_voided'],
                                      void_reason: rds_prescription['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
@@ -918,9 +923,10 @@ def methods_init
   #   populate_outcomes
   #   populate_family_planning
   #   populate_appointment
-  #   populate_prescription
+     populate_prescription
   #populate_lab_orders
-  populate_hiv_staging_info
+  #populate_hiv_staging_info
+  #populate_regimen
 end
 
 methods_init
