@@ -13,6 +13,7 @@ require_relative 'ids_side_effects'
 require_relative 'ids_tb_statuses'
 require_relative 'ids_family_planning'
 require_relative 'ids_lab_orders'
+require_relative 'ids_staging_info'
 require_relative 'ids_relationship'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
@@ -215,8 +216,7 @@ end
 def populate_person_names
   last_updated = get_last_updated('PersonNames')
   person_names = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.person_name WHERE date_created >= '#{last_updated}' OR date_changed >= '#{last_updated}'
-  OR date_voided = '#{last_updated}';
+  SELECT * FROM #{@rds_db}.person_name WHERE updated_at >= '#{last_updated}';
 SQL
 
   person_names.each do |person_name|
@@ -962,6 +962,7 @@ def methods_init
   populate_occupation
   populate_dispensation
   populate_relationships
+  populate_hiv_staging_info
 end
 
 methods_init
