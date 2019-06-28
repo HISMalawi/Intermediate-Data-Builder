@@ -13,7 +13,10 @@ require_relative 'ids_side_effects'
 require_relative 'ids_tb_statuses'
 require_relative 'ids_family_planning'
 require_relative 'ids_lab_orders'
+require_relative 'ids_staging_info'
 require_relative 'ids_relationship'
+require_relative 'ids_pregnant_status'
+require_relative 'ids_breastfeeding_status'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -215,8 +218,7 @@ end
 def populate_person_names
   last_updated = get_last_updated('PersonNames')
   person_names = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.person_name WHERE date_created >= '#{last_updated}' OR date_changed >= '#{last_updated}'
-  OR date_voided = '#{last_updated}';
+  SELECT * FROM #{@rds_db}.person_name WHERE updated_at >= '#{last_updated}';
 SQL
 
   person_names.each do |person_name|
@@ -562,27 +564,7 @@ def populate_pregnant_status
   SELECT * FROM #{@rds_db}.obs WHERE updated_at >= '#{last_updated}' and concept_id in (1755,6131) order by updated_at;
 SQL
 
-  (pregnant_status || []).each do |pregnant|
-    puts "Updating Pregnant Status for person_id: #{pregnant['person_id']}"
-    pregnant_status_exist = PregnantStatus.find_by(concept_id: pregnant['concept_id'],
-                                                   encounter_id: pregnant['encounter_id'])
-
-    # TODO
-    # get_master_def_id() # get_master_def_id('Pregnant?')
-    value_coded = MasterDefinition.find_by_definition('Pregnant?')['master_definition_id']
-    if pregnant_status_exist.blank?
-      PregnantStatus.create(concept_id: pregnant['concept_id'], encounter_id: pregnant['encounter_id'],
-                            value_coded: value_coded, voided: pregnant['voided'], voided_by: pregnant['voided_by'],
-                            voided_date: pregnant['voided_date'], void_reason: pregnant['void_reason'], app_date_created: pregnant['date_created'],
-                            app_date_updated: pregnant['date_updated'])
-    else
-      pregnant_status_exist.update(concept_id: pregnant['concept_id'], encounter_id: pregnant['encounter_id'],
-                                   value_coded: value_coded, voided: pregnant['voided'],
-                                   voided_by: pregnant['voided_by'], voided_date: pregnant['voided_date'],
-                                   app_date_created: pregnant['date_created'], app_date_updated: pregnant['date_updated'])
-    end
-    update_last_update('PregnantStatus', pregnant['updated_at'])
-  end
+  (pregnant_status || []).each(&method(:ids_pregnant_status))
 end
 
 def populate_breastfeeding_status
@@ -594,25 +576,7 @@ def populate_breastfeeding_status
   ORDER BY updated_at;
 SQL
 
-  (breastfeeding_statuses || []).each do |breastfeeding_status|
-    puts "Updating Breastfeeding Status for person_id: #{breastfeeding_status['person_id']}"
-    breastfeeding_status_exist = BreastfeedingStatus.find_by(concept_id: breastfeeding_status['concept_id'],
-                                                             encounter_id: breastfeeding_status['encounter_id'])
-
-    value_coded = get_master_def_id(breastfeeding_status['concept_id'], 'concept_name')
-    if breastfeeding_status_exist.blank?
-      BreastfeedingStatus.create(concept_id: breastfeeding_status['concept_id'], encounter_id: breastfeeding_status['encounter_id'],
-                                 value_coded: value_coded, voided: breastfeeding_status['voided'], voided_by: breastfeeding_status['voided_by'],
-                                 voided_date: breastfeeding_status['voided_date'], void_reason: breastfeeding_status['void_reason'], app_date_created: breastfeeding_status['date_created'],
-                                 app_date_updated: breastfeeding_status['date_updated'])
-    else
-      breastfeeding_status_exist.update(concept_id: breastfeeding_status['concept_id'], encounter_id: breastfeeding_status['encounter_id'],
-                                        value_coded: value_coded, voided: breastfeeding_status['voided'],
-                                        voided_by: breastfeeding_status['voided_by'], voided_date: breastfeeding_status['voided_date'],
-                                        app_date_created: breastfeeding_status['date_created'], app_date_updated: breastfeeding_status['date_updated'])
-    end
-    update_last_update('BreastfeedingStatus', breastfeeding_status['updated_at'])
-  end
+  (breastfeeding_statuses || []).each(&method(:ids_breastfeeding_status))
 end
 
 def populate_person_address
@@ -874,7 +838,8 @@ def populate_prescription
 SQL
   (prescription || []).each do |rds_prescription|
     puts "processing person_id #{rds_prescription['patient_id']}"
-    TO DO remove hard coded drug_id
+    #TODO remove hard coded drug_id
+    # TODO discuss on order_id column to be included in prescription table as reference to
     if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id']).blank?
       MedicationPrescription.create(drug_id: 8, encounter_id: rds_prescription['encounter_id'],
                                     start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
@@ -966,31 +931,32 @@ SQL
 end
 
 def methods_init
-  # populate_people
-  # populate_person_names
-  # populate_contact_details
-  # populate_person_address
-  # update_person_type
-  #
-  # # initiate_de_duplication
-  # populate_encounters
-  # populate_diagnosis
-  # populate_pregnant_status
-  # populate_breastfeeding_status
-  # populate_vitals
-  # populate_patient_history
-  # populate_symptoms
-  # populate_side_effects
-  # populate_presenting_complaints
-  # populate_tb_statuses
-  # populate_outcomes
-  # populate_family_planning
-  # populate_appointment
-  # populate_prescription
-  # populate_lab_orders
-  # populate_occupation
-  # populate_dispensation
-  # populate_relationships
+  populate_people
+  populate_person_names
+  populate_contact_details
+  populate_person_address
+  update_person_type
+
+  # initiate_de_duplication
+  populate_encounters
+  populate_diagnosis
+  populate_pregnant_status
+  populate_breastfeeding_status
+  populate_vitals
+  populate_patient_history
+  populate_symptoms
+  populate_side_effects
+  populate_presenting_complaints
+  populate_tb_statuses
+  populate_outcomes
+  populate_family_planning
+  populate_appointment
+  populate_prescription
+  populate_lab_orders
+  populate_occupation
+  populate_dispensation
+  populate_relationships
+  populate_hiv_staging_info
   populate_adherence
 end
 
