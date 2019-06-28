@@ -15,6 +15,8 @@ require_relative 'ids_family_planning'
 require_relative 'ids_lab_orders'
 require_relative 'ids_staging_info'
 require_relative 'ids_relationship'
+require_relative 'ids_pregnant_status'
+require_relative 'ids_breastfeeding_status'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -562,29 +564,7 @@ def populate_pregnant_status
   SELECT * FROM #{@rds_db}.obs WHERE updated_at >= '#{last_updated}' and concept_id in (1755,6131) order by updated_at;
 SQL
 
-  (pregnant_status || []).each do |pregnant|
-    puts "Updating Pregnant Status for person_id: #{pregnant['person_id']}"
-    pregnant_status_exist = PregnantStatus.find_by(concept_id: pregnant['concept_id'],
-                                                   encounter_id: pregnant['encounter_id'])
-
-    concept_id = get_master_def_id(pregnant['concept_id'], 'concept_name')
-    # TODO
-    # get_master_def_id() # get_master_def_id('Pregnant?')
-    value_coded = MasterDefinition.find_by_definition('Pregnant?')['master_definition_id']
-
-    if pregnant_status_exist.blank?
-      PregnantStatus.create(concept_id: concept_id, encounter_id: pregnant['encounter_id'],
-                            value_coded: value_coded, voided: pregnant['voided'], voided_by: pregnant['voided_by'],
-                            voided_date: pregnant['voided_date'], void_reason: pregnant['void_reason'], app_date_created: pregnant['date_created'],
-                            app_date_updated: pregnant['date_updated'])
-    else
-      pregnant_status_exist.update(concept_id: concept_id, encounter_id: pregnant['encounter_id'],
-                                   value_coded: value_coded, voided: pregnant['voided'],
-                                   voided_by: pregnant['voided_by'], voided_date: pregnant['voided_date'],
-                                   app_date_created: pregnant['date_created'], app_date_updated: pregnant['date_updated'])
-    end
-    update_last_update('PregnantStatus', pregnant['updated_at'])
-  end
+  (pregnant_status || []).each(&method(:ids_pregnant_status))
 end
 
 def populate_breastfeeding_status
@@ -596,25 +576,7 @@ def populate_breastfeeding_status
   ORDER BY updated_at;
 SQL
 
-  (breastfeeding_statuses || []).each do |breastfeeding_status|
-    puts "Updating Breastfeeding Status for person_id: #{breastfeeding_status['person_id']}"
-    breastfeeding_status_exist = BreastfeedingStatus.find_by(concept_id: breastfeeding_status['concept_id'],
-                                                             encounter_id: breastfeeding_status['encounter_id'])
-
-    value_coded = get_master_def_id(breastfeeding_status['concept_id'], 'concept_name')
-    if breastfeeding_status_exist.blank?
-      BreastfeedingStatus.create(concept_id: breastfeeding_status['concept_id'], encounter_id: breastfeeding_status['encounter_id'],
-                                 value_coded: value_coded, voided: breastfeeding_status['voided'], voided_by: breastfeeding_status['voided_by'],
-                                 voided_date: breastfeeding_status['voided_date'], void_reason: breastfeeding_status['void_reason'], app_date_created: breastfeeding_status['date_created'],
-                                 app_date_updated: breastfeeding_status['date_updated'])
-    else
-      breastfeeding_status_exist.update(concept_id: breastfeeding_status['concept_id'], encounter_id: breastfeeding_status['encounter_id'],
-                                        value_coded: value_coded, voided: breastfeeding_status['voided'],
-                                        voided_by: breastfeeding_status['voided_by'], voided_date: breastfeeding_status['voided_date'],
-                                        app_date_created: breastfeeding_status['date_created'], app_date_updated: breastfeeding_status['date_updated'])
-    end
-    update_last_update('BreastfeedingStatus', breastfeeding_status['updated_at'])
-  end
+  (breastfeeding_statuses || []).each(&method(:ids_breastfeeding_status))
 end
 
 def populate_person_address
