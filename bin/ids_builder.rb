@@ -17,6 +17,7 @@ require_relative 'ids_staging_info'
 require_relative 'ids_relationship'
 require_relative 'ids_pregnant_status'
 require_relative 'ids_breastfeeding_status'
+require_relative 'ids_people'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -157,38 +158,7 @@ def check_for_duplicate(demographics)
 end
 
 def populate_people
-  get_all_rds_people.each do |person|
-    person['birthdate'].blank? ? dob = "'1900-01-01'" : dob = "'#{person['birthdate'].to_date}'"
-
-    person['death_date'].blank? ? dod = 'NULL' : dod = "'#{person['death_date'].to_date}'"
-
-    person['date_voided'].blank? ? voided_date = 'NULL' : voided_date = "'#{person['date_voided'].strftime('%Y-%m-%d %H:%M:%S')}'"
-
-    person['date_created'].blank? ? app_created_at = 'NULL' : app_created_at = "'#{person['date_created'].strftime('%Y-%m-%d %H:%M:%S')}'"
-
-    person['date_changed'].blank? ? app_updated_at = 'NULL' : app_updated_at = "'#{person['date_changed'].strftime('%Y-%m-%d %H:%M:%S')}'"
-
-    gender = person['gender'] == 'M' ? 1 : 0
-
-    puts "processing person_id #{person['person_id']}"
-
-    person_exits = Person.find_by(person_id: person['person_id'])
-
-    if person_exits.blank?
-      Person.create(person_id: person['person_id'].to_i, birthdate: dob, birthdate_est: person['birthdate_estimated'].to_i,
-                    gender: gender.to_i, death_date: dod, cause_of_death: person['cause_of_death'], dead: person['dead'].to_i,
-                    voided: person['voided'].to_i, voided_by: person['voided_by'].to_i, voided_date: voided_date,
-                    void_reason: person['void_reason'].to_i, app_date_created: app_created_at, app_date_updated: app_updated_at)
-    else
-      person_exits.update(birthdate: dob, birthdate_est: person['birthdate_estimated'].to_i,
-                          gender: gender.to_i, death_date: dod, cause_of_death: person['cause_of_death'], dead: person['dead'].to_i,
-                          voided: person['voided'].to_i, voided_by: person['voided_by'].to_i, voided_date: voided_date,
-                          void_reason: person['void_reason'].to_i, app_date_created: app_created_at, app_date_updated: app_updated_at)
-
-      puts 'Updating'
-    end
-    update_last_update('Person', person['date_created'])
-  end
+  get_all_rds_people.each(&method(:ids_people))
 end
 
 def update_last_update(model, timestamp)
