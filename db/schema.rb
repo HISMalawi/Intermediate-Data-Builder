@@ -27,6 +27,10 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["encounter_id"], name: "fk_rails_20191c09ff"
   end
 
+  create_table "arv_drug", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.integer "drug_id", null: false
+  end
+
   create_table "breastfeeding_statuses", primary_key: "breastfeeding_status_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id"
     t.bigint "concept_id"
@@ -284,12 +288,14 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   end
 
   create_table "medication_prescription_has_medication_regimen", primary_key: "medication_prescription_has_medication_regimen_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "medication_prescription_id", null: false
+    t.bigint "medication_prescription_encounter_id", null: false
     t.integer "medication_regimen_id", null: false
+    t.boolean "voided", default: false, null: false
+    t.bigint "voided_by"
+    t.datetime "voided_date"
+    t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["medication_prescription_id"], name: "fk_rails_c3f5710ab6"
-    t.index ["medication_regimen_id"], name: "fk_rails_7d57220671"
   end
 
   create_table "medication_prescriptions", primary_key: "medication_prescription_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -308,14 +314,13 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "medication_regimen", primary_key: "medication_regimen_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "medication_regimen", primary_key: "medication_regimen_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "regimen"
+    t.string "drug_composition"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
-    t.datetime "app_date_created", null: false
-    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -670,7 +675,6 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   add_foreign_key "lab_test_results", "sites", column: "results_test_facility_id", primary_key: "site_id"
   add_foreign_key "medication_adherences", "master_definitions", column: "drug_id", primary_key: "master_definition_id"
   add_foreign_key "medication_adherences", "medication_dispensations", primary_key: "medication_dispensation_id"
-  add_foreign_key "medication_prescription_has_medication_regimen", "medication_regimen", column: "medication_regimen_id", primary_key: "medication_regimen_id"
   add_foreign_key "occupations", "master_definitions", column: "occupation", primary_key: "master_definition_id"
   add_foreign_key "occupations", "people", primary_key: "person_id"
   add_foreign_key "outcomes", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
