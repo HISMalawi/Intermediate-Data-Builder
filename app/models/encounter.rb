@@ -11,7 +11,6 @@ class Encounter < ApplicationRecord
   has_many :hiv_staging_info
   has_many :medication_regimen
   has_many :breastfeeding_status
-  has_many :medication_adherence
   has_many :pregnant_status
   has_many :medication_prescription
 end
