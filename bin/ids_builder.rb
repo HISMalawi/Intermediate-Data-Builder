@@ -903,34 +903,78 @@ SQL
    end
 end
 
-def methods_init
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
+def get_people
+  last_updated = get_last_updated('PersonNames')
+  all_people = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM people 
+  WHERE updated_at >= '#{last_updated}';
+SQL
+   all_people.each do |person_details|
 
- # initiate_de_duplication
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_breastfeeding_status
-  populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
-  populate_tb_statuses
-  populate_outcomes
-  populate_family_planning
-  populate_appointment
-  populate_prescription
-  populate_lab_orders
-  populate_occupation
-  populate_dispensation
-  populate_relationships
-  populate_hiv_staging_info
-  populate_precription_has_regimen
+    person_id_exist = DeIdentifiedIdentifier.find_by(person_id: person_details['person_id'])
+
+      npid = person_details['person_id']
+      sid = create_sid
+
+      DeIdentifiedIdentifier.create(identifier: sid,person_id: npid,voided: person_details['voided'],voided_by: person_details['voided_by'],
+                                  voided_date: person_details['date_voided'],void_reason: person_details['void_reason'],
+                                  app_date_created: person_details['app_date_created'], app_date_updated: person_details['app_date_updated'])
+
+    puts "Successfully populated De_Identified identifier details with record for person #{person_details['person_id']}"
+   end
+end
+
+def create_sid
+  sid = generate_id
+  encode(sid)
+end
+
+def generate_id
+  if @lcg
+    @lcg = (1664525 * @lcg + 1013904223) % (2**32)
+  else
+    @lcg = rand(2**32) # Random seed
+  end
+end
+
+def encode(n)
+  @ENCODE_CHARS = [*?a..?z, *?A..?Z]
+  6.times.map { |i|
+    n, mod = n.divmod(@ENCODE_CHARS.size)
+    @ENCODE_CHARS[mod]
+  }.join
+end
+
+
+def methods_init
+ #  populate_people
+ #  populate_person_names
+ #  populate_contact_details
+ #  populate_person_address
+ #  update_person_type
+ #
+ # # initiate_de_duplication
+ #  populate_encounters
+ #  populate_diagnosis
+ #  populate_pregnant_status
+ #  populate_breastfeeding_status
+ #  populate_vitals
+ #  populate_patient_history
+ #  populate_symptoms
+ #  populate_side_effects
+ #  populate_presenting_complaints
+ #  populate_tb_statuses
+ #  populate_outcomes
+ #  populate_family_planning
+ #  populate_appointment
+ #  populate_prescription
+ #  populate_lab_orders
+ #  populate_occupation
+ #  populate_dispensation
+ #  populate_relationships
+ #  populate_hiv_staging_info
+ #  populate_precription_has_regimen
+    get_people
 end
 
 methods_init
