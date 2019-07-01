@@ -14,6 +14,7 @@ require_relative 'ids_tb_statuses'
 require_relative 'ids_family_planning'
 require_relative 'ids_lab_orders'
 require_relative 'ids_staging_info'
+require_relative 'ids_prescription_has'
 require_relative 'ids_relationship'
 require_relative 'ids_pregnant_status'
 require_relative 'ids_breastfeeding_status'
@@ -29,7 +30,7 @@ def get_all_rds_people
   last_updated = get_last_updated('Person')
 
   rds_people = ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.person where date_created >= '#{last_updated}' ORDER BY date_created;
+	SELECT * FROM #{@rds_db}.person where updated_at >= '#{last_updated}' ORDER BY date_created;
 QUERY
 end
 
@@ -806,6 +807,7 @@ def populate_prescription
     INNER JOIN #{@rds_db}.drug on obs.concept_id = drug.concept_id
     where (en.date_created >= '#{last_updated}');
 SQL
+
   (prescription || []).each do |rds_prescription|
     puts "processing person_id #{rds_prescription['patient_id']}"
     #TODO remove hard coded drug_id
@@ -829,7 +831,7 @@ SQL
                                      void_reason: rds_prescription['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
                                      updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
 
-      puts "Successfully updated medication prescription details with record for person #{rds_prescription['patient_id']}"
+      puts "Successfully updated medication prescription details with record for person #{rds_prescription['patient_id']}"      
     end
   end
 end
@@ -902,33 +904,33 @@ SQL
 end
 
 def methods_init
-  # populate_people
-  # populate_person_names
-  # populate_contact_details
-  # populate_person_address
-  # update_person_type
-  #
-  # # initiate_de_duplication
-   populate_encounters
-  # populate_diagnosis
-  # populate_pregnant_status
-  # populate_breastfeeding_status
-  # populate_vitals
-  # populate_patient_history
-  # populate_symptoms
-  # populate_side_effects
-  # populate_presenting_complaints
-  # populate_tb_statuses
-  # populate_outcomes
-  # populate_family_planning
-  # populate_appointment
-  # populate_prescription
-  # populate_lab_orders
-  # populate_occupation
-  # populate_dispensation
-  # populate_relationships
-  # populate_hiv_staging_info
-  # populate_adherence
+  populate_people
+  populate_person_names
+  populate_contact_details
+  populate_person_address
+  update_person_type
+
+ # initiate_de_duplication
+  populate_encounters
+  populate_diagnosis
+  populate_pregnant_status
+  populate_breastfeeding_status
+  populate_vitals
+  populate_patient_history
+  populate_symptoms
+  populate_side_effects
+  populate_presenting_complaints
+  populate_tb_statuses
+  populate_outcomes
+  populate_family_planning
+  populate_appointment
+  populate_prescription
+  populate_lab_orders
+  populate_occupation
+  populate_dispensation
+  populate_relationships
+  populate_hiv_staging_info
+  populate_precription_has_regimen
 end
 
 methods_init
