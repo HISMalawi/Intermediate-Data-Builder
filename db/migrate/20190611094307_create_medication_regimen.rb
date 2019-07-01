@@ -9,7 +9,7 @@ class CreateMedicationRegimen < ActiveRecord::Migration[5.2]
       t.bigint  :voided_by
       t.datetime :voided_date
       t.string :void_reason
-      
+
       t.timestamps
     end
   end
