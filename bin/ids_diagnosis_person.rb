@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 def ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
-  person = Person.find_by(person_id: diag['person_id'])
-
+  diagnosis = Diagnosis.find_by_encounter_id(diag['encounter_id'])
   value_coded = get_master_def_id(diag[:value_coded], 'concept_name')
 
-  if person
+  if diagnosis
+    puts 'Update code not yet available'
+  else
     diagnosis = Diagnosis.new
     diagnosis.encounter_id = diag['encounter_id']
 
@@ -14,15 +15,12 @@ def ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
     diagnosis.secondary_diagnosis = (
     diag['concept_id'] == secondary_diagnosis ? value_coded : '')
     diagnosis.app_date_created = diag['encounter_datetime']
-    diagnosis.save!
 
     if diagnosis.save
       puts "Successfully populated diagnosis with person id #{diag['person_id']}"
     else
       puts "Failed to populated diagnosis with person id #{diag['person_id']}"
     end
-  else
-    puts 'diagnosis update code not available yet'
   end
 
   update_last_update('Diagnosis', diag['encounter_datetime'])
