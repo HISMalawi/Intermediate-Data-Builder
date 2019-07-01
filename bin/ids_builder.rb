@@ -14,6 +14,7 @@ require_relative 'ids_tb_statuses'
 require_relative 'ids_family_planning'
 require_relative 'ids_lab_orders'
 require_relative 'ids_staging_info'
+require_relative 'ids_prescription_has'
 require_relative 'ids_relationship'
 require_relative 'ids_pregnant_status'
 require_relative 'ids_breastfeeding_status'
@@ -29,7 +30,7 @@ def get_all_rds_people
   last_updated = get_last_updated('Person')
 
   rds_people = ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.person where date_created >= '#{last_updated}' ORDER BY date_created;
+	SELECT * FROM #{@rds_db}.person where updated_at >= '#{last_updated}' ORDER BY date_created;
 QUERY
 end
 
@@ -806,26 +807,33 @@ def populate_prescription
     INNER JOIN #{@rds_db}.drug on obs.concept_id = drug.concept_id
     where (en.date_created >= '#{last_updated}');
 SQL
+
   (prescription || []).each do |rds_prescription|
     puts "processing person_id #{rds_prescription['patient_id']}"
-    #TODO remove hard coded drug_id
-    # TODO add drug_id and voided for unique record
-    master_def_drug_id =  get_master_def_id(rds_prescription['drug_id'], 'drug')
-    if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id'], drug_id: master_def_drug_id, voided: rds_prescription['voided']).blank?
-      MedicationPrescription.create(drug_id: master_def_drug_id, encounter_id: rds_prescription['encounter_id'],
-                                    start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
+
+    if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id'],drug_id: rds_prescription['drug_id'], voided: rds_prescription['voided']).blank?
+      meds = MedicationPrescription.create(drug_id: rds_prescription['drug_id'], encounter_id: rds_prescription['encounter_id'],
+    TO DO remove hard coded drug_id
+    if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id']).blank?
+      MedicationPrescription.create(drug_id: 8, encounter_id: rds_prescription['encounter_id'],
+
+        start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
                                     instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
                                     voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
                                     void_reason: rds_prescription['void_reason'], app_date_created: rds_prescription['date_created'],
                                     app_date_updated: rds_prescription['date_changed'])
 
       puts "Successfully populated medication prescription details with record for person #{rds_prescription['patient_id']}"
+
+      meds.errors.each do | attri, msg |
+        puts "#{attri}: #{msg}"
+      end
     else
       medication_prescription = MedicationPrescription.where(encounter_id: rds_prescription['encounter_id'])
-      medication_prescription.update(drug_id: 8, encounter_id: rds_prescription['encounter_id'],
-                                     start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
-                                     instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
-                                     voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
+      medication_prescription.update(drug_id: rds_prescription['drug_id'], encounter_id: rds_prescription['encounter_id'],
+                                     start_date: rds_prescription['start_date'], end_date:     rds_prescription['date_stopped'],
+                                     instructions: rds_prescription['instructions'], voided:       rds_prescription['voided'],
+                                     voided_by: rds_prescription['voided_by'], voided_date:   rds_prescription['date_voided'],
                                      void_reason: rds_prescription['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
                                      updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
 
@@ -902,33 +910,33 @@ SQL
 end
 
 def methods_init
-  # populate_people
-  # populate_person_names
-  # populate_contact_details
-  # populate_person_address
-  # update_person_type
-  #
-  # # initiate_de_duplication
-   populate_encounters
-  # populate_diagnosis
-  # populate_pregnant_status
-  # populate_breastfeeding_status
-  # populate_vitals
-  # populate_patient_history
-  # populate_symptoms
-  # populate_side_effects
-  # populate_presenting_complaints
-  # populate_tb_statuses
-  # populate_outcomes
-  # populate_family_planning
-  # populate_appointment
-  # populate_prescription
-  # populate_lab_orders
-  # populate_occupation
-  # populate_dispensation
-  # populate_relationships
-  # populate_hiv_staging_info
-  # populate_adherence
+  populate_people
+  populate_person_names
+  populate_contact_details
+  populate_person_address
+  update_person_type
+
+  # initiate_de_duplication
+  populate_encounters
+  populate_diagnosis
+  populate_pregnant_status
+  populate_breastfeeding_status
+  populate_vitals
+  populate_patient_history
+  populate_symptoms
+  populate_side_effects
+  populate_presenting_complaints
+  populate_tb_statuses
+  populate_outcomes
+  populate_family_planning
+  populate_appointment
+  populate_prescription
+  populate_lab_orders
+  populate_occupation
+  populate_dispensation
+  populate_relationships
+  populate_hiv_staging_info
+  populate_precription_has_regimen
 end
 
 methods_init
