@@ -810,34 +810,28 @@ SQL
 
   (prescription || []).each do |rds_prescription|
     puts "processing person_id #{rds_prescription['patient_id']}"
-
-    if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id'],drug_id: rds_prescription['drug_id'], voided: rds_prescription['voided']).blank?
-      meds = MedicationPrescription.create(drug_id: rds_prescription['drug_id'], encounter_id: rds_prescription['encounter_id'],
-    TO DO remove hard coded drug_id
-    if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id']).blank?
-      MedicationPrescription.create(drug_id: 8, encounter_id: rds_prescription['encounter_id'],
-
-        start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
+    #TODO remove hard coded drug_id
+    # TODO add drug_id and voided for unique record
+    master_def_drug_id =  get_master_def_id(rds_prescription['drug_id'], 'drug')
+    if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id'], drug_id: master_def_drug_id, voided: rds_prescription['voided']).blank?
+      MedicationPrescription.create(drug_id: master_def_drug_id, encounter_id: rds_prescription['encounter_id'],
+                                    start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
                                     instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
                                     voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
                                     void_reason: rds_prescription['void_reason'], app_date_created: rds_prescription['date_created'],
                                     app_date_updated: rds_prescription['date_changed'])
 
       puts "Successfully populated medication prescription details with record for person #{rds_prescription['patient_id']}"
-
-      meds.errors.each do | attri, msg |
-        puts "#{attri}: #{msg}"
-      end
     else
       medication_prescription = MedicationPrescription.where(encounter_id: rds_prescription['encounter_id'])
-      medication_prescription.update(drug_id: rds_prescription['drug_id'], encounter_id: rds_prescription['encounter_id'],
-                                     start_date: rds_prescription['start_date'], end_date:     rds_prescription['date_stopped'],
-                                     instructions: rds_prescription['instructions'], voided:       rds_prescription['voided'],
-                                     voided_by: rds_prescription['voided_by'], voided_date:   rds_prescription['date_voided'],
+      medication_prescription.update(drug_id: master_def_drug_id, encounter_id: rds_prescription['encounter_id'],
+                                     start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
+                                     instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
+                                     voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
                                      void_reason: rds_prescription['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
                                      updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
 
-      puts "Successfully updated medication prescription details with record for person #{rds_prescription['patient_id']}"
+      puts "Successfully updated medication prescription details with record for person #{rds_prescription['patient_id']}"      
     end
   end
 end
@@ -916,7 +910,7 @@ def methods_init
   populate_person_address
   update_person_type
 
-  # initiate_de_duplication
+ # initiate_de_duplication
   populate_encounters
   populate_diagnosis
   populate_pregnant_status
