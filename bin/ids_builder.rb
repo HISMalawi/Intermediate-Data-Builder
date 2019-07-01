@@ -822,7 +822,7 @@ SQL
       puts "Successfully populated medication prescription details with record for person #{rds_prescription['patient_id']}"
     else
       medication_prescription = MedicationPrescription.where(encounter_id: rds_prescription['encounter_id'])
-      medication_prescription.update(drug_id: 8, encounter_id: rds_prescription['encounter_id'],
+      medication_prescription.update(drug_id: master_def_drug_id, encounter_id: rds_prescription['encounter_id'],
                                      start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
                                      instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
                                      voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
