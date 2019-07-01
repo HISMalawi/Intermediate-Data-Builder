@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_16_131710) do
+ActiveRecord::Schema.define(version: 2019_06_29_181240) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -25,6 +25,12 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["encounter_id"], name: "fk_rails_20191c09ff"
+  end
+
+  create_table "arv_drugs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.integer "drug_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "breastfeeding_statuses", primary_key: "breastfeeding_status_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -88,6 +94,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["person_id"], name: "fk_rails_a018965096"
   end
 
   create_table "diagnosis", primary_key: "diagnosis_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -182,6 +189,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["person_id"], name: "fk_rails_2ddeb472c8"
   end
 
   create_table "lab_orders", primary_key: "lab_order_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -216,6 +224,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["lab_order_id"], name: "fk_rails_c4c5f50f57"
   end
 
   create_table "locations", primary_key: "location_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -245,7 +254,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   end
 
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "medication_dispensation_id"
+    t.bigint "medication_dispensation_id"
     t.bigint "drug_id"
     t.float "adherence"
     t.boolean "voided", default: false, null: false
@@ -260,9 +269,9 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["medication_dispensation_id"], name: "fk_rails_f171ad14d2"
   end
 
-  create_table "medication_dispensations", primary_key: "medication_dispensation_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "medication_dispensations", primary_key: "medication_dispensation_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.float "quantity"
-    t.integer "medication_prescription_id"
+    t.bigint "medication_prescription_id"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -276,10 +285,14 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
 
   create_table "medication_prescription_has_medication_regimen", primary_key: "medication_prescription_has_medication_regimen_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "medication_prescription_encounter_id", null: false
-    t.integer "medication_regimen_id", null: false
+    t.bigint "medication_regimen_id", null: false
+    t.boolean "voided", default: false, null: false
+    t.bigint "voided_by"
+    t.datetime "voided_date"
+    t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["medication_prescription_id"], name: "fk_rails_c3f5710ab6"
+    t.index ["medication_prescription_encounter_id"], name: "fk_rails_be99ee7eb8"
     t.index ["medication_regimen_id"], name: "fk_rails_7d57220671"
   end
 
@@ -301,19 +314,18 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["encounter_id"], name: "fk_rails_458448a9a4"
   end
 
-  create_table "medication_regimen", primary_key: "medication_regimen_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "medication_regimen", primary_key: "medication_regimen_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "regimen"
+    t.string "drug_composition"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
-    t.datetime "app_date_created", null: false
-    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "occupations", primary_key: "occupation_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "occupations", primary_key: "occupation_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "person_id", null: false
     t.bigint "occupation", null: false
     t.bigint "creator"
@@ -525,7 +537,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
     t.index ["relationship_type_id"], name: "fk_rails_d6679af8df"
   end
 
-  create_table "side_effects", primary_key: "side_effect_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "side_effects", primary_key: "side_effect_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id"
     t.bigint "concept_id"
     t.bigint "value_coded"
@@ -543,11 +555,9 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
 
   create_table "side_effects_has_medication_prescriptions", primary_key: "side_effects_has_medication_prescription_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "side_effect_id", null: false
-    t.integer "medication_prescription_id", null: false
+    t.bigint "medication_prescription_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["medication_prescription_id"], name: "fk_rails_5734c61ec9"
-    t.index ["side_effect_id"], name: "fk_rails_5c0c6cd6a9"
   end
 
   create_table "site_types", primary_key: "site_type_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -646,6 +656,7 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   add_foreign_key "breastfeeding_statuses", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "contact_details", "people", primary_key: "person_id"
   add_foreign_key "de_duplicators", "people", primary_key: "person_id"
+  add_foreign_key "de_identified_identifiers", "people", primary_key: "person_id"
   add_foreign_key "diagnosis", "encounters", primary_key: "encounter_id"
   add_foreign_key "diagnosis", "master_definitions", column: "primary_diagnosis", primary_key: "master_definition_id"
   add_foreign_key "diagnosis", "master_definitions", column: "secondary_diagnosis", primary_key: "master_definition_id"
@@ -655,11 +666,13 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   add_foreign_key "family_plannings", "encounters", primary_key: "encounter_id"
   add_foreign_key "guardians", "master_definitions", column: "relationship_type_id", primary_key: "master_definition_id"
   add_foreign_key "guardians", "people", primary_key: "person_id"
+  add_foreign_key "hiv_staging_infos", "people", primary_key: "person_id"
   add_foreign_key "lab_orders", "encounters", primary_key: "encounter_id"
+  add_foreign_key "lab_test_results", "lab_orders", primary_key: "lab_order_id"
   add_foreign_key "medication_adherences", "master_definitions", column: "drug_id", primary_key: "master_definition_id"
   add_foreign_key "medication_adherences", "medication_dispensations", primary_key: "medication_dispensation_id"
   add_foreign_key "medication_dispensations", "medication_prescriptions", primary_key: "medication_prescription_id"
-  add_foreign_key "medication_prescription_has_medication_regimen", "medication_prescriptions", primary_key: "medication_prescription_id"
+  add_foreign_key "medication_prescription_has_medication_regimen", "medication_prescriptions", column: "medication_prescription_encounter_id", primary_key: "encounter_id"
   add_foreign_key "medication_prescription_has_medication_regimen", "medication_regimen", column: "medication_regimen_id", primary_key: "medication_regimen_id"
   add_foreign_key "medication_prescriptions", "encounters", primary_key: "encounter_id"
   add_foreign_key "medication_prescriptions", "master_definitions", column: "drug_id", primary_key: "master_definition_id"
@@ -694,7 +707,6 @@ ActiveRecord::Schema.define(version: 2019_06_16_131710) do
   add_foreign_key "relationships", "people", column: "person_id_b", primary_key: "person_id"
   add_foreign_key "side_effects", "encounters", primary_key: "encounter_id"
   add_foreign_key "side_effects", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
-  add_foreign_key "side_effects_has_medication_prescriptions", "side_effects", primary_key: "side_effect_id"
   add_foreign_key "sites", "site_types", primary_key: "site_type_id"
   add_foreign_key "symptoms", "encounters", primary_key: "encounter_id"
   add_foreign_key "symptoms", "master_definitions", column: "concept_id", primary_key: "master_definition_id"

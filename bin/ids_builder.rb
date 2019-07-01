@@ -31,7 +31,7 @@ def get_all_rds_people
   last_updated = get_last_updated('Person')
 
   rds_people = ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.person where updated_at >= '#{last_updated}' ORDER BY date_created;
+	SELECT * FROM #{@rds_db}.person where updated_at >= '#{last_updated}' ORDER BY updated_at;
 QUERY
 end
 
@@ -50,7 +50,7 @@ def get_rds_person_addresses(person_id)
   person_address = []
   rds_address = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_address where person_id = #{person_id}
-	AND (date_created >= '#{last_updated}'
+	AND (updated_at >= '#{last_updated}'
 	OR date_voided  >=  '#{last_updated}');
 
 QUERY
@@ -63,7 +63,7 @@ def get_rds_person_attributes
   person_attribute = []
   rds_attribute = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_attribute WHERE person_attribute_type_id IN (12,14,15)
-	AND (date_created >= '#{last_updated}'
+	AND (updated_at >= '#{last_updated}'
 	OR date_voided  >=  '#{last_updated}');
 
 QUERY
@@ -79,10 +79,8 @@ def get_rds_users
   end
 
   rds_users = ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.users where date_created >= '#{last_updated}'
-	OR date_changed >= '#{last_updated}'
-	OR date_voided  >= '#{last_updated}'
-  ORDER BY date_created, date_changed, date_voided;
+	SELECT * FROM #{@rds_db}.users where updated_at >= '#{last_updated}'
+	order by updated_at;
 
 QUERY
 end
@@ -212,7 +210,7 @@ SQL
                                void_reason: person_name['void_reason'], app_date_created: person_name['date_created'],
                                app_date_updated: person_name['date_updated'])
     end
-    update_last_update('PersonName', person_name['date_created'])
+    update_last_update('PersonName', person_name['updated_at'])
   end
 end
 
@@ -285,7 +283,7 @@ def populate_contact_details
       break
     end
     current_update_date = {}
-    current_update_date['PersonAttribute'] = person_attribute['date_created'].strftime('%Y-%m-%d %H:%M:%S')
+    current_update_date['PersonAttribute'] = person_attribute['updated_at'].strftime('%Y-%m-%d %H:%M:%S')
 
     File.open('log/last_update.yml', 'w') do |file|
       file.write current_update_date.to_yaml
@@ -297,7 +295,7 @@ def populate_encounters
   last_updated = get_last_updated('Encounter')
 
   total_encounters = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT count(*) as count FROM #{@rds_db}.encounter  WHERE  (date_created >= '#{last_updated}');
+  SELECT count(*) as count FROM #{@rds_db}.encounter  WHERE  (updated_at >= '#{last_updated}');
 SQL
   i = 0
   while total_encounters.first['count'] - i > 0
@@ -410,7 +408,6 @@ SQL
   (users || []).each do |user|
     puts "processing user with person_id #{user['person_id']}"
     person_has_type(person_type_id, user)
-    update_last_update('User', user['date_created'])
 
     update_last_update('User', user['updated_at'])
   end
@@ -419,7 +416,7 @@ SQL
   last_updated = get_last_updated('Relationship')
 
   guardians = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.relationship WHERE date_created >= '#{last_updated}'
+  SELECT * FROM #{@rds_db}.relationship WHERE updated_at >= '#{last_updated}'
   AND relationship = 6;
 SQL
 
@@ -427,7 +424,7 @@ SQL
   (guardians || []).each do |guardian|
     puts "Processing guardian with person_id #{guardian['person_id']}"
     person_has_type(person_type_id, guardian)
-    update_last_update('Relationship', guardian['date_created'])
+    update_last_update('Relationship', guardian['updated_at'])
   end
 
   # Updating Guardians in person type table
@@ -441,7 +438,7 @@ SQL
   (patients || []).each do |patient|
     puts "Processing patient with person_id #{patient['person_id']}"
     person_has_type(person_type_id, patient)
-    update_last_update('Patient', patient['date_created'])
+    update_last_update('Patient', patient['updated_at'])
   end
 
   # Updating Provider in person type table
@@ -455,7 +452,7 @@ SQL
   (providers || []).each do |provider|
     puts "Processing provider with person_id #{provider['person_id']}"
     person_has_type(person_type_id, provider)
-    update_last_update('Provider', provider['date_created'])
+    update_last_update('Provider', provider['updated_at'])
   end
 end
 
@@ -467,7 +464,7 @@ def get_rds_diagnosis
   INNER JOIN #{@rds_db}.encounter en
   ON ob.encounter_id = en.encounter_id
   WHERE ob.concept_id IN (6542,6543)
-	AND (ob.date_created >= '#{last_updated}'
+	AND (ob.updated_at >= '#{last_updated}'
 	OR ob.date_voided  >=  '#{last_updated}');
 
 QUERY
@@ -499,8 +496,7 @@ def get_rds_vitals
     ON cn.concept_id = ob.concept_id
     WHERE et.encounter_type_id = 6
     AND ob.concept_id IN (5085,5086,5087,5088,5089,5090,5092)
-    AND (ob.date_created >= '#{last_updated}'
-    OR ob.date_voided  >=  '#{last_updated}');
+    AND (ob.updated_at >= '#{last_updated}');
 
   QUERY
 end
@@ -555,7 +551,7 @@ def populate_person_address
   last_updated = get_last_updated('PersonAddress')
 
   person_addresses = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.person_address WHERE date_created >= '#{last_updated}' order by date_created;
+  SELECT * FROM #{@rds_db}.person_address WHERE updated_at >= '#{last_updated}' order by updated_at;
 SQL
   person_addresses.each(&method(:grouped_address))
 end
@@ -764,7 +760,7 @@ def populate_appointment
     FROM #{@rds_db}.encounter en
     INNER JOIN #{@rds_db}.obs ob on en.encounter_id = ob.encounter_id
     WHERE ob.concept_id = 5096
-    AND (en.date_created >= '#{last_updated}' );
+    AND (en.updated_at >= '#{last_updated}' );
 SQL
 
   appointments.each do |rds_appointment|
@@ -806,7 +802,7 @@ def populate_prescription
     INNER JOIN #{@rds_db}.orders o on en.encounter_id = o.encounter_id
     INNER JOIN #{@rds_db}.obs  on en.encounter_id = obs.encounter_id
     INNER JOIN #{@rds_db}.drug on obs.concept_id = drug.concept_id
-    where (en.date_created >= '#{last_updated}');
+    where (en.updated_at >= '#{last_updated}');
 SQL
 
   (prescription || []).each do |rds_prescription|
@@ -846,7 +842,7 @@ SQL
   SELECT quantity,orders.date_created,orders.voided,orders.voided_by,orders.date_voided, orders.void_reason,orders.patient_id
   FROM #{@rds_db}.orders
   INNER JOIN #{@rds_db}.drug_order  ON orders.order_id = drug_order.order_id
-  WHERE (orders.date_created >= '#{last_updated}');
+  WHERE (orders.updated_at >= '#{last_updated}');
 SQL
     (prescribed_drug_id || []).each do |ids_prescribed_drug|
 
@@ -867,7 +863,7 @@ def get_related_people
   last_updated = get_last_updated('Relationship')
 
   ActiveRecord::Base.connection.select_all <<QUERY
-  SELECT * from #{@rds_db}.relationship where date_created >= #{last_updated}
+  SELECT * from #{@rds_db}.relationship where updated_at >= #{last_updated}
 QUERY
 end
 
@@ -953,7 +949,6 @@ def methods_init
   populate_contact_details
   populate_person_address
   update_person_type
- # initiate_de_duplication
   populate_encounters
   populate_diagnosis
   populate_pregnant_status
@@ -975,6 +970,7 @@ def methods_init
   populate_hiv_staging_info
   populate_precription_has_regimen
   populate_lab_test_results
+  initiate_de_duplication
 
 end
 

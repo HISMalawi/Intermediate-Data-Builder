@@ -2,6 +2,8 @@ require 'json'
 
 def populate_lab_test_results
   LabOrder.find_each do |lab_order|
+    last_updated = get_last_updated('LabTestResults')
+
     token_key = authenticate
     header = {token: token_key}
     puts "processing #{lab_order['tracking_number']}"
@@ -44,9 +46,10 @@ def populate_lab_test_results
               end
             end
           end
-        end
-      end
     end
+    update_last_update('LabTestResults', lab_order['updated_at'])
+      end
+end
 
 def authenticate
   token = JSON.parse((RestClient.get("localhost:3010/api/v1/re_authenticate/lab_test/lab_test")).body)
