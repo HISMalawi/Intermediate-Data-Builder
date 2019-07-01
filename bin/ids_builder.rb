@@ -19,6 +19,7 @@ require_relative 'ids_relationship'
 require_relative 'ids_pregnant_status'
 require_relative 'ids_breastfeeding_status'
 require_relative 'ids_people'
+require_relative 'ids_lab_test_results'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -904,6 +905,7 @@ SQL
 end
 
 def methods_init
+=begin
   populate_people
   populate_person_names
   populate_contact_details
@@ -931,6 +933,8 @@ def methods_init
   populate_relationships
   populate_hiv_staging_info
   populate_precription_has_regimen
+=end
+  populate_lab_test_results
 end
 
 methods_init
