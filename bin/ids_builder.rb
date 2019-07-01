@@ -808,9 +808,11 @@ def populate_prescription
 SQL
   (prescription || []).each do |rds_prescription|
     puts "processing person_id #{rds_prescription['patient_id']}"
-    TO DO remove hard coded drug_id
-    if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id']).blank?
-      MedicationPrescription.create(drug_id: 8, encounter_id: rds_prescription['encounter_id'],
+    #TODO remove hard coded drug_id
+    # TODO add drug_id and voided for unique record
+    master_def_drug_id =  get_master_def_id(rds_prescription['drug_id'], 'drug')
+    if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id'], drug_id: master_def_drug_id, voided: rds_prescription['voided']).blank?
+      MedicationPrescription.create(drug_id: master_def_drug_id, encounter_id: rds_prescription['encounter_id'],
                                     start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
                                     instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
                                     voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
@@ -870,33 +872,63 @@ def populate_relationships
   (get_related_people || []).each(&method(:ids_relationship))
 end
 
-def methods_init
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
+def populate_adherence
+  last_updated = get_last_updated('MedicationAdherence')
+  medication_prescribed_id = ActiveRecord::Base.connection.select_all <<SQL
+  SELECT * FROM medication_prescriptions;
+SQL
+   (medication_prescribed_id || []).each do |ids_prescribed_drug|
+     drug_dispensed_id = ids_prescribed_drug['drug_id'].to_i #we need to include an order id which is a unique and we will need to compare in obs table
+      prescription_drug_adherence = ActiveRecord::Base.connection.select_all <<SQL
+      SELECT oo.person_id,oo.value_text AS  adherence_in_percentage, date(oo.obs_datetime) as visit_date,dg.drug_id as rds_drug_id    
+      FROM #{@rds_db}.obs oo
+      LEFT JOIN #{@rds_db}.orders o ON oo.order_id = o.order_id
+      LEFT JOIN #{@rds_db}.drug_order d ON o.order_id = d.order_id
+      LEFT JOIN #{@rds_db}.drug dg ON d.drug_inventory_id = dg.drug_id        
+      WHERE oo.concept_id = 6987 and dg.drug_id = #{drug_dispensed_id};
+SQL
+     #where clause should read WHERE oo.concept_id = 6987 and ids_prescribed_drug['order_id'] = oo.order_id;
+       (prescription_drug_adherence || []).each do |rds_drug_adherence|
+         puts "Processing adherence record for person #{rds_drug_adherence['person_id']}"
+         MedicationAdherence.create(medication_dispensation_id: ids_prescribed_drug['medication_prescription_id'], drug_id: ids_prescribed_drug['drug_id'],
+                                      adherence: rds_drug_adherence['adherence_in_percentage'],voided: ids_prescribed_drug['voided'],
+                                       voided_by: ids_prescribed_drug['voided_by'], voided_date: ids_prescribed_drug['date_voided'],
+                                       void_reason: ids_prescribed_drug['void_reason'], app_date_created: ids_prescribed_drug['date_created'],
+                                       app_date_updated: ids_prescribed_drug['date_changed'])
 
-  # initiate_de_duplication
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_breastfeeding_status
-  populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
-  populate_tb_statuses
-  populate_outcomes
-  populate_family_planning
-  populate_appointment
-  populate_prescription
-  populate_lab_orders
-  populate_occupation
-  populate_dispensation
-  populate_relationships
-  populate_hiv_staging_info
+         puts "Successfully populated medication adherence details with record for person #{rds_drug_adherence['person_id']}"
+        end
+   end
+end
+
+def methods_init
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
+  # update_person_type
+  #
+  # # initiate_de_duplication
+   populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_breastfeeding_status
+  # populate_vitals
+  # populate_patient_history
+  # populate_symptoms
+  # populate_side_effects
+  # populate_presenting_complaints
+  # populate_tb_statuses
+  # populate_outcomes
+  # populate_family_planning
+  # populate_appointment
+  # populate_prescription
+  # populate_lab_orders
+  # populate_occupation
+  # populate_dispensation
+  # populate_relationships
+  # populate_hiv_staging_info
+  # populate_adherence
 end
 
 methods_init
