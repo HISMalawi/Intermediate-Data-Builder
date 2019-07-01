@@ -19,6 +19,7 @@ require_relative 'ids_relationship'
 require_relative 'ids_pregnant_status'
 require_relative 'ids_breastfeeding_status'
 require_relative 'ids_people'
+require_relative 'ids_lab_test_results'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -947,34 +948,34 @@ end
 
 
 def methods_init
- #  populate_people
- #  populate_person_names
- #  populate_contact_details
- #  populate_person_address
- #  update_person_type
- #
- # # initiate_de_duplication
- #  populate_encounters
- #  populate_diagnosis
- #  populate_pregnant_status
- #  populate_breastfeeding_status
- #  populate_vitals
- #  populate_patient_history
- #  populate_symptoms
- #  populate_side_effects
- #  populate_presenting_complaints
- #  populate_tb_statuses
- #  populate_outcomes
- #  populate_family_planning
- #  populate_appointment
- #  populate_prescription
- #  populate_lab_orders
- #  populate_occupation
- #  populate_dispensation
- #  populate_relationships
- #  populate_hiv_staging_info
- #  populate_precription_has_regimen
-    get_people
+  populate_people
+  populate_person_names
+  populate_contact_details
+  populate_person_address
+  update_person_type
+ # initiate_de_duplication
+  populate_encounters
+  populate_diagnosis
+  populate_pregnant_status
+  populate_breastfeeding_status
+  populate_vitals
+  populate_patient_history
+  populate_symptoms
+  populate_side_effects
+  populate_presenting_complaints
+  populate_tb_statuses
+  populate_outcomes
+  populate_family_planning
+  populate_appointment
+  populate_prescription
+  populate_lab_orders
+  populate_occupation
+  populate_dispensation
+  populate_relationships
+  populate_hiv_staging_info
+  populate_precription_has_regimen
+  populate_lab_test_results
+
 end
 
 methods_init
