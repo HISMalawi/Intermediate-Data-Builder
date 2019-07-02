@@ -1,4 +1,7 @@
 require 'json'
+@lims_url = 'localhost:3010'
+@lims_user = 'lab_test'
+@lims_pwd = 'lab_test'
 
 def populate_lab_test_results
   LabOrder.find_each do |lab_order|
@@ -8,9 +11,9 @@ def populate_lab_test_results
     header = {token: token_key}
     puts "processing #{lab_order['tracking_number']}"
 
-    get_lab_order_details = JSON.parse(RestClient.get("localhost:3010/api/v1/query_order_by_tracking_number/#{lab_order['tracking_number']}",
+    get_lab_order_details = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_order_by_tracking_number/#{lab_order['tracking_number']}",
                                            header))
-    get_lab_order_results = JSON.parse(RestClient.get("localhost:3010/api/v1/query_results_by_tracking_number/#{lab_order['tracking_number']}",
+    get_lab_order_results = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_results_by_tracking_number/#{lab_order['tracking_number']}",
                                                       header))
     if get_lab_order_results['status'] == 200
        get_lab_order_results['data']['results'].each do |measure, value|
@@ -52,6 +55,6 @@ def populate_lab_test_results
 end
 
 def authenticate
-  token = JSON.parse((RestClient.get("localhost:3010/api/v1/re_authenticate/lab_test/lab_test")).body)
+  token = JSON.parse((RestClient.get("#{@lims_url}/api/v1/re_authenticate/#{@lims_user}/#{@lims_pwd}")).body)
   return token['data']['token']
 end
