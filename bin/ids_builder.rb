@@ -33,6 +33,7 @@ def get_all_rds_people
   rds_people = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person where updated_at >= '#{last_updated}' ORDER BY updated_at;
 QUERY
+  return rds_people
 end
 
 def get_rds_person_name(person_id)
@@ -863,7 +864,7 @@ def get_related_people
   last_updated = get_last_updated('Relationship')
 
   ActiveRecord::Base.connection.select_all <<QUERY
-  SELECT * from #{@rds_db}.relationship where updated_at >= #{last_updated}
+  SELECT * from #{@rds_db}.relationship where updated_at >= '#{last_updated}'
 QUERY
 end
 
@@ -944,6 +945,7 @@ end
 
 
 def methods_init
+
   populate_people
   populate_person_names
   populate_contact_details
@@ -970,7 +972,7 @@ def methods_init
   populate_hiv_staging_info
   populate_precription_has_regimen
   populate_lab_test_results
-  initiate_de_duplication
+ initiate_de_duplication
 
 end
 
