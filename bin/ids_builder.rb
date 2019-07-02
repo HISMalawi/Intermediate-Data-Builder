@@ -33,11 +33,11 @@ def get_all_rds_people
   rds_people = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person where updated_at >= '#{last_updated}' ORDER BY updated_at;
 QUERY
-  return rds_people
+  rds_people
 end
 
 def get_rds_person_name(person_id)
-  @last_updated['PersonName'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['PersonName']
+  last_updated = get_last_updated('PersonName')
   person_name = []
   rds_person_name = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_name where person_id = #{person_id}
@@ -47,7 +47,7 @@ QUERY
 end
 
 def get_rds_person_addresses(person_id)
-  @last_updated['PersonAddress'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['PersonAddress']
+  last_updated = get_last_updated('PersonAddress')
   person_address = []
   rds_address = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_address where person_id = #{person_id}
@@ -87,7 +87,7 @@ QUERY
 end
 
 def find_duplicates(subject, subject_person_id)
-  duplicates = ActiveRecord::Base.connection.select_all <<QUERY
+  ActiveRecord::Base.connection.select_all <<QUERY
 			SELECT person_id, ROUND(CAST((((length("#{subject}") - levenshtein(person_de_duplicator,"#{subject}",2))/ length("#{subject}")) * 100) AS DECIMAL),2)
  as score FROM de_duplicators WHERE person_id != #{subject_person_id};
 QUERY
@@ -104,43 +104,15 @@ end
 
 def check_for_duplicate(demographics)
   # find matching text in de_duplicator table
-  subject = ''
-  begin
-    subject << demographics[:person_names][0]['given_name']
-  rescue StandardError
-    nil
-  end
-  begin
-    subject << demographics[:person_names][0]['family_name']
-  rescue StandardError
-    nil
-  end
-  begin
-    subject << demographics[:person]['gender']
-  rescue StandardError
-    nil
-  end
-  begin
-    subject << demographics[:person]['birthdate'].strftime('%Y-%m-%d').gsub('-', '')
-  rescue StandardError
-    nil
-  end
-  begin
-    subject << demographics[:person_address][0]['address2']
-  rescue StandardError
-    nil
-  end
-  begin
-    subject << demographics[:person_address][0]['county_district']
-  rescue StandardError
-    nil
-  end
-  begin
-    subject << demographics[:person_address][0]['neighborhood_cell']
-  rescue StandardError
-    nil
-  end
 
+  subject = ''
+  subject  += demographics[:person_names][0]['given_name'] rescue  nil
+  subject << demographics[:person_names][0]['family_name'] rescue  nil
+  subject <<  demographics[:person]['gender'] rescue  nil
+  subject <<  demographics[:person]['birthdate'].strftime('%Y-%m-%d').gsub('-', '') rescue  nil
+  subject <<  demographics[:person_address][0]['address2'] rescue  nil
+  subject <<  demographics[:person_address][0]['county_district'] rescue  nil
+  subject <<  demographics[:person_address][0]['neighborhood_cell'] rescue  nil
   duplicates = find_duplicates(subject, demographics[:person]['person_id'])
 
   person_present = DeDuplicator.find_by(person_id: demographics[:person]['person_id'])
@@ -796,28 +768,28 @@ end
 
 def populate_prescription
   last_updated = get_last_updated('MedicationPrescription')
-  prescription = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.orders o 
-JOIN #{@rds_db}.drug_order d on o.order_id = d.order_id where o.updated_at >= '#{last_updated}' 
-AND o.order_type_id = 1;
-SQL
+  prescription = ActiveRecord::Base.connection.select_all <<~SQL
+      SELECT * FROM #{@rds_db}.orders o
+    JOIN #{@rds_db}.drug_order d on o.order_id = d.order_id where o.updated_at >= '#{last_updated}'
+    AND o.order_type_id = 1;
+  SQL
 
   (prescription || []).each do |rds_prescription|
-
-     puts "processing person_id #{rds_prescription['patient_id']}"
+    puts "processing person_id #{rds_prescription['patient_id']}"
     if MedicationPrescription.find_by(medication_prescription_id: rds_prescription['order_id']).blank?
-      MedicationPrescription.create(medication_prescription_id: rds_prescription['order_id'],drug_id: rds_prescription['drug_inventory_id'], encounter_id: rds_prescription['encounter_id'],
-                                    start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
+      MedicationPrescription.create(medication_prescription_id: rds_prescription['order_id'], drug_id: rds_prescription['drug_inventory_id'],
+                                    encounter_id: rds_prescription['encounter_id'],
+                                    start_date: rds_prescription['start_date'], end_date: rds_prescription['auto_expire_date'],
                                     instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
                                     voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
                                     void_reason: rds_prescription['void_reason'], app_date_created: rds_prescription['date_created'],
-                                    app_date_updated: rds_prescription['date_changed'], )
+                                    app_date_updated: rds_prescription['date_changed'])
 
       puts "Successfully populated medication prescription details with record for person #{rds_prescription['patient_id']}"
     else
       medication_prescription = MedicationPrescription.find_by(medication_prescription_id: rds_prescription['order_id'])
       medication_prescription.update(drug_id: rds_prescription['drug_inventory_id'], encounter_id: rds_prescription['encounter_id'],
-                                     start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
+                                     start_date: rds_prescription['start_date'], end_date: rds_prescription['auto_expire_date'],
                                      instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
                                      voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
                                      void_reason: rds_prescription['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
@@ -937,35 +909,34 @@ def encode(n)
 end
 
 def methods_init
-
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_breastfeeding_status
-  populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
-  populate_tb_statuses
-  populate_outcomes
-  populate_family_planning
-  populate_appointment
-  populate_prescription
-  populate_lab_orders
-  populate_occupation
-  populate_dispensation
-  populate_relationships
-  populate_hiv_staging_info
-  populate_precription_has_regimen
-  populate_lab_test_results
+  #   populate_people
+  #   populate_person_names
+  #   populate_contact_details
+  #   populate_person_address
+  #   update_person_type
+  #   populate_encounters
+  #   populate_diagnosis
+  #   populate_pregnant_status
+  #   populate_breastfeeding_status
+  #   populate_vitals
+  #   populate_patient_history
+  #   populate_symptoms
+  #   populate_side_effects
+  #   populate_presenting_complaints
+  #   populate_tb_statuses
+  #   populate_outcomes
+  #   populate_family_planning
+  #   populate_appointment
+  #   populate_prescription
+  #   populate_lab_orders
+  #   populate_occupation
+  #   populate_dispensation
+  #   populate_relationships
+  #   populate_hiv_staging_info
+  #   populate_precription_has_regimen
+  #   populate_lab_test_results
   initiate_de_duplication
-  get_people
+  # get_people
 end
 
 methods_init
