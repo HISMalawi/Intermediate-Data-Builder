@@ -30,5 +30,5 @@ def ids_people(person)
 
     puts 'Updating'
   end
-  update_last_update('Person', person['date_created'])
+  update_last_update('Person', person['updated_at'])
 end

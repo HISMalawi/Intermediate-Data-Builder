@@ -3,7 +3,7 @@ def populate_precription_has_regimen
 
   prescriptions = MedicationPrescription.find_by_sql("
   SELECT encounter_id, group_concat(drug_id) drugs,updated_at FROM ids.medication_prescriptions
-where updated_at >= '#{last_updated}' AND drug_id IN (SELECT drug_id FROM ids.arv_drug) group by encounter_id;")
+where updated_at >= '#{last_updated}' AND drug_id IN (SELECT drug_id FROM ids.arv_drugs) group by encounter_id;")
 
   prescriptions.each do |prescription|
      puts "processing Prescription has info for encounter #{prescription['encounter_id']}"

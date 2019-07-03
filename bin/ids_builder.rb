@@ -33,10 +33,11 @@ def get_all_rds_people
   rds_people = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person where updated_at >= '#{last_updated}' ORDER BY updated_at;
 QUERY
+  rds_people
 end
 
 def get_rds_person_name(person_id)
-  @last_updated['PersonName'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['PersonName']
+  last_updated = get_last_updated('PersonName')
   person_name = []
   rds_person_name = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_name where person_id = #{person_id}
@@ -46,7 +47,7 @@ QUERY
 end
 
 def get_rds_person_addresses(person_id)
-  @last_updated['PersonAddress'].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated['PersonAddress']
+  last_updated = get_last_updated('PersonAddress')
   person_address = []
   rds_address = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_address where person_id = #{person_id}
@@ -86,7 +87,7 @@ QUERY
 end
 
 def find_duplicates(subject, subject_person_id)
-  duplicates = ActiveRecord::Base.connection.select_all <<QUERY
+  ActiveRecord::Base.connection.select_all <<QUERY
 			SELECT person_id, ROUND(CAST((((length("#{subject}") - levenshtein(person_de_duplicator,"#{subject}",2))/ length("#{subject}")) * 100) AS DECIMAL),2)
  as score FROM de_duplicators WHERE person_id != #{subject_person_id};
 QUERY
@@ -103,43 +104,15 @@ end
 
 def check_for_duplicate(demographics)
   # find matching text in de_duplicator table
-  subject = ''
-  begin
-    subject << demographics[:person_names][0]['given_name']
-  rescue StandardError
-    nil
-  end
-  begin
-    subject << demographics[:person_names][0]['family_name']
-  rescue StandardError
-    nil
-  end
-  begin
-    subject << demographics[:person]['gender']
-  rescue StandardError
-    nil
-  end
-  begin
-    subject << demographics[:person]['birthdate'].strftime('%Y-%m-%d').gsub('-', '')
-  rescue StandardError
-    nil
-  end
-  begin
-    subject << demographics[:person_address][0]['address2']
-  rescue StandardError
-    nil
-  end
-  begin
-    subject << demographics[:person_address][0]['county_district']
-  rescue StandardError
-    nil
-  end
-  begin
-    subject << demographics[:person_address][0]['neighborhood_cell']
-  rescue StandardError
-    nil
-  end
 
+  subject = ''
+  subject  += demographics[:person_names][0]['given_name'] rescue  nil
+  subject << demographics[:person_names][0]['family_name'] rescue  nil
+  subject <<  demographics[:person]['gender'] rescue  nil
+  subject <<  demographics[:person]['birthdate'].strftime('%Y-%m-%d').gsub('-', '') rescue  nil
+  subject <<  demographics[:person_address][0]['address2'] rescue  nil
+  subject <<  demographics[:person_address][0]['county_district'] rescue  nil
+  subject <<  demographics[:person_address][0]['neighborhood_cell'] rescue  nil
   duplicates = find_duplicates(subject, demographics[:person]['person_id'])
 
   person_present = DeDuplicator.find_by(person_id: demographics[:person]['person_id'])
@@ -795,24 +768,18 @@ end
 
 def populate_prescription
   last_updated = get_last_updated('MedicationPrescription')
-
-  prescription = ActiveRecord::Base.connection.select_all <<SQL
-    SELECT o.encounter_id, o.start_date,o.instructions,o.order_id,o.patient_id,obs.concept_id,drug_id,o.date_created,o.voided,o.voided_by,o.void_reason,obs.date_stopped
-    FROM #{@rds_db}.encounter en
-    INNER JOIN #{@rds_db}.orders o on en.encounter_id = o.encounter_id
-    INNER JOIN #{@rds_db}.obs  on en.encounter_id = obs.encounter_id
-    INNER JOIN #{@rds_db}.drug on obs.concept_id = drug.concept_id
-    where (en.updated_at >= '#{last_updated}');
-SQL
+  prescription = ActiveRecord::Base.connection.select_all <<~SQL
+      SELECT * FROM #{@rds_db}.orders o
+    JOIN #{@rds_db}.drug_order d on o.order_id = d.order_id where o.updated_at >= '#{last_updated}'
+    AND o.order_type_id = 1;
+  SQL
 
   (prescription || []).each do |rds_prescription|
     puts "processing person_id #{rds_prescription['patient_id']}"
-    # TODO: remove hard coded drug_id
-    # TODO add drug_id and voided for unique record
-    master_def_drug_id = get_master_def_id(rds_prescription['drug_id'], 'drug')
-    if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id'], drug_id: master_def_drug_id, voided: rds_prescription['voided']).blank?
-      MedicationPrescription.create(drug_id: master_def_drug_id, encounter_id: rds_prescription['encounter_id'],
-                                    start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
+    if MedicationPrescription.find_by(medication_prescription_id: rds_prescription['order_id']).blank?
+      MedicationPrescription.create(medication_prescription_id: rds_prescription['order_id'], drug_id: rds_prescription['drug_inventory_id'],
+                                    encounter_id: rds_prescription['encounter_id'],
+                                    start_date: rds_prescription['start_date'], end_date: rds_prescription['auto_expire_date'],
                                     instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
                                     voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
                                     void_reason: rds_prescription['void_reason'], app_date_created: rds_prescription['date_created'],
@@ -820,9 +787,9 @@ SQL
 
       puts "Successfully populated medication prescription details with record for person #{rds_prescription['patient_id']}"
     else
-      medication_prescription = MedicationPrescription.where(encounter_id: rds_prescription['encounter_id'])
-      medication_prescription.update(drug_id: master_def_drug_id, encounter_id: rds_prescription['encounter_id'],
-                                     start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
+      medication_prescription = MedicationPrescription.find_by(medication_prescription_id: rds_prescription['order_id'])
+      medication_prescription.update(drug_id: rds_prescription['drug_inventory_id'], encounter_id: rds_prescription['encounter_id'],
+                                     start_date: rds_prescription['start_date'], end_date: rds_prescription['auto_expire_date'],
                                      instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
                                      voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
                                      void_reason: rds_prescription['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
@@ -862,7 +829,7 @@ def get_related_people
   last_updated = get_last_updated('Relationship')
 
   ActiveRecord::Base.connection.select_all <<QUERY
-  SELECT * from #{@rds_db}.relationship where updated_at >= #{last_updated}
+  SELECT * from #{@rds_db}.relationship where updated_at >= '#{last_updated}'
 QUERY
 end
 
