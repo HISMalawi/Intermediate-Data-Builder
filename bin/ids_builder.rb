@@ -42,7 +42,7 @@ def get_rds_person_name(person_id)
 	SELECT * FROM #{@rds_db}.person_name where person_id = #{person_id}
 	AND (created_at >= '#{last_updated}');
 QUERY
-  rds_person_name.each {|name| person_name << name}
+  rds_person_name.each { |name| person_name << name }
 end
 
 def get_rds_person_addresses(person_id)
@@ -55,7 +55,7 @@ def get_rds_person_addresses(person_id)
 
 QUERY
 
-  rds_address.each {|address| person_address << address}
+  rds_address.each { |address| person_address << address }
 end
 
 def get_rds_person_attributes
@@ -68,7 +68,7 @@ def get_rds_person_attributes
 
 QUERY
 
-  rds_attribute.each {|attribute| person_attribute << attribute}
+  rds_attribute.each { |attribute| person_attribute << attribute }
 end
 
 def get_rds_users
@@ -165,8 +165,8 @@ def update_last_update(model, timestamp)
   current_update_date = YAML.load_file("#{Rails.root}/log/last_update.yml") || {}
   current_update_date[model] = begin
     timestamp.strftime('%Y-%m-%d %H:%M:%S')
-  rescue StandardError
-    nil
+                               rescue StandardError
+                                 nil
   end
   File.open('log/last_update.yml', 'w') do |file|
     file.write current_update_date.to_yaml
@@ -177,7 +177,7 @@ def initiate_de_duplication
   rds_people = get_all_rds_people
   rds_people.each do |person|
     demographics = {}
-    demographics = {"person": person}
+    demographics = { "person": person }
     demographics.update("person_names": get_rds_person_name(person['person_id']))
     demographics.update("person_address": get_rds_person_addresses(person['person_id']))
 
@@ -506,8 +506,8 @@ def populate_vitals
 end
 
 def categorize_address(addresses)
-  address_types = {'home_address' => {'home_district' => '', 'home_ta' => '', 'home_village' => ''}, 'current_address' =>
-      {'current_district' => '', 'current_ta' => '', 'current_village' => ''}}
+  address_types = { 'home_address' => { 'home_district' => '', 'home_ta' => '', 'home_village' => '' }, 'current_address' =>
+      { 'current_district' => '', 'current_ta' => '', 'current_village' => '' } }
   addresses.each do |key, value|
     address_types['home_address'].merge!('home_district' => value.to_s) if key == 'address2'
     address_types['home_address'].merge!('home_ta' => value.to_s) if key == 'county_district'
@@ -672,13 +672,13 @@ SQL
       outcome.concept_id = rds_outcomes['concept_id']
       outcome.outcome_reason = begin
         MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id']).master_definition_id
-      rescue StandardError
-        nil
+                               rescue StandardError
+                                 nil
       end
       outcome.outcome_source = begin
         MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id']).master_definition_id
-      rescue StandardError
-        nil
+                               rescue StandardError
+                                 nil
       end
       outcome.voided = rds_outcomes['voided']
       outcome.voided_by = rds_outcomes['voided_by']
@@ -807,9 +807,9 @@ SQL
 
   (prescription || []).each do |rds_prescription|
     puts "processing person_id #{rds_prescription['patient_id']}"
-    #TODO remove hard coded drug_id
+    # TODO: remove hard coded drug_id
     # TODO add drug_id and voided for unique record
-    master_def_drug_id =  get_master_def_id(rds_prescription['drug_id'], 'drug')
+    master_def_drug_id = get_master_def_id(rds_prescription['drug_id'], 'drug')
     if MedicationPrescription.find_by(encounter_id: rds_prescription['encounter_id'], drug_id: master_def_drug_id, voided: rds_prescription['voided']).blank?
       MedicationPrescription.create(drug_id: master_def_drug_id, encounter_id: rds_prescription['encounter_id'],
                                     start_date: rds_prescription['start_date'], end_date: rds_prescription['date_stopped'],
@@ -828,7 +828,7 @@ SQL
                                      void_reason: rds_prescription['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
                                      updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
 
-      puts "Successfully updated medication prescription details with record for person #{rds_prescription['patient_id']}"      
+      puts "Successfully updated medication prescription details with record for person #{rds_prescription['patient_id']}"
     end
   end
 end
@@ -844,13 +844,12 @@ SQL
   INNER JOIN #{@rds_db}.drug_order  ON orders.order_id = drug_order.order_id
   WHERE (orders.updated_at >= '#{last_updated}');
 SQL
-    (prescribed_drug_id || []).each do |ids_prescribed_drug|
-
+  (prescribed_drug_id || []).each do |ids_prescribed_drug|
     (drug_dispensed || []).each do |rds_dispensed_drug|
       puts "Processing dispensation record for person #{rds_dispensed_drug['patient_id']}"
 
-      MedicationDispensation.create(quantity: rds_dispensed_drug['quantity'],medication_prescription_id: ids_prescribed_drug['medication_prescription_id'],
-                                    voided: rds_dispensed_drug['voided'],voided_by: rds_dispensed_drug['voided_by'], voided_date: rds_dispensed_drug['date_voided'],
+      MedicationDispensation.create(quantity: rds_dispensed_drug['quantity'], medication_prescription_id: ids_prescribed_drug['medication_prescription_id'],
+                                    voided: rds_dispensed_drug['voided'], voided_by: rds_dispensed_drug['voided_by'], voided_date: rds_dispensed_drug['date_voided'],
                                     void_reason: rds_dispensed_drug['void_reason'], app_date_created: rds_dispensed_drug['date_created'],
                                     app_date_updated: '')
 
@@ -876,49 +875,56 @@ def populate_adherence
   medication_prescribed_id = ActiveRecord::Base.connection.select_all <<SQL
   SELECT * FROM medication_prescriptions;
 SQL
-   (medication_prescribed_id || []).each do |ids_prescribed_drug|
-     drug_dispensed_id = ids_prescribed_drug['drug_id'].to_i #we need to include an order id which is a unique and we will need to compare in obs table
-      prescription_drug_adherence = ActiveRecord::Base.connection.select_all <<SQL
-      SELECT oo.person_id,oo.value_text AS  adherence_in_percentage, date(oo.obs_datetime) as visit_date,dg.drug_id as rds_drug_id    
+  (medication_prescribed_id || []).each do |ids_prescribed_drug|
+    drug_dispensed_id = ids_prescribed_drug['drug_id'].to_i # we need to include an order id which is a unique and we will need to compare in obs table
+    prescription_drug_adherence = ActiveRecord::Base.connection.select_all <<SQL
+      SELECT oo.person_id,oo.value_text AS  adherence_in_percentage, date(oo.obs_datetime) as visit_date,dg.drug_id as rds_drug_id
       FROM #{@rds_db}.obs oo
       LEFT JOIN #{@rds_db}.orders o ON oo.order_id = o.order_id
       LEFT JOIN #{@rds_db}.drug_order d ON o.order_id = d.order_id
-      LEFT JOIN #{@rds_db}.drug dg ON d.drug_inventory_id = dg.drug_id        
+      LEFT JOIN #{@rds_db}.drug dg ON d.drug_inventory_id = dg.drug_id
       WHERE oo.concept_id = 6987 and dg.drug_id = #{drug_dispensed_id};
 SQL
-     #where clause should read WHERE oo.concept_id = 6987 and ids_prescribed_drug['order_id'] = oo.order_id;
-       (prescription_drug_adherence || []).each do |rds_drug_adherence|
-         puts "Processing adherence record for person #{rds_drug_adherence['person_id']}"
-         MedicationAdherence.create(medication_dispensation_id: ids_prescribed_drug['medication_prescription_id'], drug_id: ids_prescribed_drug['drug_id'],
-                                      adherence: rds_drug_adherence['adherence_in_percentage'],voided: ids_prescribed_drug['voided'],
-                                       voided_by: ids_prescribed_drug['voided_by'], voided_date: ids_prescribed_drug['date_voided'],
-                                       void_reason: ids_prescribed_drug['void_reason'], app_date_created: ids_prescribed_drug['date_created'],
-                                       app_date_updated: ids_prescribed_drug['date_changed'])
+    # where clause should read WHERE oo.concept_id = 6987 and ids_prescribed_drug['order_id'] = oo.order_id;
+    (prescription_drug_adherence || []).each do |rds_drug_adherence|
+      puts "Processing adherence record for person #{rds_drug_adherence['person_id']}"
+      MedicationAdherence.create(medication_dispensation_id: ids_prescribed_drug['medication_prescription_id'], drug_id: ids_prescribed_drug['drug_id'],
+                                 adherence: rds_drug_adherence['adherence_in_percentage'], voided: ids_prescribed_drug['voided'],
+                                 voided_by: ids_prescribed_drug['voided_by'], voided_date: ids_prescribed_drug['date_voided'],
+                                 void_reason: ids_prescribed_drug['void_reason'], app_date_created: ids_prescribed_drug['date_created'],
+                                 app_date_updated: ids_prescribed_drug['date_changed'])
 
-         puts "Successfully populated medication adherence details with record for person #{rds_drug_adherence['person_id']}"
-        end
-   end
+      puts "Successfully populated medication adherence details with record for person #{rds_drug_adherence['person_id']}"
+    end
+  end
 end
 
-def get_people
+def populate_de_identifier
   last_updated = get_last_updated('PersonNames')
   all_people = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM people 
+  SELECT * FROM people
   WHERE updated_at >= '#{last_updated}';
 SQL
-   all_people.each do |person_details|
-
+  all_people.each do |person_details|
     person_id_exist = DeIdentifiedIdentifier.find_by(person_id: person_details['person_id'])
+    if person_id_exist
+      puts '==================================================================='
+      puts "Skipped assigning SID for person  with ID #{person_details['person_id']}"
+      puts 'Reason: Person id already exist  for the above ID  in de_identifier'
+      puts '==================================================================='
+      puts ''
+    else
+    ## TODO: Write code to handle existing person_id
+    npid = person_details['person_id']
+    sid = create_sid
 
-      npid = person_details['person_id']
-      sid = create_sid
-
-      DeIdentifiedIdentifier.create(identifier: sid,person_id: npid,voided: person_details['voided'],voided_by: person_details['voided_by'],
-                                  voided_date: person_details['date_voided'],void_reason: person_details['void_reason'],
+    DeIdentifiedIdentifier.create(identifier: sid, person_id: npid, voided: person_details['voided'], voided_by: person_details['voided_by'],
+                                  voided_date: person_details['date_voided'], void_reason: person_details['void_reason'],
                                   app_date_created: person_details['app_date_created'], app_date_updated: person_details['app_date_updated'])
 
     puts "Successfully populated De_Identified identifier details with record for person #{person_details['person_id']}"
-   end
+    end
+  end
 end
 
 def create_sid
@@ -927,25 +933,24 @@ def create_sid
 end
 
 def generate_id
-  if @lcg
-    @lcg = (1664525 * @lcg + 1013904223) % (2**32)
-  else
-    @lcg = rand(2**32) # Random seed
-  end
+  @lcg = if @lcg
+           (1_664_525 * @lcg + 1_013_904_223) % (2**32)
+         else
+           rand(2**32) # Random seed
+         end
 end
 
 def encode(n)
-  @ENCODE_CHARS = [*?a..?z, *?A..?Z]
-  6.times.map { |i|
+  @ENCODE_CHARS = [*'a'..'z', *'A'..'Z']
+  6.times.map do |_i|
     n, mod = n.divmod(@ENCODE_CHARS.size)
     @ENCODE_CHARS[mod]
-  }.join
+  end.join
 end
 
-
 def methods_init
-  #populate_people
-  #populate_person_names
+  # populate_people
+  # populate_person_names
   # populate_contact_details
   # populate_person_address
   # update_person_type
@@ -969,11 +974,10 @@ def methods_init
   # populate_relationships
   # populate_hiv_staging_info
   # populate_precription_has_regimen
-  # populate_lab_test_results
+  populate_lab_test_results
   # initiate_de_duplication
-  get_people
+  # populate_de_identifier
 
 end
 
 methods_init
-
