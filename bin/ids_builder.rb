@@ -909,6 +909,7 @@ def encode(n)
 end
 
 def methods_init
+=begin	
   populate_people
   populate_person_names
   populate_contact_details
@@ -932,6 +933,7 @@ def methods_init
   populate_occupation
   populate_dispensation
   populate_relationships
+=end
   populate_hiv_staging_info
   populate_precription_has_regimen
   populate_lab_test_results
