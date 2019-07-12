@@ -379,7 +379,7 @@ def update_person_type
 SQL
   person_type_id = 4 # person type id for user
   (users || []).each do |user|
-    puts "processing user with person_id #{user['person_id']}"
+    puts "processing user with person_id #{user['person_id'] || user['patient_id']}"
     person_has_type(person_type_id, user)
 
     update_last_update('User', user['updated_at'])
@@ -395,12 +395,12 @@ SQL
 
   person_type_id = 5 # person type id for guardian
   (guardians || []).each do |guardian|
-    puts "Processing guardian with person_id #{guardian['person_id']}"
+    puts "Processing guardian with person_id #{guardian['person_b']} "
     person_has_type(person_type_id, guardian)
     update_last_update('Relationship', guardian['updated_at'])
   end
 
-  # Updating Guardians in person type table
+  # Updating Patients in person type table
   last_updated = get_last_updated('Patient')
 
   patients = ActiveRecord::Base.connection.select_all <<SQL
@@ -409,7 +409,7 @@ SQL
 
   person_type_id = 1 # person type id for patient
   (patients || []).each do |patient|
-    puts "Processing patient with person_id #{patient['person_id']}"
+    puts "Processing patient with person_id #{patient['person_id'] || patient['patient_id']}"
     person_has_type(person_type_id, patient)
     update_last_update('Patient', patient['updated_at'])
   end
@@ -423,7 +423,7 @@ SQL
 
   person_type_id = 2 # person type id for provider
   (providers || []).each do |provider|
-    puts "Processing provider with person_id #{provider['person_id']}"
+    puts "Processing provider with person_id #{provider['person_id'] || provider['patient_id']}"
     person_has_type(person_type_id, provider)
     update_last_update('Provider', provider['updated_at'])
   end
@@ -909,10 +909,12 @@ def encode(n)
 end
 
 def methods_init
+=begin  
   populate_people
   populate_person_names
   populate_contact_details
   populate_person_address
+=end
   update_person_type
   populate_encounters
   populate_diagnosis

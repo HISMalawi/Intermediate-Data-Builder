@@ -191,6 +191,7 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["person_id"], name: "fk_rails_2ddeb472c8"
   end
 
   create_table "lab_orders", primary_key: "lab_order_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -499,7 +500,7 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
-    t.datetime "app_date_created", default: "1000-01-01 00:00:00", null: false
+    t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -667,6 +668,7 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
   add_foreign_key "family_plannings", "encounters", primary_key: "encounter_id"
   add_foreign_key "guardians", "master_definitions", column: "relationship_type_id", primary_key: "master_definition_id"
   add_foreign_key "guardians", "people", primary_key: "person_id"
+  add_foreign_key "hiv_staging_infos", "people", primary_key: "person_id"
   add_foreign_key "lab_orders", "encounters", primary_key: "encounter_id"
   add_foreign_key "lab_test_results", "lab_orders", primary_key: "lab_order_id"
   add_foreign_key "medication_adherences", "master_definitions", column: "drug_id", primary_key: "master_definition_id"
