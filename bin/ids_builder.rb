@@ -916,12 +916,12 @@ def encode(n)
 end
 
 def methods_init
-  # populate_people
-  # populate_person_names
-  # populate_contact_details
-  # populate_person_address
+  #populate_people
+ # populate_person_names
+ #  populate_contact_details
+ #  populate_person_address
   # update_person_type
-  # populate_encounters
+   # populate_encounters
   # populate_diagnosis
   # populate_pregnant_status
   # populate_breastfeeding_status
@@ -939,11 +939,11 @@ def methods_init
   # populate_occupation
   # populate_dispensation
   # populate_relationships
-  # populate_hiv_staging_info
+   populate_hiv_staging_info
   # populate_precription_has_regimen
-  populate_lab_test_results
+  # populate_lab_test_results
   # initiate_de_duplication
-  # populate_de_identifier
+   populate_de_identifier
 
 end
 
