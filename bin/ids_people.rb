@@ -14,21 +14,12 @@ def ids_people(person)
   gender = person['gender'] == 'M' ? 1 : 0
 
   puts "processing person_id #{person['person_id']}"
-
-  person_exits = Person.find_by(person_id: person['person_id'])
-
-  if person_exits.blank?
-    Person.create(person_id: person['person_id'].to_i, birthdate: dob, birthdate_est: person['birthdate_estimated'].to_i,
-                  gender: gender.to_i, death_date: dod, cause_of_death: person['cause_of_death'], dead: person['dead'].to_i,
-                  voided: person['voided'].to_i, voided_by: person['voided_by'].to_i, voided_date: voided_date,
-                  void_reason: person['void_reason'].to_i, app_date_created: app_created_at, app_date_updated: app_updated_at)
-  else
-    person_exits.update(birthdate: dob, birthdate_est: person['birthdate_estimated'].to_i,
-                        gender: gender.to_i, death_date: dod, cause_of_death: person['cause_of_death'], dead: person['dead'].to_i,
-                        voided: person['voided'].to_i, voided_by: person['voided_by'].to_i, voided_date: voided_date,
-                        void_reason: person['void_reason'].to_i, app_date_created: app_created_at, app_date_updated: app_updated_at)
-
-    puts 'Updating'
-  end
-  update_last_update('Person', person['updated_at'])
+  
+  person = "(#{person['person_id'].to_i}, #{dob}, #{person['birthdate_estimated'].to_i},\
+            #{gender.to_i}, #{dod}, #{person['creator']}, '#{person['cause_of_death']}',\
+            #{voided_date}, #{person['dead'].to_i},\
+            #{person['voided'].to_i}, #{person['voided_by'].to_i}, \
+            #{person['void_reason'].to_i}, #{app_created_at}, #{app_updated_at}),".squish
+  
+  return person 
 end

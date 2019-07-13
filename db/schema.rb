@@ -391,8 +391,8 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.integer "void_reason"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
   end
 
   create_table "person_addresses", primary_key: "person_address_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -619,13 +619,13 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
   create_table "users", primary_key: "user_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "person_id", null: false
     t.string "username", null: false
-    t.string "password", null: false
+    t.string "password_digest"
     t.integer "user_role", null: false
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
-    t.datetime "app_date_created", null: false
+    t.datetime "app_date_created", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

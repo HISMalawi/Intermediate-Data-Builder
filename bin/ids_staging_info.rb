@@ -193,8 +193,11 @@ end
 
 def get_hiv_test_date(patient_id)
   ActiveRecord::Base.connection.select_one <<~SQL
-  SELECT value_datetime FROM #{@rds_db}.obs WHERE concept_id = 7882 
-  AND obs_datetime = (SELECT max(obs_datetime) from #{@rds_db}.obs WHERE concept_id = 7882 AND person_id = #{patient_id})
+  SELECT value_datetime FROM #{@rds_db}.obs WHERE concept_id = 7882
+  AND voided = 0
+  AND obs_datetime = (SELECT max(obs_datetime) from #{@rds_db}.obs WHERE concept_id = 7882
+  AND voided = 0 
+  AND person_id = #{patient_id})
   AND person_id = #{patient_id};
 SQL
 
@@ -203,7 +206,9 @@ end
 def get_hiv_test_facility(patient_id)
   ActiveRecord::Base.connection.select_one <<~SQL
   SELECT value_text FROM #{@rds_db}.obs WHERE concept_id = 7881 
-  AND obs_datetime = (SELECT max(obs_datetime) from #{@rds_db}.obs WHERE concept_id = 7881 AND person_id = #{patient_id})
+  AND voided = 0
+  AND obs_datetime = (SELECT max(obs_datetime) from #{@rds_db}.obs WHERE concept_id = 7881 
+  AND person_id = #{patient_id} AND voided = 0)
   AND person_id = #{patient_id};
 SQL
 

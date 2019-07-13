@@ -24,7 +24,7 @@ require_relative 'ids_lab_test_results'
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
 @last_updated = YAML.load_file("#{Rails.root}/log/last_update.yml")
-@batch_size = 10_000
+@batch_size = 50_000
 @threshold = 85
 
 def get_all_rds_people
@@ -131,7 +131,24 @@ def check_for_duplicate(demographics)
 end
 
 def populate_people
-  get_all_rds_people.each(&method(:ids_people))
+  last_updated = get_last_updated('Person')
+  i = 1
+  data = ''
+  latest_updated = '1900-01-01'
+  fetch_data("SELECT * FROM #{@rds_db}.person", last_updated) do |person| 
+    latest_updated = person['updated_at']
+    data += ids_people(person)
+    if i % @batch_size == 0
+     write_to_db('people', '(' + Person.column_names[0..-3].join(',') + ')', data)
+     update_last_update('Person', latest_updated) 
+     data = ''
+    end
+    i += 1  
+  end
+  if data
+    write_to_db('people', '(' + Person.column_names[0..-3].join(',') + ')', data)
+    update_last_update('Person', latest_updated)
+  end  
 end
 
 def update_last_update(model, timestamp)
@@ -910,6 +927,7 @@ end
 
 def methods_init
   populate_people
+=begin  
   populate_person_names
   populate_contact_details
   populate_person_address
@@ -937,6 +955,7 @@ def methods_init
   populate_lab_test_results
   initiate_de_duplication
   get_people
+=end
 end
 
 methods_init

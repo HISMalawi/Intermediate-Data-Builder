@@ -20,5 +20,7 @@ class CreatePeople < ActiveRecord::Migration[5.2]
       t.timestamps
     end
     change_column :people, :person_id, :bigint
+    change_column :people, :created_at, :datetime, null: false, default: -> { 'CURRENT_TIMESTAMP' }
+    change_column :people, :updated_at, :datetime, null: false, default: -> { 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP' }
   end
 end
