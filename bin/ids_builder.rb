@@ -919,7 +919,7 @@ def encode(n)
 end
 
 def methods_init
- # populate_people  
+  populate_people  
   populate_person_names
   populate_contact_details
   populate_person_address
