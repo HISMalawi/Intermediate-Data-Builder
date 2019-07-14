@@ -25,12 +25,27 @@ def fetch_data(query, last_updated)
 end
 
 def write_to_db(table, columns, data)
+  begin
+  columns = '(' + columns + ')'
   puts "Loading into #{table}"
   data.chomp!(',')
+   ActiveRecord::Base.connection.execute <<~SQL
+  SET FOREIGN_KEY_CHECKS=0;
+SQL
+
   ActiveRecord::Base.connection.execute <<~SQL
   REPlACE INTO #{table} 
   #{columns}
   VALUES #{data};
 SQL
+
+ ActiveRecord::Base.connection.execute <<~SQL
+    SET FOREIGN_KEY_CHECKS=1;
+SQL
   puts "Sucessfully Loaded into #{table}"
+  rescue Exception => e 
+    File.write('log/app_erros.log',e.message,mode: 'a')
+    puts "Handled Exception"
+    exit
+  end
 end

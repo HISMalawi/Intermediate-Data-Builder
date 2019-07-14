@@ -2,6 +2,7 @@
 
 require 'yaml'
 require_relative 'ids_commons'
+require_relative 'ids_person_name'
 require_relative 'ids_diagnosis_person'
 require_relative 'ids_patient_history'
 require_relative 'rds_end'
@@ -139,14 +140,14 @@ def populate_people
     latest_updated = person['updated_at']
     data += ids_people(person)
     if i % @batch_size == 0
-     write_to_db('people', '(' + Person.column_names[0..-3].join(',') + ')', data)
+     write_to_db('people', Person.column_names[0..-3].join(',') , data)
      update_last_update('Person', latest_updated) 
      data = ''
     end
     i += 1  
   end
   if data
-    write_to_db('people', '(' + Person.column_names[0..-3].join(',') + ')', data)
+    write_to_db('people', Person.column_names[0..-3].join(','), data)
     update_last_update('Person', latest_updated)
   end  
 end
@@ -176,32 +177,24 @@ def initiate_de_duplication
 end
 
 def populate_person_names
-  last_updated = get_last_updated('PersonNames')
-  person_names = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.person_name WHERE updated_at >= '#{last_updated}';
-SQL
-
-  person_names.each do |person_name|
-    puts "Updating Person Name for person_id: #{person_name['person_id']}"
-    person_name_exist = PersonName.find_by(person_name_id: person_name['person_name_id'])
-
-    if person_name_exist.blank?
-      PersonName.create(person_name_id: person_name['person_name_id'], person_id: person_name['person_id'],
-                        given_name: person_name['given_name'], family_name: person_name['family_name'],
-                        middle_name: person_name['middle_name'], maiden_name: person_name['maiden_name'],
-                        creator: person_name['creator'], voided: person_name['voided'], voided_by: person_name['voided_by'],
-                        void_reason: person_name['void_reason'], app_date_created: person_name['date_created'],
-                        app_date_updated: person_name['date_updated'])
-    else
-      person_name_exist.update(person_name_id: person_name['person_name_id'], person_id: person_name['person_id'],
-                               given_name: person_name['given_name'], family_name: person_name['family_name'],
-                               middle_name: person_name['middle_name'], maiden_name: person_name['maiden_name'],
-                               creator: person_name['creator'], voided: person_name['voided'], voided_by: person_name['voided_by'],
-                               void_reason: person_name['void_reason'], app_date_created: person_name['date_created'],
-                               app_date_updated: person_name['date_updated'])
+  last_updated = get_last_updated('PersonName')
+  i = 1
+  data = ''
+  latest_updated = '1900-01-01'
+  fetch_data("SELECT * FROM #{@rds_db}.person_name", last_updated) do |person_name| 
+    latest_updated = person_name['updated_at']
+    data += ids_person_name(person_name)
+    if i % @batch_size == 0
+     write_to_db('person_names', PersonName.column_names[0..-3].join(',') , data)
+     update_last_update('PersonNames', latest_updated) 
+     data = ''
     end
-    update_last_update('PersonName', person_name['updated_at'])
+    i += 1  
   end
+  if data
+    write_to_db('person_names', PersonName.column_names[0..-3].join(','), data)
+    update_last_update('PersonName', latest_updated)
+  end  
 end
 
 def populate_contact_details
@@ -926,8 +919,7 @@ def encode(n)
 end
 
 def methods_init
-  populate_people
-=begin  
+ # populate_people  
   populate_person_names
   populate_contact_details
   populate_person_address
@@ -955,7 +947,6 @@ def methods_init
   populate_lab_test_results
   initiate_de_duplication
   get_people
-=end
 end
 
 methods_init

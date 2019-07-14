@@ -11,11 +11,13 @@ class CreatePersonNames < ActiveRecord::Migration[5.2]
       t.bigint  :creator, null: false
       t.boolean :voided, null: false, default: 0
       t.bigint :voided_by
-      t.integer :void_reason
+      t.string :void_reason
       t.datetime  :app_date_created, null: false
       t.datetime  :app_date_updated
 
       t.timestamps
     end
+    change_column :person_names, :created_at, :datetime, null: false, default: -> { 'CURRENT_TIMESTAMP' }
+    change_column :person_names, :updated_at, :datetime, null: false, default: -> { 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP' }
   end
 end
