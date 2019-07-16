@@ -9,6 +9,7 @@ where updated_at >= '#{last_updated}' AND drug_id IN (SELECT drug_id FROM ids.ar
      puts "processing Prescription has info for encounter #{prescription['encounter_id']}"
 
     regimen = MedicationRegimen.where(drug_composition: prescription['drugs']).select('medication_regimen_id').limit(1)
+    next if regimen.blank?
     prescription_has_reg_exist = MedicationPrescriptionHasMedicationRegimen.find_by(medication_regimen_id: regimen.first['medication_regimen_id'],
                                                                                    medication_prescription_encounter_id: prescription['encounter_id'])
     if prescription_has_reg_exist

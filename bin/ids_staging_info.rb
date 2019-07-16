@@ -18,16 +18,17 @@ SQL
     age_in_days = patient_age_at_initiation(patient['patient_id'])['age_in_days'] rescue nil
     if staging_exist
       #Update Staging Record
-      staging_exist.update(start_date: get_start_date(patient['patient_id']),
-                           date_enrolled: get_date_enrolled(patient['patient_id']),
-                           transfer_in: get_master_def_id(get_transfer_in(patient['patient_id'], get_date_enrolled(patient['patient_id'])), 'concept_name'),
-                           re_initiated: get_master_def_id(get_transfer_in(patient['patient_id'], get_date_enrolled(patient['patient_id'])), 'concept_name'),
-                           age_at_initiation: age_at_initiation,
-                           age_in_days_at_initiation: age_in_days,
-                           who_stage: get_who_stage(patient['patient_id']),
-                           reason_for_starting: get_reason_for_starting(patient['patient_id']),
-                           hiv_test_date: (get_hiv_test_date(patient['patient_id']))['value_datetime'],
-                           hiv_test_facility: (get_hiv_test_facility(patient['patient_id']))['value_text']) 
+      staging_exist.start_date = get_start_date(patient['patient_id'])
+      staging_exist.date_enrolled = get_date_enrolled(patient['patient_id'])
+      staging_exist.transfer_in = get_master_def_id(get_transfer_in(patient['patient_id'], get_date_enrolled(patient['patient_id'])), 'concept_name')
+      staging_exist.re_initiated = get_master_def_id(get_transfer_in(patient['patient_id'], get_date_enrolled(patient['patient_id'])), 'concept_name')
+      staging_exist.age_at_initiation = age_at_initiation
+      staging_exist.age_in_days_at_initiation = age_in_days
+      staging_exist.who_stage = get_who_stage(patient['patient_id'])
+      staging_exist.reason_for_starting = get_reason_for_starting(patient['patient_id'])
+      staging_exist.hiv_test_date = (get_hiv_test_date(patient['patient_id']))['value_datetime'] rescue nil
+      staging_exist.hiv_test_facility = (get_hiv_test_facility(patient['patient_id']))['value_text'] rescue nil
+      staging_exist.save
     else
       staging_info = HivStagingInfo.new
       staging_info.person_id = patient['patient_id']

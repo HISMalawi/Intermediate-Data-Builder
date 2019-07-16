@@ -13,7 +13,7 @@ def ids_people(person)
 
   gender = person['gender'] == 'M' ? 1 : 0
 
-  puts "processing person_id #{person['person_id']}"
+  puts "processing person data for person_id #{person['person_id']}"
   
   person = "(#{person['person_id'].to_i}, #{dob}, #{person['birthdate_estimated'].to_i},\
             #{gender.to_i}, #{dod}, #{person['creator']}, '#{person['cause_of_death']}',\

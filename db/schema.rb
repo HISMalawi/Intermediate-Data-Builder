@@ -447,6 +447,7 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.datetime "app_date_updated"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.index ["person_id"], name: "fk_rails_546377d8eb"
   end
 
   create_table "person_types", primary_key: "person_type_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -693,6 +694,7 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
   add_foreign_key "person_addresses", "people", primary_key: "person_id"
   add_foreign_key "person_has_types", "people", primary_key: "person_id"
   add_foreign_key "person_has_types", "person_types", primary_key: "person_type_id"
+  add_foreign_key "person_names", "people", primary_key: "person_id"
   add_foreign_key "potential_duplicates", "duplicate_statuses", primary_key: "duplicate_status_id"
   add_foreign_key "potential_duplicates", "people", column: "person_id_a", primary_key: "person_id"
   add_foreign_key "potential_duplicates", "people", column: "person_id_b", primary_key: "person_id"
@@ -700,6 +702,7 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
   add_foreign_key "pregnant_statuses", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "presenting_complaints", "encounters", primary_key: "encounter_id"
   add_foreign_key "presenting_complaints", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
+  add_foreign_key "providers", "person_names", primary_key: "person_name_id"
   add_foreign_key "providers", "person_types", primary_key: "person_type_id"
   add_foreign_key "relationships", "master_definitions", column: "relationship_type_id", primary_key: "master_definition_id"
   add_foreign_key "relationships", "people", column: "person_id_a", primary_key: "person_id"

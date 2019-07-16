@@ -821,14 +821,15 @@ SQL
   INNER JOIN #{@rds_db}.drug_order  ON orders.order_id = drug_order.order_id
   WHERE (orders.updated_at >= '#{last_updated}');
 SQL
+  dispensations = ''
+
   (prescribed_drug_id || []).each do |ids_prescribed_drug|
     (drug_dispensed || []).each do |rds_dispensed_drug|
       puts "Processing dispensation record for person #{rds_dispensed_drug['patient_id']}"
-
-      MedicationDispensation.create(quantity: rds_dispensed_drug['quantity'], medication_prescription_id: ids_prescribed_drug['medication_prescription_id'],
-                                    voided: rds_dispensed_drug['voided'], voided_by: rds_dispensed_drug['voided_by'], voided_date: rds_dispensed_drug['date_voided'],
-                                    void_reason: rds_dispensed_drug['void_reason'], app_date_created: rds_dispensed_drug['date_created'],
-                                    app_date_updated: '')
+       dispensations = "(#{rds_dispensed_drug['quantity']}, #{ids_prescribed_drug['medication_prescription_id']},
+                        #{rds_dispensed_drug['voided']},#{rds_dispensed_drug['voided_by']}, #{rds_dispensed_drug['date_voided']},
+                        #{rds_dispensed_drug['void_reason']}, #{rds_dispensed_drug['date_created']},
+                                    app_date_updated: ''),"
 
       puts "Successfully populated medication dispensation details with record for person #{rds_dispensed_drug['patient_id']}"
     end
@@ -919,8 +920,10 @@ def encode(n)
 end
 
 def methods_init
-  populate_people  
+  
+  populate_people
   populate_person_names
+=begin
   populate_contact_details
   populate_person_address
   update_person_type
@@ -937,16 +940,19 @@ def methods_init
   populate_outcomes
   populate_family_planning
   populate_appointment
-  populate_prescription
+=end  
+#  populate_prescription
+=begin
   populate_lab_orders
   populate_occupation
-  populate_dispensation
-  populate_relationships
-  populate_hiv_staging_info
-  populate_precription_has_regimen
-  populate_lab_test_results
-  initiate_de_duplication
-  get_people
+=end
+# populate_dispensation
+#  populate_relationships
+#  populate_hiv_staging_info
+ # populate_precription_has_regimen
+#  populate_lab_test_results
+#  initiate_de_duplication
+#  get_people
 end
 
 methods_init

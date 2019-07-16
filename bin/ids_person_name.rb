@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 def ids_person_name(person_name)
-   puts "processing person_id #{person_name['person_id']}"
+   puts "processing person_name for person_id #{person_name['person_id']}"
 
   person_name['date_voided'].blank? ? voided_date = 'NULL' : voided_date = "'#{person_name['date_voided'].strftime('%Y-%m-%d %H:%M:%S')}'"
 
