@@ -65,8 +65,7 @@ def get_rds_person_attributes
   person_attribute = []
   rds_attribute = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_attribute WHERE person_attribute_type_id IN (12,14,15)
-	AND (updated_at >= '#{last_updated}'
-	OR date_voided  >=  '#{last_updated}');
+	AND (updated_at >= '#{last_updated}');
 
 QUERY
 
@@ -132,24 +131,9 @@ def check_for_duplicate(demographics)
 end
 
 def populate_people
-  last_updated = get_last_updated('Person')
-  i = 1
-  data = ''
-  latest_updated = '1900-01-01'
-  fetch_data("SELECT * FROM #{@rds_db}.person", last_updated) do |person| 
-    latest_updated = person['updated_at']
-    data += ids_people(person)
-    if i % @batch_size == 0
-     write_to_db('people', Person.column_names[0..-3].join(',') , data)
-     update_last_update('Person', latest_updated) 
-     data = ''
-    end
-    i += 1  
-  end
-  if data
-    write_to_db('people', Person.column_names[0..-3].join(','), data)
-    update_last_update('Person', latest_updated)
-  end  
+  query = "SELECT * FROM #{@rds_db}.person"
+  populate_data(query, 'ids_people', 'people','Person', 
+    Person.column_names[0..-3].join(','))
 end
 
 def update_last_update(model, timestamp)
@@ -178,9 +162,11 @@ end
 
 def populate_person_names
   last_updated = get_last_updated('PersonName')
+
   i = 1
   data = ''
   latest_updated = '1900-01-01'
+
   fetch_data("SELECT * FROM #{@rds_db}.person_name", last_updated) do |person_name| 
     latest_updated = person_name['updated_at']
     data += ids_person_name(person_name)
@@ -198,7 +184,8 @@ def populate_person_names
 end
 
 def populate_contact_details
-  (get_rds_person_attributes || []).each do |person_attribute|
+  fetch_data("SELECT * FROM #{@rds_db}.person_attribute WHERE person_attribute_type_id IN (12,14,15)
+  AND updated_at >= '#{last_updated}'", last_updated) do |person_attribute|
     attribute_value = person_attribute['value']
 
     cell_phone_number = ''
@@ -265,12 +252,8 @@ def populate_contact_details
       puts 'Ending script'
       break
     end
-    current_update_date = {}
-    current_update_date['PersonAttribute'] = person_attribute['updated_at'].strftime('%Y-%m-%d %H:%M:%S')
-
-    File.open('log/last_update.yml', 'w') do |file|
-      file.write current_update_date.to_yaml
-    end
+     # Updating last record processed
+      update_last_update('PersonAttribute', person_attribute['updated_at'])
   end
 end
 
@@ -923,8 +906,7 @@ def methods_init
   
   populate_people
   populate_person_names
-=begin
-  populate_contact_details
+  #populate_contact_details
   populate_person_address
   update_person_type
   populate_encounters
@@ -940,19 +922,16 @@ def methods_init
   populate_outcomes
   populate_family_planning
   populate_appointment
-=end  
-#  populate_prescription
-=begin
+  populate_prescription
   populate_lab_orders
   populate_occupation
-=end
-# populate_dispensation
-#  populate_relationships
-#  populate_hiv_staging_info
- # populate_precription_has_regimen
-#  populate_lab_test_results
-#  initiate_de_duplication
-#  get_people
+  populate_dispensation
+  populate_relationships
+  populate_hiv_staging_info
+  populate_precription_has_regimen
+  populate_lab_test_results
+  initiate_de_duplication
+  get_people
 end
 
 methods_init

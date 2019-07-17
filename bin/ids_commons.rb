@@ -49,3 +49,26 @@ SQL
     exit
   end
 end
+
+def populate_data(query, method, table_name, model, columns)
+  last_updated = get_last_updated(model.to_s)
+  i = 1
+  data = ''
+  latest_updated = '1900-01-01'
+
+  fetch_data(query, last_updated) do |data_item|
+    latest_updated = data_item['updated_at']
+    data += send(method, data_item)
+    if (i % @batch_size).zero?
+      write_to_db(table_name, columns, data)
+      update_last_update(model, latest_updated)
+      data = ''
+    end
+    i += 1
+  end
+  
+  if data
+    write_to_db(table_name, columns, data)
+    update_last_update(model, latest_updated)
+  end
+end
