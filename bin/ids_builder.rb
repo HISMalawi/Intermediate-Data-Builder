@@ -132,6 +132,7 @@ end
 
 def populate_people
   query = "SELECT * FROM #{@rds_db}.person"
+
   populate_data(query, 'ids_people', 'people','Person', 
     Person.column_names[0..-3].join(','))
 end
@@ -161,26 +162,10 @@ def initiate_de_duplication
 end
 
 def populate_person_names
-  last_updated = get_last_updated('PersonName')
+  query = "SELECT * FROM #{@rds_db}.person_name"
 
-  i = 1
-  data = ''
-  latest_updated = '1900-01-01'
-
-  fetch_data("SELECT * FROM #{@rds_db}.person_name", last_updated) do |person_name| 
-    latest_updated = person_name['updated_at']
-    data += ids_person_name(person_name)
-    if i % @batch_size == 0
-     write_to_db('person_names', PersonName.column_names[0..-3].join(',') , data)
-     update_last_update('PersonNames', latest_updated) 
-     data = ''
-    end
-    i += 1  
-  end
-  if data
-    write_to_db('person_names', PersonName.column_names[0..-3].join(','), data)
-    update_last_update('PersonName', latest_updated)
-  end  
+  populate_data(query, 'ids_person_name', 'person_name','PersonName', 
+    PersonName.column_names[0..-3].join(','))
 end
 
 def populate_contact_details
@@ -514,12 +499,10 @@ SQL
 end
 
 def populate_person_address
-  last_updated = get_last_updated('PersonAddress')
+  query = "SELECT * FROM #{@rds_db}.person_address"
 
-  person_addresses = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.person_address WHERE updated_at >= '#{last_updated}' order by updated_at;
-SQL
-  person_addresses.each(&method(:grouped_address))
+  populate_data(query, 'grouped_address', 'person_addresses','PersonAddress', 
+    PersonAddress.column_names[0..-3].join(','))
 end
 
 def populate_patient_history
@@ -904,8 +887,8 @@ end
 
 def methods_init
   
-  populate_people
-  populate_person_names
+  #populate_people
+  #populate_person_names
   #populate_contact_details
   populate_person_address
   update_person_type
@@ -932,6 +915,7 @@ def methods_init
   populate_lab_test_results
   initiate_de_duplication
   get_people
+  
 end
 
 methods_init

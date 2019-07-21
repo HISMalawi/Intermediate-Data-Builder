@@ -11,21 +11,17 @@ def grouped_address(person_address)
     get_district_id('other')
   end
 
-  puts "Updating Person Address for person_id: #{person_address['person_id']}"
+  person_address = handle_commons(person_address)
 
-  person_address_exist = PersonAddress.find_by(person_address_id: person_address['person_address_id'])
+  puts "Processing Person Address for person_id: #{person_address['person_id']}"
 
-  if person_address_exist.blank?
-    PersonAddress.create(person_address_id: person_address['person_address_id'], person_id: person_address['person_id'],
-                         home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1, country_id: 1,
-                         current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1, country_id: 1,
-                         creator: person_address['creator'], landmark: person_address['landmark'],
-                         app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
-  else
-    person_address_exist.update(home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1, country_id: 1,
-                                current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1, country_id: 1,
-                                creator: person_address['creator'], landmark: person_address['landmark'],
-                                app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
-  end
-  update_last_update('PersonAddress', person_address['updated_at'])
+  person_address = "(#{person_address['person_address_id'].to_i}, #{person_address['person_id'].to_i},
+                         #{home_district_id.to_i}, 1,  1, #{curent_district_id.to_i},  1,  1,  1,
+                          #{person_address['creator'].to_i},  #{person_address['landmark'].to_i},
+                          #{person_address['voided']}, #{person_address['voided_by']},
+                          #{person_address['date_voided']}, \"#{person_address['void_reason']}\",
+                          #{person_address['date_created']},  #{person_address['date_changed']}),".squish
+
+  return person_address
 end
+  

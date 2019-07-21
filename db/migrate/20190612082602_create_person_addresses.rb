@@ -22,5 +22,7 @@ class CreatePersonAddresses < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
+    change_column :person_addresses, :created_at, :datetime, null: false, default: -> { 'CURRENT_TIMESTAMP' }
+    change_column :person_addresses, :updated_at, :datetime, null: false, default: -> { 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP' }
   end
 end

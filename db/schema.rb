@@ -412,8 +412,8 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.string "void_reason"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.index ["country_id"], name: "fk_rails_525c1ee58a"
     t.index ["current_district_id"], name: "fk_rails_60b44a0ad8"
     t.index ["current_traditional_authority_id"], name: "fk_rails_f3cd017b99"
