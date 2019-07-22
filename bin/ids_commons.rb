@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
-def person_has_type(type_id, person)
-  unless PersonHasType.find_by(person_id: person['person_id'] || person['patient_id'] || person['person_b'], person_type_id: type_id)
-    PersonHasType.create(person_id: person['person_id'] || person['patient_id'] || person['person_b'], person_type_id: type_id)
-  end
+def person_has_type(person)
+  puts "processing person type #{person['person_type'].to_i} for #{person['person_id']} || #{person['patient_id']} || #{person['person_b']} "
+  person_id = person['person_id'] || person['patient_id'] || person['person_b']
+  person_has_type = "(#{person_id.to_i}, #{person['person_type'].to_i}),"
+
+  return person_has_type
 end
 
 
@@ -58,6 +60,11 @@ def populate_data(query, method, table_name, model, columns)
 
   fetch_data(query, last_updated) do |data_item|
     latest_updated = data_item['updated_at']
+    data_item['person_type'] = 4 if model == 'User'
+    data_item['person_type'] = 5 if model == 'Guardian'
+    data_item['person_type'] = 1 if model == 'Patient'
+    data_item['person_type'] = 2 if model == 'Provider'
+
     data += send(method, data_item)
     if (i % @batch_size).zero?
       write_to_db(table_name, columns, data)

@@ -17,5 +17,7 @@ class CreateEncounters < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
+    change_column :encounters, :created_at, :datetime, null: false, default: -> { 'CURRENT_TIMESTAMP' }
+    change_column :encounters, :updated_at, :datetime, null: false, default: -> { 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP' }
   end
 end

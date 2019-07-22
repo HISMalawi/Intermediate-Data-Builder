@@ -134,8 +134,8 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.bigint "creator"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.index ["encounter_type_id"], name: "fk_rails_cf33a2decd"
     t.index ["person_id"], name: "fk_rails_8f2e31923b"
     t.index ["program_id"], name: "fk_rails_a13406b5c0"
@@ -424,12 +424,11 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.index ["person_id"], name: "fk_rails_eb9d05724a"
   end
 
-  create_table "person_has_types", primary_key: "person_has_type_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.bigint "person_id"
-    t.bigint "person_type_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["person_id"], name: "fk_rails_282ec6b71b"
+  create_table "person_has_types", primary_key: ["person_id", "person_type_id"], options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "person_id", null: false
+    t.bigint "person_type_id", null: false
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.index ["person_type_id"], name: "fk_rails_7858ca9698"
   end
 

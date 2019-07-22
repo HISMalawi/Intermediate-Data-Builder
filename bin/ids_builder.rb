@@ -21,6 +21,7 @@ require_relative 'ids_pregnant_status'
 require_relative 'ids_breastfeeding_status'
 require_relative 'ids_people'
 require_relative 'ids_lab_test_results'
+require_relative 'ids_encounter'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -243,70 +244,10 @@ def populate_contact_details
 end
 
 def populate_encounters
-  last_updated = get_last_updated('Encounter')
+  query = "SELECT * FROM #{@rds_db}.encounter "
 
-  total_encounters = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT count(*) as count FROM #{@rds_db}.encounter  WHERE  (updated_at >= '#{last_updated}');
-SQL
-  i = 0
-  while total_encounters.first['count'] - i > 0
-    encounters = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.encounter WHERE  updated_at >= '#{last_updated}' order by updated_at limit #{@batch_size} offset #{i};
-SQL
-
-    encounters.each do |rds_encounter|
-      puts "processing person_id #{rds_encounter['patient_id']}"
-      rds_prog_id = rds_encounter['program_id']
-      program_name = ActiveRecord::Base.connection.select_all <<SQL
-    SELECT name FROM #{@rds_db}.program  WHERE program_id = #{rds_prog_id}  limit 1
-SQL
-      rds_encounter_type_id = rds_encounter['encounter_type']
-      rds_encounter_type = ActiveRecord::Base.connection.select_all <<SQL
-    SELECT name FROM #{@rds_db}.encounter_type WHERE encounter_type_id = #{rds_encounter_type_id} limit 1
-SQL
-      ids_encounter_type_name = rds_encounter_type.first
-      ids_prog_name = program_name.first
-      master_definition_prog_id = MasterDefinition.find_by(definition: ids_prog_name['name'])
-
-      master_definition_encounter_id = MasterDefinition.find_by(definition: ids_encounter_type_name['name'])
-
-      if Encounter.find_by(encounter_id: rds_encounter['encounter_id']).blank?
-        encounter = Encounter.new
-        encounter.encounter_id = rds_encounter['encounter_id']
-        encounter.encounter_type_id = master_definition_encounter_id['master_definition_id']
-        encounter.program_id = master_definition_prog_id['master_definition_id']
-        encounter.person_id = rds_encounter['patient_id']
-        encounter.visit_date = rds_encounter['encounter_datetime']
-        encounter.voided = rds_encounter['voided']
-        encounter.voided_by = rds_encounter['voided_by']
-        encounter.voided_date = rds_encounter['date_voided']
-        encounter.void_reason = rds_encounter['void_reason']
-        encounter.app_date_created = rds_encounter['date_created']
-        encounter.app_date_updated = rds_encounter['date_changed']
-
-        if encounter.save
-          puts "Successfully populated encounter with record for person #{rds_encounter['patient_id']}encounter id " \
-               "#{rds_encounter['encounter_id']} record number #{i}"
-        end
-
-      else
-        encounter = Encounter.find_by(encounter_id: rds_encounter['encounter_id'])
-        if encounter.update(encounter_type_id: master_definition_encounter_id['master_definition_id'],
-                            program_id: master_definition_prog_id['master_definition_id'],
-                            person_id: rds_encounter['patient_id'], visit_date: rds_encounter['encounter_datetime'],
-                            voided: rds_encounter['voided'], voided_by: rds_encounter['voided_by'],
-                            voided_date: rds_encounter['date_voided'], void_reason: rds_encounter['void_reason'],
-                            app_date_updated: rds_encounter['date_changed'],
-                            created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'), updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
-          puts "Successfully updated encounter details with record for person #{rds_encounter['patient_id']} encounter id " \
-               "#{rds_encounter['encounter_id']} record number #{i}"
-        end
-      end
-      # Updating last record processed
-      update_last_update('Encounter', rds_encounter['updated_at'])
-      i += 1
-    end
-  end
+   populate_data(query, 'process_encounter', 'encounters','Encounter', 
+    Encounter.column_names[0..-3].join(','))
 end
 
 def populate_users
@@ -350,61 +291,29 @@ end
 
 def update_person_type
   # Updating users type in person_type table
-  last_updated = get_last_updated('User')
+   query = "SELECT * FROM #{@rds_db}.users "
 
-  users = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.users WHERE updated_at >= '#{last_updated}';
-SQL
-  person_type_id = 4 # person type id for user
-  (users || []).each do |user|
-    puts "processing user with person_id #{user['person_id'] || user['patient_id']}"
-    person_has_type(person_type_id, user)
-
-    update_last_update('User', user['updated_at'])
-  end
+   populate_data(query, 'person_has_type', 'person_has_types','User', 
+    PersonHasType.column_names[0..-3].join(','))
 
   # Updating Guardians in person type table
-  last_updated = get_last_updated('Relationship')
+   query = "SELECT * FROM #{@rds_db}.relationship "
 
-  guardians = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.relationship WHERE updated_at >= '#{last_updated}'
-  AND relationship = 6;
-SQL
-
-  person_type_id = 5 # person type id for guardian
-  (guardians || []).each do |guardian|
-    puts "Processing guardian with person_id #{guardian['person_b']} "
-    person_has_type(person_type_id, guardian)
-    update_last_update('Relationship', guardian['updated_at'])
-  end
+   populate_data(query, 'person_has_type', 'person_has_types','Guardian', 
+    PersonHasType.column_names[0..-3].join(','))
 
   # Updating Patients in person type table
-  last_updated = get_last_updated('Patient')
+  query = "SELECT * FROM #{@rds_db}.patient "
 
-  patients = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.patient WHERE updated_at >= '#{last_updated}';
-SQL
-
-  person_type_id = 1 # person type id for patient
-  (patients || []).each do |patient|
-    puts "Processing patient with person_id #{patient['person_id'] || patient['patient_id']}"
-    person_has_type(person_type_id, patient)
-    update_last_update('Patient', patient['updated_at'])
-  end
+   populate_data(query, 'person_has_type', 'person_has_types','Patient', 
+    PersonHasType.column_names[0..-3].join(','))
 
   # Updating Provider in person type table
-  last_updated = get_last_updated('Patient')
+  query = "SELECT * FROM #{@rds_db}.users "
 
-  providers = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.users WHERE updated_at >= '#{last_updated}';
-SQL
+   populate_data(query, 'person_has_type', 'person_has_types','Provider', 
+    PersonHasType.column_names[0..-3].join(','))
 
-  person_type_id = 2 # person type id for provider
-  (providers || []).each do |provider|
-    puts "Processing provider with person_id #{provider['person_id'] || provider['patient_id']}"
-    person_has_type(person_type_id, provider)
-    update_last_update('Provider', provider['updated_at'])
-  end
 end
 
 def get_rds_diagnosis
@@ -890,8 +799,8 @@ def methods_init
   #populate_people
   #populate_person_names
   #populate_contact_details
-  populate_person_address
-  update_person_type
+  #populate_person_address
+  #update_person_type
   populate_encounters
   populate_diagnosis
   populate_pregnant_status
@@ -915,7 +824,6 @@ def methods_init
   populate_lab_test_results
   initiate_de_duplication
   get_people
-  
 end
 
 methods_init
