@@ -244,7 +244,7 @@ def populate_contact_details
 end
 
 def populate_encounters
-  query = "SELECT * FROM #{@rds_db}.encounter "
+  query = "SELECT * FROM #{@rds_db}.encounter WHERE"
 
    populate_data(query, 'process_encounter', 'encounters','Encounter', 
     Encounter.column_names[0..-3].join(','))
@@ -808,6 +808,7 @@ def methods_init
   #populate_person_address
   #update_person_type
   populate_encounters
+  exit
   populate_diagnosis
   populate_pregnant_status
   populate_breastfeeding_status
