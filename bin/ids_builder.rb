@@ -132,7 +132,7 @@ def check_for_duplicate(demographics)
 end
 
 def populate_people
-  query = "SELECT * FROM #{@rds_db}.person"
+  query = "SELECT * FROM #{@rds_db}.person WHERE"
 
   populate_data(query, 'ids_people', 'people','Person', 
     Person.column_names[0..-3].join(','))
@@ -163,7 +163,7 @@ def initiate_de_duplication
 end
 
 def populate_person_names
-  query = "SELECT * FROM #{@rds_db}.person_name"
+  query = "SELECT * FROM #{@rds_db}.person_name WHERE"
 
   populate_data(query, 'ids_person_name', 'person_name','PersonName', 
     PersonName.column_names[0..-3].join(','))
@@ -291,25 +291,25 @@ end
 
 def update_person_type
   # Updating users type in person_type table
-   query = "SELECT * FROM #{@rds_db}.users "
+   query = "SELECT * FROM #{@rds_db}.users WHERE "
 
    populate_data(query, 'person_has_type', 'person_has_types','User', 
     PersonHasType.column_names[0..-3].join(','))
 
   # Updating Guardians in person type table
-   query = "SELECT * FROM #{@rds_db}.relationship "
+   query = "SELECT * FROM #{@rds_db}.relationship WHERE "
 
    populate_data(query, 'person_has_type', 'person_has_types','Guardian', 
     PersonHasType.column_names[0..-3].join(','))
 
   # Updating Patients in person type table
-  query = "SELECT * FROM #{@rds_db}.patient "
+  query = "SELECT * FROM #{@rds_db}.patient WHERE "
 
    populate_data(query, 'person_has_type', 'person_has_types','Patient', 
     PersonHasType.column_names[0..-3].join(','))
 
   # Updating Provider in person type table
-  query = "SELECT * FROM #{@rds_db}.users "
+  query = "SELECT * FROM #{@rds_db}.users WHERE "
 
    populate_data(query, 'person_has_type', 'person_has_types','Provider', 
     PersonHasType.column_names[0..-3].join(','))
@@ -408,7 +408,7 @@ SQL
 end
 
 def populate_person_address
-  query = "SELECT * FROM #{@rds_db}.person_address"
+  query = "SELECT * FROM #{@rds_db}.person_address WHERE"
 
   populate_data(query, 'grouped_address', 'person_addresses','PersonAddress', 
     PersonAddress.column_names[0..-3].join(','))
@@ -795,7 +795,13 @@ def encode(n)
 end
 
 def methods_init
-  
+  if File.file?('/tmp/ids_builder.lock')
+    puts "Another Instance running"
+    exit
+  else
+    FileUtils.touch '/tmp/ids_builder.lock'
+  end
+
   #populate_people
   #populate_person_names
   #populate_contact_details
@@ -824,6 +830,10 @@ def methods_init
   populate_lab_test_results
   initiate_de_duplication
   get_people
+
+  if File.file?('/tmp/ids_builder.lock')
+    FileUtils.rm '/tmp/ids_builder.lock'
+  end
 end
 
 methods_init
