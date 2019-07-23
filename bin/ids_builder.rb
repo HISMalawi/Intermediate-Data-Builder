@@ -909,6 +909,13 @@ def encode(n)
 end
 
 def methods_init
+  if File.file?('/tmp/ids_builder.lock')
+    puts "Another Instance running"
+    exit
+  else
+    FileUtils.touch '/tmp/ids_builder.lock'
+  end
+
   populate_people
   populate_person_names
   populate_contact_details
@@ -937,6 +944,10 @@ def methods_init
   populate_lab_test_results
   initiate_de_duplication
   get_people
+
+  if File.file?('/tmp/ids_builder.lock')
+    FileUtils.rm '/tmp/ids_builder.lock'
+  end
 end
 
 methods_init
