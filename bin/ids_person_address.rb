@@ -25,7 +25,7 @@ def grouped_address(person_address)
     person_address_exist.update(home_district_id: home_district_id, home_traditional_authority_id: 1, home_village_id: 1, country_id: 1,
                                 current_district_id: curent_district_id, current_traditional_authority_id: 1, current_village_id: 1, country_id: 1,
                                 creator: person_address['creator'], landmark: person_address['landmark'],
-                                app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed'])
+                                app_date_created: person_address['date_created'], app_date_updated: person_address['date_changed']) if person_address['date_changed'] > (person_address_exist.app_date_updated.strftime('%Y-%m-%d %H:%M:%S') rescue 'NULL')
   end
   update_last_update('PersonAddress', person_address['updated_at'])
 end
