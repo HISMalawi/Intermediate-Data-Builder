@@ -31,7 +31,7 @@ def get_all_rds_people
   last_updated = get_last_updated('Person')
 
   rds_people = ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.person where updated_at >= '#{last_updated}' ORDER BY updated_at;
+	SELECT * FROM #{@rds_db}.person WHERE updated_at >= '#{last_updated}' ORDER BY updated_at;
 QUERY
   rds_people
 end
@@ -131,7 +131,8 @@ def check_for_duplicate(demographics)
 end
 
 def populate_people
-  get_all_rds_people.each(&method(:ids_people))
+  query = "SELECT * FROM #{@rds_db}.person WHERE"
+  fetch_data(&method(:ids_people))
 end
 
 def update_last_update(model, timestamp)
