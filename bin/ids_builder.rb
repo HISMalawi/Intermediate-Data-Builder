@@ -309,13 +309,14 @@ SQL
         end
       else
         encounter = Encounter.find_by(encounter_id: rds_encounter['encounter_id'])
-        if encounter.update(encounter_type_id: master_definition_encounter_id['master_definition_id'],
+        if encounter
+          encounter.update(encounter_type_id: master_definition_encounter_id['master_definition_id'],
                             program_id: master_definition_prog_id['master_definition_id'],
                             person_id: rds_encounter['patient_id'], visit_date: rds_encounter['encounter_datetime'],
                             voided: rds_encounter['voided'], voided_by: rds_encounter['voided_by'],
                             voided_date: rds_encounter['date_voided'], void_reason: rds_encounter['void_reason'],
                             app_date_updated: rds_encounter['date_changed'],
-                            created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'), updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S')) if rds_encounter['date_updated'] > (encounter.app_date_updated.strftime('%Y-%m-%d %H:%M:%S') rescue 'NULL')
+                            created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'), updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S')) if rds_encounter['date_updated'].strftime('%Y-%m-%d %H:%M:%S') > (encounter.app_date_updated.strftime('%Y-%m-%d %H:%M:%S') rescue 'NULL')
           puts "Successfully updated encounter details with record for person #{rds_encounter['patient_id']} encounter id " \
                "#{rds_encounter['encounter_id']} "
         end
@@ -323,7 +324,6 @@ SQL
       # Updating last record processed
       update_last_update('Encounter', rds_encounter['updated_at'])
     end
-  end
 end
 
 def populate_users
@@ -506,7 +506,7 @@ def populate_person_address
 
   query = "SELECT * FROM #{@rds_db}.person_address WHERE "
 
-  fetch_data(query, last_updated do |person_address|
+  fetch_data(query, last_updated) do |person_address|
     grouped_address(person_address)
   end
 end
@@ -926,11 +926,9 @@ def methods_init
   populate_lab_test_results
   initiate_de_duplication
   get_people
-=end
 
-  if File.file?('/tmp/ids_builder.lock')
-    FileUtils.rm '/tmp/ids_builder.lock'
-  end
+   FileUtils.rm '/tmp/ids_builder.lock' if File.file?('/tmp/ids_builder.lock')
+
 end
 
 methods_init
