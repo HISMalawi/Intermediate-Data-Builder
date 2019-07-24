@@ -46,7 +46,7 @@ SQL
 SQL
   puts "Sucessfully Loaded into #{table}"
   rescue Exception => e 
-    File.write('log/app_erros.log',e.message,mode: 'a')
+    File.write('log/app_errors.log',e.message,mode: 'a')
     puts "Handled Exception"
     exit
   end
