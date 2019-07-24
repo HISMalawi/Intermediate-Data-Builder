@@ -131,8 +131,12 @@ def check_for_duplicate(demographics)
 end
 
 def populate_people
+  last_updated = get_last_updated('People')
   query = "SELECT * FROM #{@rds_db}.person WHERE"
-  fetch_data(&method(:ids_people))
+
+  fetch_data(query, last_updated) do |person|
+   ids_people(person)
+  end
 end
 
 def update_last_update(model, timestamp)
@@ -161,11 +165,10 @@ end
 
 def populate_person_names
   last_updated = get_last_updated('PersonNames')
-  person_names = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.person_name WHERE updated_at >= '#{last_updated}';
-SQL
 
-  person_names.each do |person_name|
+  query = "SELECT * FROM #{@rds_db}.person_name WHERE"
+
+  fetch_data(query, last_updated) do |person_name|
     puts "Updating Person Name for person_id: #{person_name['person_id']}"
     person_name_exist = PersonName.find_by(person_name_id: person_name['person_name_id'])
 
@@ -182,7 +185,7 @@ SQL
                                middle_name: person_name['middle_name'], maiden_name: person_name['maiden_name'],
                                creator: person_name['creator'], voided: person_name['voided'], voided_by: person_name['voided_by'],
                                void_reason: person_name['void_reason'], app_date_created: person_name['date_created'],
-                               app_date_updated: person_name['date_updated'])
+                               app_date_updated: person_name['date_updated']) if person_name['date_updated'] > (person_name_exist.app_date_updated.strftime('%Y-%m-%d %H:%M:%S') rescue 'NULL')
     end
     update_last_update('PersonName', person_name['updated_at'])
   end
@@ -268,16 +271,9 @@ end
 def populate_encounters
   last_updated = get_last_updated('Encounter')
 
-  total_encounters = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT count(*) as count FROM #{@rds_db}.encounter  WHERE  (updated_at >= '#{last_updated}');
-SQL
-  i = 0
-  while total_encounters.first['count'] - i > 0
-    encounters = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.encounter WHERE  updated_at >= '#{last_updated}' order by updated_at limit #{@batch_size} offset #{i};
-SQL
+  query = "SELECT * FROM #{@rds_db}.encounter WHERE "
 
-    encounters.each do |rds_encounter|
+    fetch_data(query, last_updated) do |rds_encounter|
       puts "processing person_id #{rds_encounter['patient_id']}"
       rds_prog_id = rds_encounter['program_id']
       program_name = ActiveRecord::Base.connection.select_all <<SQL
@@ -309,9 +305,8 @@ SQL
 
         if encounter.save
           puts "Successfully populated encounter with record for person #{rds_encounter['patient_id']}encounter id " \
-               "#{rds_encounter['encounter_id']} record number #{i}"
+               "#{rds_encounter['encounter_id']}"
         end
-
       else
         encounter = Encounter.find_by(encounter_id: rds_encounter['encounter_id'])
         if encounter.update(encounter_type_id: master_definition_encounter_id['master_definition_id'],
@@ -320,14 +315,13 @@ SQL
                             voided: rds_encounter['voided'], voided_by: rds_encounter['voided_by'],
                             voided_date: rds_encounter['date_voided'], void_reason: rds_encounter['void_reason'],
                             app_date_updated: rds_encounter['date_changed'],
-                            created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'), updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+                            created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'), updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S')) if rds_encounter['date_updated'] > (encounter.app_date_updated.strftime('%Y-%m-%d %H:%M:%S') rescue 'NULL')
           puts "Successfully updated encounter details with record for person #{rds_encounter['patient_id']} encounter id " \
-               "#{rds_encounter['encounter_id']} record number #{i}"
+               "#{rds_encounter['encounter_id']} "
         end
       end
       # Updating last record processed
       update_last_update('Encounter', rds_encounter['updated_at'])
-      i += 1
     end
   end
 end
@@ -375,11 +369,10 @@ def update_person_type
   # Updating users type in person_type table
   last_updated = get_last_updated('User')
 
-  users = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.users WHERE updated_at >= '#{last_updated}';
-SQL
+query = "SELECT * FROM #{@rds_db}.users WHERE "
+
   person_type_id = 4 # person type id for user
-  (users || []).each do |user|
+  fetch_data(query, last_updated) do |user|
     puts "processing user with person_id #{user['person_id'] || user['patient_id']}"
     person_has_type(person_type_id, user)
 
@@ -389,13 +382,10 @@ SQL
   # Updating Guardians in person type table
   last_updated = get_last_updated('Relationship')
 
-  guardians = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.relationship WHERE updated_at >= '#{last_updated}'
-  AND relationship = 6;
-SQL
+  query = "SELECT * FROM #{@rds_db}.relationship WHERE relationship = 6 AND "
 
   person_type_id = 5 # person type id for guardian
-  (guardians || []).each do |guardian|
+  fetch_data(query, last_updated) do |guardian|
     puts "Processing guardian with person_id #{guardian['person_b']} "
     person_has_type(person_type_id, guardian)
     update_last_update('Relationship', guardian['updated_at'])
@@ -404,12 +394,10 @@ SQL
   # Updating Patients in person type table
   last_updated = get_last_updated('Patient')
 
-  patients = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.patient WHERE updated_at >= '#{last_updated}';
-SQL
+  query = "SELECT * FROM #{@rds_db}.patient WHERE "
 
   person_type_id = 1 # person type id for patient
-  (patients || []).each do |patient|
+  fetch_data(query, last_updated) do |patient|
     puts "Processing patient with person_id #{patient['person_id'] || patient['patient_id']}"
     person_has_type(person_type_id, patient)
     update_last_update('Patient', patient['updated_at'])
@@ -418,37 +406,29 @@ SQL
   # Updating Provider in person type table
   last_updated = get_last_updated('Patient')
 
-  providers = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.users WHERE updated_at >= '#{last_updated}';
-SQL
+  query = "SELECT * FROM #{@rds_db}.users WHERE "
 
   person_type_id = 2 # person type id for provider
-  (providers || []).each do |provider|
+  fetch_data(query, last_updated) do |provider|
     puts "Processing provider with person_id #{provider['person_id'] || provider['patient_id']}"
     person_has_type(person_type_id, provider)
     update_last_update('Provider', provider['updated_at'])
   end
 end
 
-def get_rds_diagnosis
+def populate_diagnosis
   last_updated = get_last_updated('Diagnosis')
 
-  ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.obs ob
-  INNER JOIN #{@rds_db}.encounter en
-  ON ob.encounter_id = en.encounter_id
-  WHERE ob.concept_id IN (6542,6543)
-	AND (ob.updated_at >= '#{last_updated}'
-	OR ob.date_voided  >=  '#{last_updated}');
-
-QUERY
-end
-
-def populate_diagnosis
   primary_diagnosis = 6542
   secondary_diagnosis = 6543
 
-  (get_rds_diagnosis || []).each do |diag|
+query = "SELECT * FROM #{@rds_db}.obs ob
+  INNER JOIN #{@rds_db}.encounter en
+  ON ob.encounter_id = en.encounter_id
+  WHERE ob.concept_id IN (6542,6543)
+  AND"
+
+  fetch_data(query, last_updated) do |diag|
     ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
   end
 end
@@ -502,11 +482,11 @@ end
 def populate_pregnant_status
   last_updated = get_last_updated('PregnantStatus')
 
-  pregnant_status = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.obs WHERE updated_at >= '#{last_updated}' and concept_id in (1755,6131) order by updated_at;
-SQL
+  query = "SELECT * FROM #{@rds_db}.obs WHERE concept_id in (1755,6131) AND"
 
-  (pregnant_status || []).each(&method(:ids_pregnant_status))
+  fetch_data(query, last_updated) do |pregnant_status|
+    ids_pregnant_status(pregnant_status)
+  end
 end
 
 def populate_breastfeeding_status
@@ -524,10 +504,11 @@ end
 def populate_person_address
   last_updated = get_last_updated('PersonAddress')
 
-  person_addresses = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.person_address WHERE updated_at >= '#{last_updated}' order by updated_at;
-SQL
-  person_addresses.each(&method(:grouped_address))
+  query = "SELECT * FROM #{@rds_db}.person_address WHERE "
+
+  fetch_data(query, last_updated do |person_address|
+    grouped_address(person_address)
+  end
 end
 
 def populate_patient_history
@@ -945,6 +926,7 @@ def methods_init
   populate_lab_test_results
   initiate_de_duplication
   get_people
+=end
 
   if File.file?('/tmp/ids_builder.lock')
     FileUtils.rm '/tmp/ids_builder.lock'
