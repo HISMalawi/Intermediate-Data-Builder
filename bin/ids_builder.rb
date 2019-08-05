@@ -170,22 +170,42 @@ def populate_person_names
 
   fetch_data(query, last_updated) do |person_name|
     puts "Updating Person Name for person_id: #{person_name['person_id']}"
-    person_name_exist = PersonName.find_by(person_name_id: person_name['person_name_id'])
-
+    person_name_exist = PersonName.find_by(
+      person_name_id: person_name['person_name_id']
+    )
+  
     if person_name_exist.blank?
-      PersonName.create(person_name_id: person_name['person_name_id'], person_id: person_name['person_id'],
-                        given_name: person_name['given_name'], family_name: person_name['family_name'],
-                        middle_name: person_name['middle_name'], maiden_name: person_name['maiden_name'],
-                        creator: person_name['creator'], voided: person_name['voided'], voided_by: person_name['voided_by'],
-                        void_reason: person_name['void_reason'], app_date_created: person_name['date_created'],
-                        app_date_updated: person_name['date_updated'])
-    else
-      person_name_exist.update(person_name_id: person_name['person_name_id'], person_id: person_name['person_id'],
-                               given_name: person_name['given_name'], family_name: person_name['family_name'],
-                               middle_name: person_name['middle_name'], maiden_name: person_name['maiden_name'],
-                               creator: person_name['creator'], voided: person_name['voided'], voided_by: person_name['voided_by'],
-                               void_reason: person_name['void_reason'], app_date_created: person_name['date_created'],
-                               app_date_updated: person_name['date_updated']) if person_name['date_updated'] > (person_name_exist.app_date_updated.strftime('%Y-%m-%d %H:%M:%S') rescue 'NULL')
+      PersonName.create(
+        person_name_id: person_name['person_name_id'],
+        person_id: person_name['person_id'],
+        given_name: person_name['given_name'],
+        family_name: person_name['family_name'],
+        middle_name: person_name['middle_name'],
+        maiden_name: person_name['maiden_name'],
+        creator: person_name['creator'],
+        voided: person_name['voided'],
+        voided_by: person_name['voided_by'],
+        void_reason: person_name['void_reason'],
+        app_date_created: person_name['date_created'],
+        app_date_updated: person_name['date_updated']
+      )
+    elsif ((person_name['date_changed'].strftime('%Y-%m-%d %H:%M:%S') rescue nil) ||
+        person_name['date_created'].strftime('%Y-%m-%d %H:%M:%S')) >
+      (person_name_exist.app_date_updated.strftime('%Y-%m-%d %H:%M:%S') rescue 'NULL')
+      person_name_exist.update(
+        person_name_id: person_name['person_name_id'],
+        person_id: person_name['person_id'],
+        given_name: person_name['given_name'],
+        family_name: person_name['family_name'],
+        middle_name: person_name['middle_name'],
+        maiden_name: person_name['maiden_name'],
+        creator: person_name['creator'], voided:
+        person_name['voided'],
+        voided_by: person_name['voided_by'],
+        void_reason: person_name['void_reason'],
+        app_date_created: person_name['date_created'],
+        app_date_updated: person_name['date_updated']
+      )
     end
     update_last_update('PersonName', person_name['updated_at'])
   end
@@ -308,15 +328,20 @@ SQL
                "#{rds_encounter['encounter_id']}"
         end
       else
-        encounter = Encounter.find_by(encounter_id: rds_encounter['encounter_id'])
-        if encounter
+        encounter = Encounter.find_by(
+          encounter_id: rds_encounter['encounter_id']
+        )
+        date_updated = rds_encounter['date_changed'].strftime('%Y-%m-%d %H:%M:%S') ||
+                       rds_encounter['date_created'].strftime('%Y-%m-%d %H:%M:%S')
+
+        if encounter && date_updated  > (encounter.app_date_updated.strftime('%Y-%m-%d %H:%M:%S') rescue 'NULL')
           encounter.update(encounter_type_id: master_definition_encounter_id['master_definition_id'],
                             program_id: master_definition_prog_id['master_definition_id'],
                             person_id: rds_encounter['patient_id'], visit_date: rds_encounter['encounter_datetime'],
                             voided: rds_encounter['voided'], voided_by: rds_encounter['voided_by'],
                             voided_date: rds_encounter['date_voided'], void_reason: rds_encounter['void_reason'],
                             app_date_updated: rds_encounter['date_changed'],
-                            created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'), updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S')) if rds_encounter['date_updated'].strftime('%Y-%m-%d %H:%M:%S') > (encounter.app_date_updated.strftime('%Y-%m-%d %H:%M:%S') rescue 'NULL')
+                            created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'), updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S')) 
           puts "Successfully updated encounter details with record for person #{rds_encounter['patient_id']} encounter id " \
                "#{rds_encounter['encounter_id']} "
         end
@@ -492,13 +517,13 @@ end
 def populate_breastfeeding_status
   last_updated = get_last_updated('BreastfeedingStatus')
 
-  breastfeeding_statuses = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.obs WHERE updated_at >= '#{last_updated}'
-  AND concept_id IN (SELECT concept_id FROM #{@rds_db}.concept_name WHERE name LIKE '%breastfeeding%')
-  ORDER BY updated_at;
-SQL
+  query = "SELECT * FROM #{@rds_db}.obs WHERE concept_id IN
+           (SELECT concept_id FROM #{@rds_db}.concept_name
+           WHERE name LIKE '%breastfeeding%') AND "
 
-  (breastfeeding_statuses || []).each(&method(:ids_breastfeeding_status))
+  fetch_data(query, last_updated) do |status|
+    ids_breastfeeding_status(status)
+  end
 end
 
 def populate_person_address
