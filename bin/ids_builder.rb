@@ -22,12 +22,13 @@ require_relative 'ids_people'
 require_relative 'ids_lab_test_results'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
+File.open("#{Rails.root}/log/failed_records_log.yml", 'w') unless File.exist?("#{Rails.root}/log/failed_records_log.yml")
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
 @last_updated = YAML.load_file("#{Rails.root}/log/last_update.yml")
 @batch_size = 10_000
 @threshold = 85
 
-def get_all_rds_people
+def get_all_rds_peoples
   last_updated = get_last_updated('Person')
 
   rds_people = ActiveRecord::Base.connection.select_all <<QUERY
@@ -175,20 +176,25 @@ def populate_person_names
     )
   
     if person_name_exist.blank?
-      PersonName.create(
-        person_name_id: person_name['person_name_id'],
-        person_id: person_name['person_id'],
-        given_name: person_name['given_name'],
-        family_name: person_name['family_name'],
-        middle_name: person_name['middle_name'],
-        maiden_name: person_name['maiden_name'],
-        creator: person_name['creator'],
-        voided: person_name['voided'],
-        voided_by: person_name['voided_by'],
-        void_reason: person_name['void_reason'],
-        app_date_created: person_name['date_created'],
-        app_date_updated: person_name['date_updated']
-      )
+      begin
+        PersonName.create(
+          person_name_id: person_name['person_name_id'],
+          person_id: person_name['person_id'],
+          given_name: person_name['given_name'],
+          family_name: person_name['family_name'],
+          middle_name: person_name['middle_name'],
+          maiden_name: person_name['maiden_name'],
+          creator: person_name['creator'],
+          voided: person_name['voided'],
+          voided_by: person_name['voided_by'],
+          void_reason: person_name['void_reason'],
+          app_date_created: person_name['date_created'],
+          app_date_updated: person_name['date_updated']
+        )
+      rescue Exception => e
+        File.write('log/app_errors.log', e.message, mode: 'a')
+        log_error_records('PersonName', person_name['person_name_id'].to_i)
+      end
     elsif ((person_name['date_changed'].strftime('%Y-%m-%d %H:%M:%S') rescue nil) ||
         person_name['date_created'].strftime('%Y-%m-%d %H:%M:%S')) >
       (person_name_exist.app_date_updated.strftime('%Y-%m-%d %H:%M:%S') rescue 'NULL')
@@ -923,34 +929,34 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  populate_people
+  # populate_people
   populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_breastfeeding_status
-  populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
-  populate_tb_statuses
-  populate_outcomes
-  populate_family_planning
-  populate_appointment
-  populate_prescription
-  populate_lab_orders
-  populate_occupation
-  populate_dispensation
-  populate_relationships
-  populate_hiv_staging_info
-  populate_precription_has_regimen
-  populate_lab_test_results
-  initiate_de_duplication
-  get_people
+  # populate_contact_details
+  # populate_person_address
+  # update_person_type
+  # populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_breastfeeding_status
+  # populate_vitals
+  # populate_patient_history
+  # populate_symptoms
+  # populate_side_effects
+  # populate_presenting_complaints
+  # populate_tb_statuses
+  # populate_outcomes
+  # populate_family_planning
+  # populate_appointment
+  # populate_prescription
+  # populate_lab_orders
+  # populate_occupation
+  # populate_dispensation
+  # populate_relationships
+  # populate_hiv_staging_info
+  # populate_precription_has_regimen
+  # populate_lab_test_results
+  # initiate_de_duplication
+  # get_people
 
    FileUtils.rm '/tmp/ids_builder.lock' if File.file?('/tmp/ids_builder.lock')
 
