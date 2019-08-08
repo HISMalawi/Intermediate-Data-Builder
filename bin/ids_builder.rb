@@ -166,8 +166,10 @@ end
 
 def populate_person_names
   last_updated = get_last_updated('PersonNames')
+  failed_records = load_error_records('PersonName')
 
-  query = "SELECT * FROM #{@rds_db}.person_name WHERE"
+  query = "SELECT * FROM #{@rds_db}.person_name WHERE person_name_id 
+           IN #{failed_records} OR"
 
   fetch_data(query, last_updated) do |person_name|
     puts "Updating Person Name for person_id: #{person_name['person_id']}"
@@ -191,6 +193,10 @@ def populate_person_names
           app_date_created: person_name['date_created'],
           app_date_updated: person_name['date_updated']
         )
+        if failed_records.include?(person_name['person_name_id'].to_s)
+          remove_failed_record('PersonName', person_name['person_name_id']) 
+        end
+
       rescue Exception => e
         File.write('log/app_errors.log', e.message, mode: 'a')
         log_error_records('PersonName', person_name['person_name_id'].to_i)
@@ -534,11 +540,13 @@ end
 
 def populate_person_address
   last_updated = get_last_updated('PersonAddress')
+  failed_records = load_error_records('PersonAddress')
 
-  query = "SELECT * FROM #{@rds_db}.person_address WHERE "
+  query = "SELECT * FROM #{@rds_db}.person_address WHERE
+           person_address_id IN #{failed_records} OR "
 
   fetch_data(query, last_updated) do |person_address|
-    grouped_address(person_address)
+    grouped_address(person_address, failed_records)
   end
 end
 
@@ -929,9 +937,9 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  populate_people
-  populate_person_names
-  populate_contact_details
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
   populate_person_address
   update_person_type
   populate_encounters

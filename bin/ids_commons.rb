@@ -40,7 +40,7 @@ end
 def log_error_records(model, record_id)
   current_status = YAML.load_file("#{Rails.root}/log/failed_records_log.yml") || {}
   if current_status.include?(model)
-    current_status[model] << record_id
+    current_status[model] << record_id unless current_status[model].include?(record_id)
   else
     current_status[model] = []
     current_status[model] << record_id unless current_status[model].include?(record_id)
@@ -48,4 +48,25 @@ def log_error_records(model, record_id)
   File.open('log/failed_records_log.yml', 'w') do |file|
     file.write current_status.to_yaml
   end
+end
+
+def load_error_records(model)
+  errored_records = YAML.load_file("#{Rails.root}/log/failed_records_log.yml") || {}
+
+  begin
+    return "(#{errored_records[model].join(',')})"
+  rescue
+    return "(0)"
+  end
+end
+
+def remove_failed_record(model, record_id)
+  err_record = YAML.load_file("#{Rails.root}/log/failed_records_log.yml")
+
+  err_record[model].delete_at(err_record[model].index(record_id.to_i))
+
+  File.open('log/failed_records_log.yml', 'w') do |file|
+    file.write err_record.to_yaml
+  end
+
 end
