@@ -133,7 +133,7 @@ end
 
 def populate_people
   last_updated = get_last_updated('People')
-  query = "SELECT * FROM #{@rds_db}.person WHERE"
+  query = "SELECT * FROM #{@rds_db}.person WHERE updated_at "
 
   fetch_data(query, last_updated) do |person|
    ids_people(person)
@@ -169,7 +169,7 @@ def populate_person_names
   failed_records = load_error_records('PersonName')
 
   query = "SELECT * FROM #{@rds_db}.person_name WHERE person_name_id 
-           IN #{failed_records} OR"
+           IN #{failed_records} OR updated_at "
 
   fetch_data(query, last_updated) do |person_name|
     puts "Updating Person Name for person_id: #{person_name['person_id']}"
@@ -303,7 +303,7 @@ end
 def populate_encounters
   last_updated = get_last_updated('Encounter')
 
-  query = "SELECT * FROM #{@rds_db}.encounter WHERE "
+  query = "SELECT * FROM #{@rds_db}.encounter WHERE updated_at "
 
     fetch_data(query, last_updated) do |rds_encounter|
       puts "processing person_id #{rds_encounter['patient_id']}"
@@ -343,8 +343,9 @@ SQL
         encounter = Encounter.find_by(
           encounter_id: rds_encounter['encounter_id']
         )
-        date_updated = rds_encounter['date_changed'].strftime('%Y-%m-%d %H:%M:%S') ||
-                       rds_encounter['date_created'].strftime('%Y-%m-%d %H:%M:%S')
+        date_updated = rds_encounter['date_changed'] || rds_encounter['date_created']
+
+        date_updated = date_updated.strftime('%Y-%m-%d %H:%M:%S')
 
         if encounter && date_updated  > (encounter.app_date_updated.strftime('%Y-%m-%d %H:%M:%S') rescue 'NULL')
           encounter.update(encounter_type_id: master_definition_encounter_id['master_definition_id'],
@@ -406,7 +407,7 @@ def update_person_type
   # Updating users type in person_type table
   last_updated = get_last_updated('User')
 
-query = "SELECT * FROM #{@rds_db}.users WHERE "
+query = "SELECT * FROM #{@rds_db}.users WHERE updated_at "
 
   person_type_id = 4 # person type id for user
   fetch_data(query, last_updated) do |user|
@@ -419,7 +420,8 @@ query = "SELECT * FROM #{@rds_db}.users WHERE "
   # Updating Guardians in person type table
   last_updated = get_last_updated('Relationship')
 
-  query = "SELECT * FROM #{@rds_db}.relationship WHERE relationship = 6 AND "
+  query = "SELECT * FROM #{@rds_db}.relationship WHERE relationship = 6 AND
+           updated_at "
 
   person_type_id = 5 # person type id for guardian
   fetch_data(query, last_updated) do |guardian|
@@ -443,7 +445,7 @@ query = "SELECT * FROM #{@rds_db}.users WHERE "
   # Updating Provider in person type table
   last_updated = get_last_updated('Patient')
 
-  query = "SELECT * FROM #{@rds_db}.users WHERE "
+  query = "SELECT * FROM #{@rds_db}.users WHERE updated_at "
 
   person_type_id = 2 # person type id for provider
   fetch_data(query, last_updated) do |provider|
@@ -463,7 +465,7 @@ query = "SELECT * FROM #{@rds_db}.obs ob
   INNER JOIN #{@rds_db}.encounter en
   ON ob.encounter_id = en.encounter_id
   WHERE ob.concept_id IN (6542,6543)
-  AND"
+  AND updated_at "
 
   fetch_data(query, last_updated) do |diag|
     ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
@@ -519,7 +521,7 @@ end
 def populate_pregnant_status
   last_updated = get_last_updated('PregnantStatus')
 
-  query = "SELECT * FROM #{@rds_db}.obs WHERE concept_id in (1755,6131) AND"
+  query = "SELECT * FROM #{@rds_db}.obs WHERE concept_id in (1755,6131) AND updated_at "
 
   fetch_data(query, last_updated) do |pregnant_status|
     ids_pregnant_status(pregnant_status)
@@ -531,7 +533,7 @@ def populate_breastfeeding_status
 
   query = "SELECT * FROM #{@rds_db}.obs WHERE concept_id IN
            (SELECT concept_id FROM #{@rds_db}.concept_name
-           WHERE name LIKE '%breastfeeding%') AND "
+           WHERE name LIKE '%breastfeeding%') AND updated_at "
 
   fetch_data(query, last_updated) do |status|
     ids_breastfeeding_status(status)
@@ -552,66 +554,77 @@ end
 
 def populate_patient_history
   last_updated = get_last_updated('PatientHistory')
+  failed_records = load_error_records('PatientHistory')
 
-  patient_histories = ActiveRecord::Base.connection.select_all <<~SQL
-    SELECT * FROM #{@rds_db}.obs ob
-                      INNER JOIN #{@rds_db}.encounter en
-                                 ON ob.encounter_id = en.encounter_id
-                      INNER JOIN #{@rds_db}.encounter_type et
-                                 ON en.encounter_type = et.encounter_type_id
-    WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%history%')
-    AND ob.updated_at >= '#{last_updated}';
-  SQL
+  query = "SELECT * FROM #{@rds_db}.obs ob
+           INNER JOIN #{@rds_db}.encounter en
+           ON ob.encounter_id = en.encounter_id 
+           INNER JOIN #{@rds_db}.encounter_type et
+           ON en.encounter_type = et.encounter_type_id
+           WHERE et.encounter_type_id 
+           IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%history%')
+           OR obs_id IN #{failed_records} OR
+           ob.updated_at "
 
-  (patient_histories || []).each(&method(:ids_patient_history))
+   fetch_data(query, last_updated) do |patient_history|
+     ids_patient_history(patient_history, failed_records)
+   end
 end
 
 def populate_symptoms
   last_updated = get_last_updated('Symptom')
+  failed_records = load_error_records('Symptom')
 
-  patient_symptoms = ActiveRecord::Base.connection.select_all <<~SQL
-    SELECT * FROM #{@rds_db}.obs ob
-                      INNER JOIN #{@rds_db}.encounter en
-                                 ON ob.encounter_id = en.encounter_id
-                      INNER JOIN #{@rds_db}.encounter_type et
-                                 ON en.encounter_type = et.encounter_type_id
-    WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%symptoms')
-    AND ob.updated_at >= '#{last_updated}';
-  SQL
+  query = "SELECT * FROM #{@rds_db}.obs ob
+           INNER JOIN #{@rds_db}.encounter en
+           ON ob.encounter_id = en.encounter_id 
+           INNER JOIN #{@rds_db}.encounter_type et
+           ON en.encounter_type = et.encounter_type_id
+           WHERE et.encounter_type_id 
+           IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%symptoms')
+           OR obs_id IN #{failed_records} OR
+           ob.updated_at "
 
-  (patient_symptoms || []).each(&method(:ids_patient_symptoms))
+  fetch_data(query, last_updated) do |patient_symptoms|
+    ids_patient_symptoms(patient_symptoms, failed_records)
+  end        
 end
 
 def populate_side_effects
   last_updated = get_last_updated('SideEffects')
+  failed_records = load_error_records('SideEffects')
 
-  patient_side_effects = ActiveRecord::Base.connection.select_all <<~SQL
-    SELECT * FROM #{@rds_db}.obs ob
-                      INNER JOIN #{@rds_db}.encounter en
-                                 ON ob.encounter_id = en.encounter_id
-                      INNER JOIN #{@rds_db}.encounter_type et
-                                 ON en.encounter_type = et.encounter_type_id
-    WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type where name like '%hiv clinic consultation%')
-    AND ob.updated_at >= '#{last_updated}';
-  SQL
+   query = "SELECT * FROM #{@rds_db}.obs ob
+           INNER JOIN #{@rds_db}.encounter en
+           ON ob.encounter_id = en.encounter_id 
+           INNER JOIN #{@rds_db}.encounter_type et
+           ON en.encounter_type = et.encounter_type_id
+           WHERE et.encounter_type_id 
+           IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%hiv clinic consultation%')
+           OR obs_id IN #{failed_records} OR
+           ob.updated_at "
 
-  (patient_side_effects || []).each(&method(:ids_side_effects))
+  fetch_data(query, last_updated) do |patient_side_effect|
+    ids_side_effects(patient_side_effect, failed_records)
+  end
 end
 
 def populate_presenting_complaints
   last_updated = get_last_updated('PresentingComplaints')
+  failed_records = load_error_records('PresentingComplaints')
 
-  presenting_complaints = ActiveRecord::Base.connection.select_all <<~SQL
-    SELECT * FROM #{@rds_db}.obs ob
-                      INNER JOIN #{@rds_db}.encounter en
-                                 ON ob.encounter_id = en.encounter_id
-                      INNER JOIN #{@rds_db}.encounter_type et
-                                 ON en.encounter_type = et.encounter_type_id
-    WHERE et.encounter_type_id = 122
-    AND ob.updated_at >= '#{last_updated}';
-  SQL
-
-  (presenting_complaints || []).each(&method(:ids_presenting_complaints))
+   query = "SELECT * FROM #{@rds_db}.obs ob
+           INNER JOIN #{@rds_db}.encounter en
+           ON ob.encounter_id = en.encounter_id
+           INNER JOIN #{@rds_db}.encounter_type et
+           ON en.encounter_type = et.encounter_type_id
+           WHERE et.encounter_type_id = 122
+           OR obs_id IN #{failed_records} 
+           OR ob.updated_at "
+    
+    fetch_data(query, last_updated) do |record|
+    ids_presenting_complaints(record, failed_records)
+  end
 end
 
 def populate_tb_statuses
@@ -937,9 +950,9 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  # populate_people
-  # populate_person_names
-  # populate_contact_details
+  populate_people
+  populate_person_names
+  populate_contact_details
   populate_person_address
   update_person_type
   populate_encounters
