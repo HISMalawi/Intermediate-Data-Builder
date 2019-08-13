@@ -37,6 +37,6 @@ def ids_side_effects(patient_side_effect,failed_records)
     end
   end
 
-  update_last_update('SideEffect', patient_side_effect['updated_at'])
+  update_last_update('SideEffects', patient_side_effect['updated_at'])
 end
 

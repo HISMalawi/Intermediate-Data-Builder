@@ -20,6 +20,9 @@ require_relative 'ids_pregnant_status'
 require_relative 'ids_breastfeeding_status'
 require_relative 'ids_people'
 require_relative 'ids_lab_test_results'
+require_relative 'ids_appointment'
+require_relative 'ids_tb_statuses'
+require_relative 'ids_prescription'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/failed_records_log.yml", 'w') unless File.exist?("#{Rails.root}/log/failed_records_log.yml")
@@ -224,6 +227,8 @@ def populate_person_names
 end
 
 def populate_contact_details
+  last_updated = get_last_updated('PersonAttribute')
+
   (get_rds_person_attributes || []).each do |person_attribute|
     attribute_value = person_attribute['value']
 
@@ -291,12 +296,8 @@ def populate_contact_details
       puts 'Ending script'
       break
     end
-    current_update_date = {}
-    current_update_date['PersonAttribute'] = person_attribute['updated_at'].strftime('%Y-%m-%d %H:%M:%S')
-
-    File.open('log/last_update.yml', 'w') do |file|
-      file.write current_update_date.to_yaml
-    end
+    # Updating last record processed
+      update_last_update('PersonAttribute', person_attribute['updated_at'])
   end
 end
 
@@ -433,7 +434,7 @@ query = "SELECT * FROM #{@rds_db}.users WHERE updated_at "
   # Updating Patients in person type table
   last_updated = get_last_updated('Patient')
 
-  query = "SELECT * FROM #{@rds_db}.patient WHERE "
+  query = "SELECT * FROM #{@rds_db}.patient WHERE updated_at"
 
   person_type_id = 1 # person type id for patient
   fetch_data(query, last_updated) do |patient|
@@ -545,7 +546,8 @@ def populate_person_address
   failed_records = load_error_records('PersonAddress')
 
   query = "SELECT * FROM #{@rds_db}.person_address WHERE
-           person_address_id IN #{failed_records} OR "
+           person_address_id IN #{failed_records} OR
+           updated_at "
 
   fetch_data(query, last_updated) do |person_address|
     grouped_address(person_address, failed_records)
@@ -587,7 +589,7 @@ def populate_symptoms
 
   fetch_data(query, last_updated) do |patient_symptoms|
     ids_patient_symptoms(patient_symptoms, failed_records)
-  end        
+  end       
 end
 
 def populate_side_effects
@@ -629,122 +631,95 @@ end
 
 def populate_tb_statuses
   last_updated = get_last_updated('TbStatus')
+  failed_records = load_error_records('TbStatus')
 
-  tb_statuses = ActiveRecord::Base.connection.select_all <<~SQL
-    SELECT * FROM #{@rds_db}.obs ob
-                      INNER JOIN #{@rds_db}.encounter en
-                                 ON ob.encounter_id = en.encounter_id
-                      INNER JOIN #{@rds_db}.encounter_type et
-                                 ON en.encounter_type = et.encounter_type_id
-    WHERE et.encounter_type_id = 7459
-    AND ob.updated_at >= '#{last_updated}';
-  SQL
-
-  (tb_statuses || []).each(&method(:ids_tb_statuses))
+   query = "SELECT * FROM #{@rds_db}.obs ob
+           INNER JOIN #{@rds_db}.encounter en
+           ON ob.encounter_id = en.encounter_id
+           INNER JOIN #{@rds_db}.encounter_type et
+           ON en.encounter_type = et.encounter_type_id
+           WHERE et.encounter_type_id = 7459
+           OR obs_id IN #{failed_records} 
+           OR ob.updated_at "
+    
+    fetch_data(query, last_updated) do |record|
+    ids_tb_statuses(record, failed_records)
+  end
 end
 
 def populate_family_planning
   last_updated = get_last_updated('FamilyPlanning')
+  failed_records = load_error_records('TbStatus')
 
-  family_planning_methods = ActiveRecord::Base.connection.select_all <<~SQL
-    SELECT * FROM #{@rds_db}.obs ob
-                      INNER JOIN #{@rds_db}.encounter en
-                                 ON ob.encounter_id = en.encounter_id
-                      INNER JOIN #{@rds_db}.encounter_type et
-                                 ON en.encounter_type = et.encounter_type_id
-    WHERE et.encounter_type_id = 7459
-    AND ob.updated_at >= '#{last_updated}';
-  SQL
-
-  (family_planning_methods || []).each(&method(:ids_family_planning))
+   query = "SELECT * FROM #{@rds_db}.obs ob
+           INNER JOIN #{@rds_db}.encounter en
+           ON ob.encounter_id = en.encounter_id
+           INNER JOIN #{@rds_db}.encounter_type et
+           ON en.encounter_type = et.encounter_type_id
+           WHERE et.encounter_type_id = 7459
+           OR obs_id IN #{failed_records} 
+           OR ob.updated_at "
+    
+    fetch_data(query, last_updated) do |record|
+    ids_family_planning(record, failed_records)
+  end
 end
 
 def populate_outcomes
   last_updated = get_last_updated('Outcome')
+  failed_records = load_error_records('Outcome')
 
-  outcomes = ActiveRecord::Base.connection.select_all <<SQL
-    SELECT * FROM #{@rds_db}.patient_program pp
-    INNER JOIN #{@rds_db}.patient_state ps ON  pp.patient_program_id = ps.patient_program_id
-    INNER JOIN  #{@rds_db}.program_workflow pw ON pp.program_id = pw.program_id
-   INNER JOIN #{@rds_db}.program_workflow_state pws ON pw.program_workflow_id = pws.program_workflow_id
-   WHERE  (pp.updated_at >= '#{last_updated}' );
-SQL
-
-  (outcomes || []).each do |rds_outcomes|
-    puts "processing person_id #{rds_outcomes['patient_id']}"
-
-    if Outcome.find_by(person_id: rds_outcomes['patient_id']).blank?
-      outcome = Outcome.new
-      outcome.person_id = rds_outcomes['patient_id']
-      outcome.concept_id = rds_outcomes['concept_id']
-      outcome.outcome_reason = begin
-        MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id']).master_definition_id
-                               rescue StandardError
-                                 nil
-      end
-      outcome.outcome_source = begin
-        MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id']).master_definition_id
-                               rescue StandardError
-                                 nil
-      end
-      outcome.voided = rds_outcomes['voided']
-      outcome.voided_by = rds_outcomes['voided_by']
-      outcome.voided_date = rds_outcomes['date_voided']
-      outcome.void_reason = rds_outcomes['void_reason']
-      outcome.app_date_created = rds_outcomes['date_created']
-      outcome.app_date_updated = rds_outcomes['date_changed']
-      outcome.save
-
-      puts "Successfully populated Outcome with record for person #{rds_outcomes['patient_id']}"
-    else
-      outcome = Outcome.where(person_id: rds_outcomes['patient_id'])
-      outcome.update(person_id: rds_outcomes['patient_id'])
-      outcome.update(concept_id: rds_outcomes['concept_id'])
-      begin
-        outcome.update(outcome_reason: MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id']).master_definition_id)
-      rescue StandardError
-        nil
-      end
-      begin
-        outcome.update(outcome_source: MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id']).master_definition_id)
-      rescue StandardError
-        nil
-      end
-      outcome.update(voided: rds_outcomes['voided'])
-      outcome.update(voided_by: rds_outcomes['voided_by'])
-      outcome.update(voided_date: rds_outcomes['date_voided'])
-      outcome.update(void_reason: rds_outcomes['void_reason'])
-      outcome.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
-      outcome.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
-
-      puts "Successfully updated outcome details with record for person #{rds_outcomes['patient_id']}"
+   query = "SELECT * FROM #{@rds_db}.patient_program pp
+           INNER JOIN #{@rds_db}.patient_state ps ON  pp.patient_program_id = ps.patient_program_id
+           INNER JOIN  #{@rds_db}.program_workflow pw ON pp.program_id = pw.program_id
+           INNER JOIN #{@rds_db}.program_workflow_state pws ON pw.program_workflow_id = pws.program_workflow_id
+           ON en.encounter_type = et.encounter_type_id
+           WHERE patient_program_id IN #{failed_records} 
+           OR ob.updated_at "
+    
+    fetch_data(query, last_updated) do |record|
+      ids_outcomes(record, failed_records)
     end
-  end
 end
 
 def populate_occupation
   last_updated = get_last_updated('Occupation')
-  occupations = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.person_attribute WHERE  person_attribute_type_id = 13
-  AND updated_at >= '#{last_updated}'
-SQL
-  (occupations || []).each do |rds_occupation|
+  failed_records = load_error_records('Outcome')
+
+   query = "SELECT * FROM #{@rds_db}.person_attribute 
+            WHERE person_attribute_type_id = 13
+            OR occupation_id IN #{failed_records} 
+            OR updated_at "
+    
+    fetch_data(query, last_updated) do |record|
+      ids_occupation(record, failed_records)
+    end
+end
+    
+  def ids_occupation(rds_occupation, failed_records)
     puts "processing person_id #{rds_occupation['person_id']}"
-
     if Occupation.find_by(person_id: rds_occupation['person_id']).blank?
-      person_occupation = Occupation.new
-      person_occupation.person_id = rds_occupation['person_id']
-      person_occupation.occupation = rds_occupation['value']
-      person_occupation.creator = rds_occupation['creator']
-      person_occupation.voided = rds_occupation['voided']
-      person_occupation.voided_by = rds_occupation['voided_by']
-      person_occupation.voided_date = rds_occupation['date_voided']
-      person_occupation.void_reason = rds_occupation['void_reason']
-      person_occupation.app_date_created = rds_occupation['date_created']
-      person_occupation.app_date_updated = rds_occupation['date_changed']
-      person_occupation.save
+      begin
+        person_occupation = Occupation.new
+        person_occupation.person_id = rds_occupation['person_id']
+        person_occupation.occupation = rds_occupation['value']
+        person_occupation.creator = rds_occupation['creator']
+        person_occupation.voided = rds_occupation['voided']
+        person_occupation.voided_by = rds_occupation['voided_by']
+        person_occupation.voided_date = rds_occupation['date_voided']
+        person_occupation.void_reason = rds_occupation['void_reason']
+        person_occupation.app_date_created = rds_occupation['date_created']
+        person_occupation.app_date_updated = rds_occupation['date_changed']
+        person_occupation.save
 
-      puts "Successfully populated occupation with record for person #{rds_occupation['person_id']}"
+        puts "Successfully populated occupation with record for person #{rds_occupation['person_id']}"
+        if failed_records.include?(lab_order['order_id'].to_s)
+          remove_failed_record('LabOrders', lab_order['order_id'])
+        end
+      rescue Exception => e
+        File.write('log/app_errors.log', e.message, mode: 'a')
+        log_error_records('LabOrders', lab_order['order_id'].to_i)
+      end
     else
       person_occupation = Occupation.where(person_id: rds_occupation['person_id'])
       person_occupation.update(occupation: rds_occupation['value'],
@@ -757,81 +732,37 @@ SQL
 
     end
   end
-end
 
 def populate_appointment
   last_updated = get_last_updated('Appointment')
+  failed_records = load_error_records('Appointment')
 
-  appointments = ActiveRecord::Base.connection.select_all <<SQL
-    SELECT ob.person_id,ob.encounter_id, value_datetime,ob.voided,ob.voided_by,ob.creator,ob.date_voided,ob.void_reason,en.date_created ,en.date_changed
-    FROM #{@rds_db}.encounter en
-    INNER JOIN #{@rds_db}.obs ob on en.encounter_id = ob.encounter_id
-    WHERE ob.concept_id = 5096
-    AND (en.updated_at >= '#{last_updated}' );
-SQL
-
-  appointments.each do |rds_appointment|
-    puts "processing person_id #{rds_appointment['person_id']}"
-
-    if Appointment.find_by(encounter_id: rds_appointment['encounter_id']).blank?
-      appointment = Appointment.new
-      appointment.encounter_id = rds_appointment['encounter_id']
-      appointment.appointment_date = rds_appointment['value_datetime']
-      appointment.voided = rds_appointment['voided']
-      appointment.voided_by = rds_appointment['voided_by']
-      appointment.creator = rds_appointment['creator']
-      appointment.voided_date = rds_appointment['date_voided']
-      appointment.void_reason = rds_appointment['void_reason']
-      appointment.app_date_created = rds_appointment['date_created']
-      appointment.app_date_updated = rds_appointment['date_changed']
-      appointment.save
-
-      puts "Successfully populated appointment with record for person #{rds_appointment['person_id']}"
-    else
-      appointment = Appointment.where(encounter_id: rds_appointment['encounter_id'])
-      appointment.update(encounter_id: rds_appointment['encounter_id'], appointment_date: rds_appointment['value_datetime'],
-                         voided: rds_appointment['voided'], voided_by: rds_appointment['voided_by'],
-                         creator: rds_appointment['creator'], voided_date: rds_appointment['date_voided'],
-                         void_reason: rds_appointment['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
-                         updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
-
-      puts "Successfully updated appointment details with record for person #{rds_appointment['person_id']}"
+   query = "SELECT ob.person_id,ob.encounter_id,
+            value_datetime,ob.voided,ob.voided_by,ob.creator,
+            ob.date_voided,ob.void_reason,en.date_created ,
+            en.date_changed
+            FROM #{@rds_db}.encounter en
+            INNER JOIN #{@rds_db}.obs ob on en.encounter_id = ob.encounter_id
+            WHERE ob.concept_id = 5096         
+            AND ob.updated_at "
+    
+    fetch_data(query, last_updated) do |record|
+      ids_appointment(record, failed_records)
     end
-  end
 end
 
 def populate_prescription
   last_updated = get_last_updated('MedicationPrescription')
-  prescription = ActiveRecord::Base.connection.select_all <<~SQL
-      SELECT * FROM #{@rds_db}.orders o
-    JOIN #{@rds_db}.drug_order d on o.order_id = d.order_id where o.updated_at >= '#{last_updated}'
-    AND o.order_type_id = 1;
-  SQL
+  failed_records = load_error_records('MedicationPrescription')
 
-  (prescription || []).each do |rds_prescription|
-    puts "processing person_id #{rds_prescription['patient_id']}"
-    if MedicationPrescription.find_by(medication_prescription_id: rds_prescription['order_id']).blank?
-      MedicationPrescription.create(medication_prescription_id: rds_prescription['order_id'], drug_id: rds_prescription['drug_inventory_id'],
-                                    encounter_id: rds_prescription['encounter_id'],
-                                    start_date: rds_prescription['start_date'], end_date: rds_prescription['auto_expire_date'],
-                                    instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
-                                    voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
-                                    void_reason: rds_prescription['void_reason'], app_date_created: rds_prescription['date_created'],
-                                    app_date_updated: rds_prescription['date_changed'])
-
-      puts "Successfully populated medication prescription details with record for person #{rds_prescription['patient_id']}"
-    else
-      medication_prescription = MedicationPrescription.find_by(medication_prescription_id: rds_prescription['order_id'])
-      medication_prescription.update(drug_id: rds_prescription['drug_inventory_id'], encounter_id: rds_prescription['encounter_id'],
-                                     start_date: rds_prescription['start_date'], end_date: rds_prescription['auto_expire_date'],
-                                     instructions: rds_prescription['instructions'], voided: rds_prescription['voided'],
-                                     voided_by: rds_prescription['voided_by'], voided_date: rds_prescription['date_voided'],
-                                     void_reason: rds_prescription['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
-                                     updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
-
-      puts "Successfully updated medication prescription details with record for person #{rds_prescription['patient_id']}"
+   query = "SELECT * FROM #{@rds_db}.orders o
+            JOIN #{@rds_db}.drug_order d on o.order_id = d.order_id
+            WHERE o.order_type_id = 1       
+            AND ob.updated_at "
+    
+    fetch_data(query, last_updated) do |record|
+      ids_prescription(record, failed_records)
     end
-  end
 end
 
 def populate_dispensation

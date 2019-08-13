@@ -33,5 +33,5 @@ def ids_presenting_complaints(presenting_complaint, failed_records)
     end
   end
 
-  update_last_update('PresentingComplaint', presenting_complaint['updated_at'])
+  update_last_update('PresentingComplaints', presenting_complaint['updated_at'])
 end
