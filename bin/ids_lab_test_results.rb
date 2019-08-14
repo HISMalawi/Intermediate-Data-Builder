@@ -12,10 +12,8 @@ def populate_lab_test_results
     token_key = authenticate
     puts "processing #{lab_order['tracking_number']}"
 
-    get_lab_order_details = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_order_by_tracking_number/#{lab_order['tracking_number']}/#{token_key}",
-                                           header))
-    get_lab_order_results = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_results_by_tracking_number/#{lab_order['tracking_number']}/#{token_key}",
-                                                      header))
+    get_lab_order_details = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_order_by_tracking_number/#{lab_order['tracking_number']}/#{token_key}"))
+    get_lab_order_results = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_results_by_tracking_number/#{lab_order['tracking_number']}/#{token_key}"))
     if get_lab_order_results['status'] == 200
        get_lab_order_results['data']['results'].each do |measure, value|
             value.each do  | test, v|
