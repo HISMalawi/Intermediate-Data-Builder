@@ -14,8 +14,8 @@ def fetch_data(query, last_updated)
   begin
     batch = ActiveRecord::Base.connection.select_all <<-SQL
       #{query}
-      updated_at >= '#{last_updated}'
-      ORDER BY updated_at  
+      #{query.split.last} >= '#{last_updated}'
+      ORDER BY updated_at 
       LIMIT #{@batch_size}
       OFFSET #{offset}
     SQL

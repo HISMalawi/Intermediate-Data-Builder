@@ -165,13 +165,15 @@ end
 def populate_person_names
   query = "SELECT * FROM #{@rds_db}.person_name WHERE"
 
-  populate_data(query, 'ids_person_name', 'person_name','PersonName', 
+  populate_data(query, 'ids_person_name', 'person_names','PersonName', 
     PersonName.column_names[0..-3].join(','))
 end
 
 def populate_contact_details
+  last_updated = get_last_updated('PersonAttribute')
+
   fetch_data("SELECT * FROM #{@rds_db}.person_attribute WHERE person_attribute_type_id IN (12,14,15)
-  AND updated_at >= '#{last_updated}'", last_updated) do |person_attribute|
+  AND ", last_updated) do |person_attribute|
     attribute_value = person_attribute['value']
 
     cell_phone_number = ''
@@ -802,13 +804,12 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  #populate_people
-  #populate_person_names
-  #populate_contact_details
-  #populate_person_address
-  #update_person_type
+  populate_people
+  populate_person_names
+  populate_contact_details
+  populate_person_address
+  update_person_type
   populate_encounters
-  exit
   populate_diagnosis
   populate_pregnant_status
   populate_breastfeeding_status
