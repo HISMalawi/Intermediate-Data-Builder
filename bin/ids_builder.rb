@@ -466,7 +466,7 @@ query = "SELECT * FROM #{@rds_db}.obs ob
   INNER JOIN #{@rds_db}.encounter en
   ON ob.encounter_id = en.encounter_id
   WHERE ob.concept_id IN (6542,6543)
-  AND updated_at "
+  AND ob.updated_at "
 
   fetch_data(query, last_updated) do |diag|
     ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
