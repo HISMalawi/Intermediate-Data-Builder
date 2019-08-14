@@ -6,14 +6,17 @@ require 'json'
 def populate_lab_test_results
   LabOrder.find_each do |lab_order|
     next if lab_order['tracking_number'].blank?
-
+    
     last_updated = get_last_updated('LabTestResults')
 
     token_key = authenticate
+    header = {token: token_key}
     puts "processing #{lab_order['tracking_number']}"
 
-    get_lab_order_details = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_order_by_tracking_number/#{lab_order['tracking_number']}/#{token_key}"))
-    get_lab_order_results = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_results_by_tracking_number/#{lab_order['tracking_number']}/#{token_key}"))
+    get_lab_order_details = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_order_by_tracking_number/#{lab_order['tracking_number']}",
+                                           header))
+    get_lab_order_results = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_results_by_tracking_number/#{lab_order['tracking_number']}",
+                                                      header))
     if get_lab_order_results['status'] == 200
        get_lab_order_results['data']['results'].each do |measure, value|
             value.each do  | test, v|
