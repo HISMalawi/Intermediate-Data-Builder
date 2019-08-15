@@ -177,6 +177,8 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.bigint "person_id", null: false
     t.date "start_date"
     t.date "date_enrolled"
+    t.date "hiv_test_date"
+    t.string "hiv_test_facility"
     t.integer "transfer_in"
     t.integer "re_initiated"
     t.integer "age_at_initiation"

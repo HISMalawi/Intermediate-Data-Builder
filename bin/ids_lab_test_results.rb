@@ -5,6 +5,8 @@ require 'json'
 
 def populate_lab_test_results
   LabOrder.find_each do |lab_order|
+    next if lab_order['tracking_number'].blank?
+    
     last_updated = get_last_updated('LabTestResults')
 
     token_key = authenticate
