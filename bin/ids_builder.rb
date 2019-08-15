@@ -831,7 +831,7 @@ SQL
   end
 end
 
-def get_people
+def populate_de_identifier
   last_updated = get_last_updated('PersonNames')
   all_people = ActiveRecord::Base.connection.select_all <<SQL
   SELECT * FROM people
@@ -839,7 +839,13 @@ def get_people
 SQL
   all_people.each do |person_details|
     person_id_exist = DeIdentifiedIdentifier.find_by(person_id: person_details['person_id'])
-
+    if person_id_exist
+      puts '==================================================================='
+      puts "Skipped assigning SID for person  with ID #{person_details['person_id']}"
+      puts 'Reason: Person id already exist  for the above ID  in de_identifier'
+      puts '==================================================================='
+      puts ''
+    else
     ## TODO: Write code to handle existing person_id
     npid = person_details['person_id']
     sid = create_sid
@@ -849,6 +855,7 @@ SQL
                                   app_date_created: person_details['app_date_created'], app_date_updated: person_details['app_date_updated'])
 
     puts "Successfully populated De_Identified identifier details with record for person #{person_details['person_id']}"
+    end
   end
 end
 
@@ -908,10 +915,9 @@ def methods_init
   populate_precription_has_regimen
   populate_lab_test_results
   initiate_de_duplication
-  get_people
+  populate_de_identifier
 
    FileUtils.rm '/tmp/ids_builder.lock' if File.file?('/tmp/ids_builder.lock')
-
 end
 
 methods_init
