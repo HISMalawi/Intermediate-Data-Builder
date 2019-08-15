@@ -14,8 +14,8 @@ SQL
     puts "processing HIV info for person_id #{patient['patient_id']}"
 
     staging_exist = HivStagingInfo.find_by(person_id: patient['patient_id'])
-    age_at_initiation = patient_age_at_initiation(patient['patient_id'])['age_at_initiation']
-    age_in_days = patient_age_at_initiation(patient['patient_id'])['age_in_days']
+    age_at_initiation = patient_age_at_initiation(patient['patient_id'])['age_at_initiation'] rescue nil
+    age_in_days = patient_age_at_initiation(patient['patient_id'])['age_in_days'] rescue nil
     if staging_exist
       #Update Staging Record
       staging_exist.update(start_date: get_start_date(patient['patient_id']),
@@ -25,7 +25,9 @@ SQL
                            age_at_initiation: age_at_initiation,
                            age_in_days_at_initiation: age_in_days,
                            who_stage: get_who_stage(patient['patient_id']),
-                           reason_for_starting: get_reason_for_starting(patient['patient_id']))
+                           reason_for_starting: get_reason_for_starting(patient['patient_id']),
+                           hiv_test_date: (get_hiv_test_date(patient['patient_id']))['value_datetime'],
+                           hiv_test_facility: (get_hiv_test_facility(patient['patient_id']))['value_text']) 
     else
       staging_info = HivStagingInfo.new
       staging_info.person_id = patient['patient_id']
@@ -37,6 +39,8 @@ SQL
       staging_info.age_in_days_at_initiation = age_in_days
       staging_info.who_stage = get_who_stage(patient['patient_id'])
       staging_info.reason_for_starting = get_reason_for_starting(patient['patient_id'])
+      staging_info.hiv_test_date = (get_hiv_test_date(patient['patient_id']))['value_datetime'] rescue nil
+      staging_info.hiv_test_facility = (get_hiv_test_facility(patient['patient_id']))['value_text'] rescue nil
 
       staging_info.save
     end
@@ -141,6 +145,7 @@ def get_who_stage(patient_id)
   concept_answer_id = ActiveRecord::Base.connection.select_one <<SQL
   SELECT value_coded, value_coded_name_id, value_text FROM #{@rds_db}.obs WHERE concept_id = 7562 AND person_id = #{patient_id};
 SQL
+begin
   if concept_answer_id['value_coded'] && concept_answer_id['value_coded_name_id']
     who_stage = ActiveRecord::Base.connection.select_one <<SQL
   SELECT concept_id FROM #{@rds_db}.concept_name WHERE concept_id = #{concept_answer_id['value_coded']} 
@@ -151,6 +156,9 @@ SQL
   SELECT concept_id FROM #{@rds_db}.concept_name WHERE name = '#{concept_answer_id['value_text']}';
 SQL
   end
+rescue Exception => e
+  File.write(Rails.root + '/log', e.message, mode: 'a')
+end
 
   return get_master_def_id(who_stage['concept_id'], 'concept_name')
 
@@ -180,5 +188,23 @@ SQL
   end
 
   return get_master_def_id(reason_for_art_eligibility['concept_id'], 'concept_name')
+
+end
+
+def get_hiv_test_date(patient_id)
+  ActiveRecord::Base.connection.select_one <<~SQL
+  SELECT value_datetime FROM #{@rds_db}.obs WHERE concept_id = 7882 
+  AND obs_datetime = (SELECT max(obs_datetime) from #{@rds_db}.obs WHERE concept_id = 7882 AND person_id = #{patient_id})
+  AND person_id = #{patient_id};
+SQL
+
+end
+
+def get_hiv_test_facility(patient_id)
+  ActiveRecord::Base.connection.select_one <<~SQL
+  SELECT value_text FROM #{@rds_db}.obs WHERE concept_id = 7881 
+  AND obs_datetime = (SELECT max(obs_datetime) from #{@rds_db}.obs WHERE concept_id = 7881 AND person_id = #{patient_id})
+  AND person_id = #{patient_id};
+SQL
 
 end
