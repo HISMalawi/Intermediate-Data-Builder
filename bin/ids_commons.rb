@@ -6,13 +6,11 @@ def person_has_type(type_id, person)
   end
 end
 
-def fetch_data(query, last_updated)
+def fetch_data(query)
   offset = 0
   begin
     batch = ActiveRecord::Base.connection.select_all <<-SQL
       #{query}
-      >= '#{last_updated}'
-      ORDER BY #{query.split.last}
       LIMIT #{@batch_size}
       OFFSET #{offset}
     SQL
