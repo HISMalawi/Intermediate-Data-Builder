@@ -5,9 +5,9 @@ def populate_lab_orders
   query = "SELECT * FROM #{@rds_db}.orders 
            WHERE ORDER_TYPE_ID = 4
            OR order_id IN #{failed_records}
-           OR updated_at "
+           OR updated_at >= #{last_updated} "
 
-  fetch_data(query, last_updated) do |lab_order|
+  fetch_data(query) do |lab_order|
     ids_lab_orders(lab_order, failed_records)
   end
 end

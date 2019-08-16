@@ -49,7 +49,7 @@ def vital_value_coded(vital)
     end
     vitals.app_date_created = vital['obs_datetime']
     vitals.save!
-    puts 'Loading vitals...'
+    puts "Loading vitals...for person ID #{vital['person_id']}"
   else
     puts "No person record with person id #{vital['person_id']}"
   end

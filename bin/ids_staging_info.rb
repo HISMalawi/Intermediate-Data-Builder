@@ -2,15 +2,14 @@
 
 def populate_hiv_staging_info
   last_updated = get_last_updated('StagingInfo')
+  failed_records = load_error_records('Relationship')
 
-  patients = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT distinct p.patient_id, p.updated_at FROM #{@rds_db}.patient p join #{@rds_db}.patient_program pp on p.patient_id = pp.patient_id
+  query = "SELECT distinct p.patient_id, p.updated_at FROM #{@rds_db}.patient p join #{@rds_db}.patient_program pp on p.patient_id = pp.patient_id
   JOIN #{@rds_db}.patient_state ps ON pp.patient_program_id = ps.patient_program_id 
-WHERE p.updated_at >= '#{last_updated}' AND pp.program_id = 1 AND p.voided = 0 AND pp.voided = 0  
-AND ps.state = 7 AND ps.voided = 0 order by p.updated_at;
-SQL
+WHERE pp.program_id = 1 AND p.voided = 0 AND pp.voided = 0  
+AND ps.state = 7 AND ps.voided = 0 AND p.updated_at >= #{last_updated} "
 
-  patients.each do |patient|
+fetch_data(query) do |patient|
     puts "processing HIV info for person_id #{patient['patient_id']}"
 
     staging_exist = HivStagingInfo.find_by(person_id: patient['patient_id'])
