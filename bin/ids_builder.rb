@@ -557,14 +557,13 @@ end
 
 def populate_person_address
   last_updated = get_last_updated('PersonAddress')
-  failed_records = load_error_records('PersonAddress')
-
+  
   query = "SELECT * FROM #{@rds_db}.person_address WHERE
-           person_address_id IN #{failed_records} OR
+           person_address_id IN #{load_error_records('person_address')} OR
            updated_at >= '#{last_updated}' "
 
   fetch_data(query) do |person_address|
-    grouped_address(person_address, failed_records)
+    grouped_address(person_address)
   end
 end
 
@@ -904,9 +903,9 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  populate_people
-  populate_person_names
-  populate_contact_details
+   populate_people
+  # populate_person_names
+  # populate_contact_details
   populate_person_address
   update_person_type
   populate_encounters

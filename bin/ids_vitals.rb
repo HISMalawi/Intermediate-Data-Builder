@@ -53,5 +53,5 @@ def vital_value_coded(vital)
   else
     puts "No person record with person id #{vital['person_id']}"
   end
-  update_last_update('Vital', vital[:updated_at])
+  update_last_update('Vital', vital['updated_at'])
 end
