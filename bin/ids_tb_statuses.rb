@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-def ids_tb_statuses(tb_status, failed_records)
+def ids_tb_statuses(tb_status)
 
   concept_id = get_master_def_id(tb_status['concept_id'], 'concept_name')
   value_coded = get_master_def_id(tb_status['value_coded'], 'concept_name')
@@ -22,19 +22,15 @@ def ids_tb_statuses(tb_status, failed_records)
 
       if ids_tb_statuses.save
         puts 'Successfully save tb statuses'
+        remove_failed_record('tb_status', tb_status['obs_id'].to_i)
       else
         puts 'Failed to save tb statuses'
       end
-
-      if failed_records.include?(tb_status['obs_id'].to_s)
-        remove_failed_record('TbStatus', tb_status['obs_id'])
-      end
+        
     rescue Exception => e
-      File.write('log/app_errors.log', e.message, mode: 'a')
-      log_error_records('TbStatus', tb_status['obs_id'].to_i)
+      log_error_records('tb_status', tb_status['obs_id'].to_i, e)
     end
   end
 
   update_last_update('TbStatus', tb_status['updated_at'])
 end
-

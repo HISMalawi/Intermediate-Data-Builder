@@ -1,18 +1,17 @@
 def populate_lab_orders
   last_updated = get_last_updated('LabOrders')
-  failed_records = load_error_records('LabOrders')
 
   query = "SELECT * FROM #{@rds_db}.orders 
            WHERE ORDER_TYPE_ID = 4
-           OR order_id IN #{failed_records}
+           OR order_id IN #{load_error_records('lab_orders')}
            OR updated_at >= #{last_updated} "
 
   fetch_data(query) do |lab_order|
-    ids_lab_orders(lab_order, failed_records)
+    ids_lab_orders(lab_order)
   end
 end
 
-def ids_lab_orders(lab_order, failed_records)
+def ids_lab_orders(lab_order)
 
   puts "Populating LabOrder for Person_id: #{lab_order['patient_id']}"
     lab_order_exist = LabOrder.find_by(lab_order_id: lab_order['order_id'])
@@ -33,12 +32,9 @@ def ids_lab_orders(lab_order, failed_records)
                         void_reason: lab_order['void_reason'], app_date_created: lab_order['date_created'],
                         app_date_updated: lab_order['date_changed'], created_at: Time.now, updated_at: Time.now)
 
-        if failed_records.include?(lab_order['order_id'].to_s)
-          remove_failed_record('LabOrders', lab_order['order_id'])
-        end
+          remove_failed_record('lab_orders', lab_order['order_id'].to_i)
       rescue Exception => e
-        File.write('log/app_errors.log', e.message, mode: 'a')
-        log_error_records('LabOrders', lab_order['order_id'].to_i)
+        log_error_records('lab_orders', lab_order['order_id'].to_i, e)
       end
     end
   update_last_update('LabOrders', lab_order['updated_at'])

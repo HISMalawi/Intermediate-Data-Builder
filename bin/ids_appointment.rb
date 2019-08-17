@@ -1,4 +1,4 @@
-def ids_appointment(rds_appointment, failed_records)
+def ids_appointment(rds_appointment)
 puts "processing person_id #{rds_appointment['person_id']}"
 
     if Appointment.find_by(encounter_id: rds_appointment['encounter_id']).blank?

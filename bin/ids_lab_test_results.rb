@@ -55,8 +55,7 @@ def populate_lab_test_results
                   lab_result.save
                 end
               rescue Exception => e
-                File.write('log/app_errors.log', e.message, mode: 'a')
-                exit
+               File.write('log/app_errors.log', e.message, mode: 'a')
               end
             end
           end

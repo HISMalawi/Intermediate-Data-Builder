@@ -1,4 +1,4 @@
-def ids_prescription(rds_prescription, failed_records)
+def ids_prescription(rds_prescription)
 
 puts "processing person_id #{rds_prescription['patient_id']}"
     if MedicationPrescription.find_by(medication_prescription_id: rds_prescription['order_id']).blank?
@@ -16,12 +16,9 @@ puts "processing person_id #{rds_prescription['patient_id']}"
 	                                    app_date_created: rds_prescription['date_created'],
 	                                    app_date_updated: rds_prescription['date_changed'])
 
-	      if failed_records.include?(rds_prescription['obs_id'].to_s)
-        	remove_failed_record('Prescription', rds_prescription['obs_id'])
-      	  end
+        	remove_failed_record('prescription', rds_prescription['obs_id'].to_i)
       rescue Exception => e
-	      File.write('log/app_errors.log', e.message, mode: 'a')
-	      log_error_records('Prescription', rds_prescription['obs_id'].to_i)
+	      log_error_records('prescription', rds_prescription['obs_id'].to_i, e)
       end
 
 	      puts "Successfully populated medication prescription details with record for person #{rds_prescription['patient_id']}"

@@ -1,4 +1,4 @@
-def ids_side_effects(patient_side_effect,failed_records)
+def ids_side_effects(patient_side_effect)
 
   concept_id = get_master_def_id(patient_side_effect['concept_id'], 'concept_name')
   value_coded = get_master_def_id(patient_side_effect['value_coded'], 'concept_name')
@@ -24,16 +24,12 @@ def ids_side_effects(patient_side_effect,failed_records)
 
       if ids_side_effects.save
         puts 'Successfully saved side effects'
+        remove_failed_record('side_effects', patient_side_effect['obs_id'])
       else
         puts 'Failed to save side effects'
       end
-
-      if failed_records.include?(patient_side_effect['obs_id'].to_s)
-        remove_failed_record('PersonSideEffect', patient_side_effect['obs_id'])
-      end
     rescue Exception => e
-      File.write('log/app_errors.log', e.message, mode: 'a')
-      log_error_records('PersonSideEffect', patient_side_effect['obs_id'].to_i)
+      log_error_records('side_effects', patient_side_effect['obs_id'].to_i, e)
     end
   end
 

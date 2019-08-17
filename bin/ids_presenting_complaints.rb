@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-def ids_presenting_complaints(presenting_complaint, failed_records)
+def ids_presenting_complaints(presenting_complaint)
   ids_presenting_complaints = PresentingComplaint.find_by(encounter_id: presenting_complaint['encounter_id'],
                                                           concept_id: presenting_complaint['concept_id'])
 
@@ -27,15 +27,13 @@ def ids_presenting_complaints(presenting_complaint, failed_records)
 
       if ids_presenting_complaints.save
         puts 'Successfully saved presenting complaints'
+        remove_failed_record('presenting_complaints', presenting_complaint['obs_id'].to_i)
       else
         puts 'Failed to save presenting complaints'
       end
-    if failed_records.include?(presenting_complaint['obs_id'].to_s)
-        remove_failed_record('PersonComplaints', presenting_complaint['obs_id'])
-      end
+
     rescue Exception => e
-      File.write('log/app_errors.log', e.message, mode: 'a')
-      log_error_records('PersonComplaints', presenting_complaint['obs_id'].to_i)
+      log_error_records('presenting_complaints', presenting_complaint['obs_id'].to_i, e)
     end
   end
 
