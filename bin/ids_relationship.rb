@@ -29,16 +29,13 @@ def ids_relationship(relation, failed_records)
 
       if relationsip.save
         puts 'created relationship'
+        remove_failed_record('relationships', relation['relationship_id'].to_i)
       else
         puts 'Failed to create relationship'
       end
 
-      if failed_records.include?(relation['relationship_id'].to_s)
-        remove_failed_record('Relationship', relation['relationship_id'])
-      end
     rescue Exception => e
-      File.write('log/app_errors.log', e.message, mode: 'a')
-      log_error_records('Relationship', relation['relationship_id'].to_i)
+      log_error_records('relationships', relation['relationship_id'].to_i, e)
     end
 
   end

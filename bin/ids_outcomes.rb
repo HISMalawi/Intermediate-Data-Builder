@@ -1,4 +1,4 @@
-def ids_outcomes(outcome, failed_records)
+def ids_outcomes(outcome)
   puts "processing person_id #{rds_outcomes['patient_id']}"
 
       if Outcome.find_by(person_id: rds_outcomes['patient_id']).blank?
@@ -25,13 +25,10 @@ def ids_outcomes(outcome, failed_records)
           outcome.save
 
           puts "Successfully populated Outcome with record for person #{rds_outcomes['patient_id']}"
-          if failed_records.include?(outcome['patient_program_id'].to_s)
-            remove_failed_record('Outcome', outcome['patient_program_id'])
-          end
-      rescue Exception => e
-        File.write('log/app_errors.log', e.message, mode: 'a')
-        log_error_records('Outcome', outcome['patient_program_id'].to_i)
-      end
+            remove_failed_record('outcomes', outcome['patient_program_id'].to_i)
+        rescue Exception => e
+          log_error_records('outcomes', outcome['patient_program_id'].to_i, e)
+        end
     else
       outcome = Outcome.where(person_id: rds_outcomes['patient_id'])
       outcome.update(person_id: rds_outcomes['patient_id'])

@@ -1,4 +1,4 @@
-def ids_patient_symptoms(patient_symptom, failed_records)
+def ids_patient_symptoms(patient_symptom)
   ids_patient_symptoms = Symptom.find_by(encounter_id: patient_symptom['encounter_id'], concept_id: patient_symptom['concept_id'])
 
   concept_id = get_master_def_id(patient_symptom['concept_id'], 'concept_name')
@@ -20,18 +20,14 @@ def ids_patient_symptoms(patient_symptom, failed_records)
       ids_patient_symptoms.value_coded = value_coded
       ids_patient_symptoms.app_date_created = patient_symptom['created_at']
 
-    if ids_patient_symptoms.save
-      puts 'Successfully saved patient symptoms'
-    else
-      puts 'Failed to save patient symptoms. Logging'
-    end
-
-    if failed_records.include?(patient_symptom['obs_id'].to_s)
-        remove_failed_record('PersonSymptom', patient_symptom['obs_id'])
-      end
+      if ids_patient_symptoms.save
+        puts 'Successfully saved patient symptoms'
+        remove_failed_record('symptoms', patient_symptom['obs_id'].to_i)
+      else
+        puts 'Failed to save patient symptoms. Logging'
+      end        
     rescue Exception => e
-      File.write('log/app_errors.log', e.message, mode: 'a')
-      log_error_records('PersonSymptom', patient_symptom['obs_id'].to_i)
+      log_error_records('symptoms', patient_symptom['obs_id'].to_i, e)
     end
   end
 
