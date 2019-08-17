@@ -35,36 +35,39 @@ def handle_commons(object)
 
 end
 
-def log_error_records(model, record_id)
-  current_status = YAML.load_file("#{Rails.root}/log/failed_records_log.yml") || {}
-  if current_status.include?(model)
-    current_status[model] << record_id unless current_status[model].include?(record_id)
-  else
-    current_status[model] = []
-    current_status[model] << record_id unless current_status[model].include?(record_id)
-  end
-  File.open('log/failed_records_log.yml', 'w') do |file|
-    file.write current_status.to_yaml
-  end
+def log_error_records(model, record_id, msg)
+   record_present = FailedRecord.joins(:failed_record_type).where(
+                    failed_record_types: {name: model.to_s},
+                    failed_records: {record_id: record_id})
+   if record_present.blank?
+     FailedRecord.create(failed_record_type_id:
+        FailedRecordType.find_by(name: model.to_s).failed_record_type_id.to_i,
+                             record_id: record_id.to_i,
+                             errr_message: msg) 
+   else
+    record_present.update(updated_at: Time.now)
+   end
 end
 
-def load_error_records(model)
-  errored_records = YAML.load_file("#{Rails.root}/log/failed_records_log.yml") || {}
 
-  begin
-    return "(#{errored_records[model].join(',')})"
-  rescue
+
+def load_error_records(model)
+  records = FailedRecord.joins(:failed_record_type).where(failed_record_types: {name: model.to_s}).select(:record_id)
+ 
+  if records.count > 0
+    arr = []
+    records.each{|record| arr << record['record_id']} 
+    return "(#{arr.join(',')})"
+  else
     return "(0)"
   end
 end
 
 def remove_failed_record(model, record_id)
-  err_record = YAML.load_file("#{Rails.root}/log/failed_records_log.yml")
+  record = FailedRecord.joins(:failed_record_type).where(
+    failed_record_types: { name: model.to_s },
+    failed_records: { record_id: record_id }
+  )
 
-  err_record[model].delete_at(err_record[model].index(record_id.to_i))
-
-  File.open('log/failed_records_log.yml', 'w') do |file|
-    file.write err_record.to_yaml
-  end
-
+  record.first.destroy unless record.blank?
 end

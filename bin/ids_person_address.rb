@@ -1,4 +1,4 @@
-def grouped_address(person_address, failed_records)
+def grouped_address(person_address)
   grouped_address = categorize_address(person_address)
   home_district_id = begin
     get_district_id(grouped_address['home_address']['home_district'])
@@ -31,12 +31,10 @@ def grouped_address(person_address, failed_records)
         app_date_created: person_address['date_created'], 
         app_date_updated: person_address['date_changed'])
 
-        if failed_records.include?(person_address['person_address_id'].to_s)
-          remove_failed_record('PersonAddress', person_address['person_address_id'])
-        end
+        remove_failed_record('person_address', person_address['person_address_id'])
+       
     rescue Exception => e
-      File.write('log/app_errors.log', e.message, mode: 'a')
-      log_error_records('PersonAddress', person_address['person_address_id'].to_i)
+      log_error_records('person_address', person_address['person_address_id'].to_i, e)
     end
   elsif ((person_address['date_changed'].strftime('%Y-%m-%d %H:%M:%S') rescue nil) ||
         person_address['date_created'].strftime('%Y-%m-%d %H:%M:%S')) >
@@ -53,6 +51,6 @@ def grouped_address(person_address, failed_records)
       app_date_created: person_address['date_created'],
       app_date_updated: person_address['date_changed']
       )  
-  update_last_update('PersonAddress', person_address['updated_at'])
   end
+  update_last_update('PersonAddress', person_address['updated_at'])
 end
