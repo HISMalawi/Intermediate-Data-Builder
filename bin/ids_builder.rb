@@ -305,7 +305,7 @@ def populate_encounters
   query = "SELECT * FROM #{@rds_db}.encounter WHERE updated_at >= '#{last_updated}' OR encounter_id IN #{load_error_records('encounter')}"
 
     fetch_data(query) do |rds_encounter|
-      puts "processing person_id #{rds_encounter['patient_id']}"
+      puts "processing Encounters for person_id #{rds_encounter['patient_id']}"
       rds_prog_id = rds_encounter['program_id']
       program_name = ActiveRecord::Base.connection.select_all <<SQL
     SELECT name FROM #{@rds_db}.program  WHERE program_id = #{rds_prog_id}  limit 1
@@ -702,7 +702,7 @@ def populate_occupation
 end
     
   def ids_occupation(rds_occupation)
-    puts "processing person_id #{rds_occupation['person_id']}"
+    puts "processing Occupation for person_id #{rds_occupation['person_id']}"
     occupation_exists = Occupation.find_by(occupation_id: rds_occupation['person_attribute_id'])
     if occupation_exists.blank?
       begin

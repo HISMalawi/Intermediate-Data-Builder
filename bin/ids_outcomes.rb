@@ -1,5 +1,5 @@
 def ids_outcomes(outcome)
-  puts "processing person_id #{rds_outcomes['patient_id']}"
+  puts "processing Outcomes for person_id #{rds_outcomes['patient_id']}"
 
       if Outcome.find_by(person_id: rds_outcomes['patient_id']).blank?
         begin
