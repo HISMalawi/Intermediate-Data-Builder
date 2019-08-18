@@ -1,5 +1,5 @@
 # If fails, include it in the ids_builder file just before the populate_patient_history method
-def ids_patient_history(patient_history, failed_records)
+def ids_patient_history(patient_history)
   ids_patient_history = PatientHistory.find_by_encounter_id(patient_history['encounter_id'])
 
   concept_id = get_master_def_id(patient_history['concept_id'], 'concept_name')
@@ -36,15 +36,13 @@ def ids_patient_history(patient_history, failed_records)
 
       if ids_patient_history.save
         puts 'Successfully saved patient history'
+        remove_failed_record('person_history', patient_history['obs_id'])
       else
         puts 'Failed to save patient history'
       end
-    if failed_records.include?(patient_history['obs_id'].to_s)
-        remove_failed_record('PersonHistory', patient_history['obs_id'])
-      end
+        
     rescue Exception => e
-      File.write('log/app_errors.log', e.message, mode: 'a')
-      log_error_records('PersonHistory', patient_history['obs_id'].to_i)
+      log_error_records('person_history', patient_history['obs_id'].to_i, e)
     end
     
   end

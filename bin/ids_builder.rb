@@ -25,7 +25,6 @@ require_relative 'ids_tb_statuses'
 require_relative 'ids_prescription'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
-File.open("#{Rails.root}/log/failed_records_log.yml", 'w') unless File.exist?("#{Rails.root}/log/failed_records_log.yml")
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
 @last_updated = YAML.load_file("#{Rails.root}/log/last_update.yml")
 @batch_size = 10_000
@@ -570,7 +569,6 @@ end
 
 def populate_patient_history
   last_updated = get_last_updated('PatientHistory')
-  failed_records = load_error_records('PatientHistory')
 
   query = "SELECT * FROM #{@rds_db}.obs ob
            INNER JOIN #{@rds_db}.encounter en
@@ -579,11 +577,11 @@ def populate_patient_history
            ON en.encounter_type = et.encounter_type_id
            WHERE et.encounter_type_id 
            IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%history%')
-           OR obs_id IN #{failed_records} OR
+           OR obs_id IN #{load_error_records('patient_history')} OR
            ob.updated_at >= '#{last_updated}' "
 
    fetch_data(query) do |patient_history|
-     ids_patient_history(patient_history, failed_records)
+     ids_patient_history(patient_history)
    end
 end
 
@@ -601,13 +599,12 @@ def populate_symptoms
            ob.updated_at >= '#{last_updated}' "
 
   fetch_data(query) do |patient_symptoms|
-    ids_patient_symptoms(patient_symptoms, failed_records)
+    ids_patient_symptoms(patient_symptoms)
   end       
 end
 
 def populate_side_effects
   last_updated = get_last_updated('SideEffects')
-  failed_records = 
 
    query = "SELECT * FROM #{@rds_db}.obs ob
            INNER JOIN #{@rds_db}.encounter en
