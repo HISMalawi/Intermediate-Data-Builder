@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-def ids_relationship(relation, failed_records)
+def ids_relationship(relation)
+  puts "processing Relationship for person ID #{presenting_complaint['person_id']}"
+
   relationship = Relationship.find_by(relation: relation['relationship_id'])
 
   relationship_type = get_master_def_id(relation['relationship'], 'relationship_type')
 
-  if relationship
+  if relationship && check_latest_record(relation, relationship)
     relationsip.update(person_id_a: relation['person_a'],
                        person_id_b: relation['person_b'],
                        relationship_type_id: relationship_type,

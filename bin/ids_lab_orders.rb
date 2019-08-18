@@ -13,10 +13,10 @@ end
 
 def ids_lab_orders(lab_order)
 
-  puts "Populating LabOrder for Person_id: #{lab_order['patient_id']}"
+  puts "Processing LabOrder for Person_id: #{lab_order['patient_id']}"
     lab_order_exist = LabOrder.find_by(lab_order_id: lab_order['order_id'])
 
-    if lab_order_exist
+    if lab_order_exist && check_latest_record(lab_order, lab_order_exist)
       lab_order_exist.update(tracking_number: lab_order['accession_number'], order_date: lab_order['start_date'],
                              encounter_id: lab_order['encounter_id'], creator: lab_order['creator'],
                              voided: lab_order['voided'], voided_by: lab_order['voided_by'],
