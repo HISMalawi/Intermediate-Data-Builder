@@ -200,7 +200,7 @@ def populate_person_names
           remove_failed_record('person_name', person_name['person_name_id']) 
 
       rescue Exception => e
-        log_error_records('person_name', person_name['person_name_id'].to_i)
+        log_error_records('person_name', person_name['person_name_id'].to_i, e)
       end
     elsif ((person_name['date_changed'].strftime('%Y-%m-%d %H:%M:%S') rescue nil) ||
         person_name['date_created'].strftime('%Y-%m-%d %H:%M:%S')) >
