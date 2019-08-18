@@ -3,11 +3,13 @@
 def populate_hiv_staging_info
   last_updated = get_last_updated('StagingInfo')
 
-  query = "SELECT distinct p.patient_id, p.updated_at FROM #{@rds_db}.patient p join 
-  #{@rds_db}.patient_program pp on p.patient_id = pp.patient_id
-  JOIN #{@rds_db}.patient_state ps ON pp.patient_program_id = ps.patient_program_id 
-WHERE pp.program_id = 1 AND p.voided = 0 AND pp.voided = 0  
-AND ps.state = 7 AND ps.voided = 0 AND p.updated_at >= #{last_updated} "
+  query = "SELECT distinct p.patient_id, p.updated_at 
+           FROM #{@rds_db}.patient p join 
+           #{@rds_db}.patient_program pp on p.patient_id = pp.patient_id
+           JOIN #{@rds_db}.patient_state ps ON pp.patient_program_id = ps.patient_program_id 
+           WHERE (pp.program_id = 1 AND p.voided = 0 AND pp.voided = 0  
+           AND ps.state = 7 AND ps.voided = 0 AND p.updated_at >= #{last_updated})
+           OR p.patient_id IN #{load_error_records('hiv_staging_info')} "
 
 fetch_data(query) do |patient|
     puts "processing HIV info for person_id #{patient['patient_id']}"
@@ -15,7 +17,8 @@ fetch_data(query) do |patient|
     staging_exist = HivStagingInfo.find_by(person_id: patient['patient_id'])
     age_at_initiation = patient_age_at_initiation(patient['patient_id'])['age_at_initiation'] rescue nil
     age_in_days = patient_age_at_initiation(patient['patient_id'])['age_in_days'] rescue nil
-    if staging_exist
+
+    if staging_exist && check_latest_record(patient, staging_exist)
       #Update Staging Record
       staging_exist.update(start_date: get_start_date(patient['patient_id']),
                            date_enrolled: get_date_enrolled(patient['patient_id']),
@@ -28,20 +31,26 @@ fetch_data(query) do |patient|
                            hiv_test_date: (get_hiv_test_date(patient['patient_id']))['value_datetime'],
                            hiv_test_facility: (get_hiv_test_facility(patient['patient_id']))['value_text']) 
     else
-      staging_info = HivStagingInfo.new
-      staging_info.person_id = patient['patient_id']
-      staging_info.start_date = get_start_date(patient['patient_id'])
-      staging_info.date_enrolled = get_date_enrolled(patient['patient_id'])
-      staging_info.transfer_in = get_master_def_id(get_transfer_in(patient['patient_id'], get_date_enrolled(patient['patient_id'])), 'concept_name')
-      staging_info.re_initiated = get_master_def_id(get_transfer_in(patient['patient_id'], get_date_enrolled(patient['patient_id'])), 'concept_name')
-      staging_info.age_at_initiation = age_at_initiation
-      staging_info.age_in_days_at_initiation = age_in_days
-      staging_info.who_stage = get_who_stage(patient['patient_id'])
-      staging_info.reason_for_starting = get_reason_for_starting(patient['patient_id'])
-      staging_info.hiv_test_date = (get_hiv_test_date(patient['patient_id']))['value_datetime'] rescue nil
-      staging_info.hiv_test_facility = (get_hiv_test_facility(patient['patient_id']))['value_text'] rescue nil
+      begin
+        staging_info = HivStagingInfo.new
+        staging_info.person_id = patient['patient_id']
+        staging_info.start_date = get_start_date(patient['patient_id'])
+        staging_info.date_enrolled = get_date_enrolled(patient['patient_id'])
+        staging_info.transfer_in = get_master_def_id(get_transfer_in(patient['patient_id'], get_date_enrolled(patient['patient_id'])), 'concept_name')
+        staging_info.re_initiated = get_master_def_id(get_transfer_in(patient['patient_id'], get_date_enrolled(patient['patient_id'])), 'concept_name')
+        staging_info.age_at_initiation = age_at_initiation
+        staging_info.age_in_days_at_initiation = age_in_days
+        staging_info.who_stage = get_who_stage(patient['patient_id'])
+        staging_info.reason_for_starting = get_reason_for_starting(patient['patient_id'])
+        staging_info.hiv_test_date = (get_hiv_test_date(patient['patient_id']))['value_datetime'] rescue nil
+        staging_info.hiv_test_facility = (get_hiv_test_facility(patient['patient_id']))['value_text'] rescue nil
 
-      staging_info.save
+        staging_info.save
+        remove_failed_record('hiv_staging_info', patient['patient_id'].to_i)
+      
+      rescue Exception => e
+        log_error_records('hiv_staging_info', patient['patient_id'].to_i, e)
+      end
     end
     update_last_update('StagingInfo', patient['updated_at'])
   end

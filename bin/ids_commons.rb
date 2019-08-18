@@ -71,3 +71,59 @@ def remove_failed_record(model, record_id)
 
   record.first.destroy unless record.blank?
 end
+
+def check_latest_record(src, des)
+  (src['date_changed'] || src['date_created']).to_date >
+  (des['app_date_updated'] || des['app_date_created']).to_date
+end
+
+def update_record(concept_id, value_coded, record, update)
+  record.update(
+      concept_id: concept_id,
+      encounter_id: update['encounter_id'],
+      value_coded: value_coded,
+      voided: update['voided'],
+      voided_by: update['voided_by'],
+      voided_date: update['date_voided'],
+      void_reason: update['void_reason'],
+      app_date_created: update['date_created'],
+      app_date_updated: update['date_changed'])
+end
+
+# def create_record(concept_id, value_coded, record, new_record, failed_index)
+#   begin
+#       puts "Creating patient tb status for #{new_record['person_id']}"
+#       record.create(
+#       ids_tb_statuses.tb_status_id       = new_record['obs_id']
+#       ids_tb_statuses.concept_id         = concept_id
+#       ids_tb_statuses.encounter_id       = tb_status['encounter_id']
+#       ids_tb_statuses.value_coded        = value_coded
+#       ids_tb_statuses.voided             = new_record['voided']
+#       ids_tb_statuses.voided_by          = new_record['voided_by']
+#       ids_tb_statuses.voided_date        = new_record['date_voided']
+#       ids_tb_statuses.void_reason        = new_record['void_reason']
+#       ids_tb_statuses.app_date_created   = new_record['date_created']
+#       ids_tb_statuses.app_date_updated   = new_record['date_changed']
+
+#       if ids_tb_statuses.save
+#         puts 'Successfully save tb statuses'
+#         remove_failed_record(failed_index.to_s, new_record['obs_id'].to_i)
+#       else
+#         puts 'Failed to save tb statuses'
+#       end
+        
+#     rescue Exception => e
+#       log_error_records('tb_status', tb_status['obs_id'].to_i, e)
+#     end
+#  end
+
+
+
+
+
+
+
+
+
+
+
