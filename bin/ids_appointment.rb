@@ -1,5 +1,5 @@
 def ids_appointment(rds_appointment)
-puts "processing person_id #{rds_appointment['person_id']}"
+puts "processing Appointment for person_id #{rds_appointment['person_id']}"
 
     if Appointment.find_by(encounter_id: rds_appointment['encounter_id']).blank?
 	      appointment = Appointment.new

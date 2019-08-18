@@ -1,6 +1,6 @@
 def ids_prescription(rds_prescription)
 
-puts "processing person_id #{rds_prescription['patient_id']}"
+puts "processing Prescription for person_id #{rds_prescription['patient_id']}"
     if MedicationPrescription.find_by(medication_prescription_id: rds_prescription['order_id']).blank?
       begin
 	      MedicationPrescription.create(medication_prescription_id: rds_prescription['order_id'],
