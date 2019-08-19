@@ -26,8 +26,7 @@ def ids_pregnant_status(pregnant)
     rescue Exception => e
       log_error_records('pregnant_status', pregnant['obs_id'].to_i, e)
     end
-  elsif pregnant['date_updated'].to_date > (pregnant_status_exist['app_date_updated'] ||
-        pregnant_status_exist['app_date_created']).to_date
+  elsif check_latest_record(pregnant, pregnant_status_exist)
     pregnant_status_exist.update(concept_id: concept_id, encounter_id: pregnant['encounter_id'],
                                  value_coded: value_coded, voided: pregnant['voided'],
                                  voided_by: pregnant['voided_by'], voided_date: pregnant['voided_date'],
