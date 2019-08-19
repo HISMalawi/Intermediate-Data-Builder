@@ -21,17 +21,17 @@ def ids_patient_symptoms(patient_symptom)
   else 
     begin
       puts "Creating patient symptom for #{patient_symptom['person_id']}"
-      ids_patient_symptoms                  = Symptom.new
-      ids_patient_symptoms.symptom_id       = patient_symptom['obs_id']
-      ids_patient_symptoms.concept_id       = concept_id
-      ids_patient_symptoms.encounter_id     = patient_symptom['encounter_id']
-      ids_patient_symptoms.value_coded      = value_coded
-      ids_patient_symptoms.voided           = patient_symptom['voided']
-      ids_patient_symptoms.voided_by        = patient_symptom['voided_by'],
-      ids_patient_symptoms.voided_date      = patient_symptom['date_voided']
-      ids_patient_symptoms.void_reason      = patient_symptom['void_reason']
-      ids_patient_symptoms.app_date_created = patient_symptom['created_at']
-      ids_patient_symptoms.app_date_update  = patient_symptom['date_changed']
+      ids_patient_symptoms                   = Symptom.new
+      ids_patient_symptoms.symptom_id        = patient_symptom['obs_id']
+      ids_patient_symptoms.concept_id        = concept_id
+      ids_patient_symptoms.encounter_id      = patient_symptom['encounter_id']
+      ids_patient_symptoms.value_coded       = value_coded
+      ids_patient_symptoms.voided            = patient_symptom['voided']
+      ids_patient_symptoms.voided_by         = patient_symptom['voided_by'],
+      ids_patient_symptoms.voided_date       = patient_symptom['date_voided']
+      ids_patient_symptoms.void_reason       = patient_symptom['void_reason']
+      ids_patient_symptoms.app_date_created  = patient_symptom['date_created']
+      ids_patient_symptoms.app_date_updated  = patient_symptom['date_changed']
 
       if ids_patient_symptoms.save
         puts 'Successfully saved patient symptoms'
