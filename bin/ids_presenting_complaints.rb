@@ -4,7 +4,7 @@ def ids_presenting_complaints(presenting_complaint)
   
   puts "processing Complaints for person ID #{presenting_complaint['person_id']}"
 
-  ids_presenting_complaints = PresentingComplaint.find_by_present_complaint_id(presenting_complaint['obs_id'])
+  ids_presenting_complaints = PresentingComplaint.find_by_presenting_complaint_id(presenting_complaint['obs_id'])
 
   concept_id = get_master_def_id(presenting_complaint['concept_id'], 'concept_name')
   value_coded = get_master_def_id(presenting_complaint['value_coded'], 'concept_name')
