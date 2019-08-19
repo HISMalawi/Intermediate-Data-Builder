@@ -6,7 +6,7 @@ def ids_patient_symptoms(patient_symptom)
   concept_id = get_master_def_id(patient_symptom['concept_id'], 'concept_name')
   value_coded = get_master_def_id(patient_symptom['value_coded'], 'concept_name')
 
-  if ids_patient_symptoms
+  if ids_patient_symptoms && check_latest_record(patient_symptom, ids_patient_symptoms)
     puts "Updating patient symptom for #{patient_symptom['person_id']}"
     ids_patient_symptoms.update(concept_id: concept_id,
                                 encounter_id: patient_symptom['encounter_id'],
@@ -16,8 +16,8 @@ def ids_patient_symptoms(patient_symptom)
                                 voided_date: patient_symptom['date_voided'],
                                 void_reason: patient_symptom['void_reason'],
                                 app_date_created: patient_symptom['date_created'],
-                                app_date_update: patient_symptom['date_changed']) if
-    check_latest_record(patient_symptom, ids_patient_symptoms)
+                                app_date_updated: patient_symptom['date_changed'])
+    
   else 
     begin
       puts "Creating patient symptom for #{patient_symptom['person_id']}"
