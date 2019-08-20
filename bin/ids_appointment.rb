@@ -5,7 +5,7 @@ appointment = Appointment.find_by_appointment_id(rds_appointment['obs_id'])
 	      appointment 					= Appointment.new
 	      appointment.appointment_id	= rds_appointment['obs_id']
 	      appointment.encounter_id 		= rds_appointment['encounter_id']
-	      appointment.appointment_date 	= rds_appointment['value_datetime']
+	      appointment.appointment_date 	= rds_appointment['value_datetime'] rescue '1900-01-01'
 	      appointment.voided 			= rds_appointment['voided']
 	      appointment.voided_by 		= rds_appointment['voided_by']
 	      appointment.creator 			= rds_appointment['creator']
@@ -19,7 +19,7 @@ appointment = Appointment.find_by_appointment_id(rds_appointment['obs_id'])
     elsif appointment && check_latest_record(rds_appointment, appointment)
       appointment.update(
       encounter_id: rds_appointment['encounter_id'],
-      appointment_date: rds_appointment['value_datetime'],
+      appointment_date: (rds_appointment['value_datetime'] || '1900-01-01'),
       voided: rds_appointment['voided'], 
       voided_by: rds_appointment['voided_by'],
       creator: rds_appointment['creator'], 
