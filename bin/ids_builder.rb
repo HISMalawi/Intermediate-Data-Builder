@@ -708,7 +708,7 @@ end
       rescue Exception => e
         log_error_records('occupation', rds_occupation['person_attribute_id'].to_i, e)
       end
-    elsif rds_occupation['date_changed'] || rds_occupation['date_created'] > occupation_exists['app_date_updated']
+    elsif check_latest_record(rds_occupation, occupation_exists)
       person_occupation.update(occupation: rds_occupation['value'],
                                creator: rds_occupation['creator'],
                                person_id: rds_occupation['person_id'], voided: rds_occupation['voided'],

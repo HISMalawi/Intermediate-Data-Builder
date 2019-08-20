@@ -18,7 +18,7 @@ def ids_patient_symptoms(patient_symptom)
                                 app_date_created: patient_symptom['date_created'],
                                 app_date_updated: patient_symptom['date_changed'])
     
-  else 
+  elsif ids_patient_symptoms.blank? 
     begin
       puts "Creating patient symptom for #{patient_symptom['person_id']}"
       ids_patient_symptoms                   = Symptom.new

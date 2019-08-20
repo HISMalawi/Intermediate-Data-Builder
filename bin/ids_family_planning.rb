@@ -10,11 +10,24 @@ def ids_family_planning(family_planning)
 
   if ids_family_planning && check_latest_record(family_planning, ids_family_planning)
     puts "Updating family planning for #{family_planning['person_id']}"
-    update_record(concept_id, value_coded, ids_family_planning, family_planning)
-  else
+    ids_family_planning.update(
+      concept_id:  concept_id,
+      encounter_id:  family_planning['encounter_id'],
+      value_coded:  value_coded,
+      value_coded:  value_coded,
+      voided:  family_planning['voided'],
+      voided_by:  family_planning['voided_by'],
+      voided_date:  family_planning['date_voided'],
+      void_reason:  family_planning['void_reason'],
+      app_date_created:  family_planning['date_created'],
+      app_date_updated:  family_planning['date_changed']
+      )
+
+  elsif ids_family_planning.blank?
     begin
-      puts "Creating family planning for #{family_planning['person_id']}"
+   puts "Creating family planning for #{family_planning['person_id']}"
       ids_family_planning                    = FamilyPlanning.new
+      ids_family_planning.family_planning_id = family_planning['obs_id']
       ids_family_planning.concept_id         = concept_id
       ids_family_planning.encounter_id       = family_planning['encounter_id']
       ids_family_planning.value_coded        = value_coded

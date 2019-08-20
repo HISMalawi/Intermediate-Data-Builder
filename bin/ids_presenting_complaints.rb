@@ -23,7 +23,8 @@ def ids_presenting_complaints(presenting_complaint)
       void_reason: presenting_complaint['void_reason'],
       app_date_created: presenting_complaint['date_created'],
       app_date_updated: presenting_complaint['date_changed'])
-  else
+    
+  elsif ids_presenting_complaints.blank?
     begin
       puts "Creating presenting complaints for #{presenting_complaint['person_id']}"
       ids_presenting_complaints                  = PresentingComplaint.new
