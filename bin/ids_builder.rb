@@ -414,7 +414,8 @@ def update_person_type
   # Updating users type in person_type table
   last_updated = get_last_updated('User')
 
-query = "SELECT * FROM #{@rds_db}.users WHERE updated_at >= '#{last_updated}' "
+query = "SELECT * FROM #{@rds_db}.users WHERE updated_at >= '#{last_updated}'
+         OR user_id IN #{load_error_records('user')} "
 
   person_type_id = 4 # person type id for user
   fetch_data(query) do |user|
@@ -428,7 +429,8 @@ query = "SELECT * FROM #{@rds_db}.users WHERE updated_at >= '#{last_updated}' "
   last_updated = get_last_updated('Relationship')
 
   query = "SELECT * FROM #{@rds_db}.relationship WHERE relationship = 6 AND
-           updated_at >= '#{last_updated}' "
+           updated_at >= '#{last_updated}' 
+           OR relationship_id IN #{load_error_records('guardian')} "
 
   person_type_id = 5 # person type id for guardian
   fetch_data(query) do |guardian|
@@ -440,7 +442,8 @@ query = "SELECT * FROM #{@rds_db}.users WHERE updated_at >= '#{last_updated}' "
   # Updating Patients in person type table
   last_updated = get_last_updated('Patient')
 
-  query = "SELECT * FROM #{@rds_db}.patient WHERE updated_at >= '#{last_updated}' "
+  query = "SELECT * FROM #{@rds_db}.patient WHERE updated_at >= '#{last_updated}'
+           OR patient_id IN #{load_error_records('user')} "
 
   person_type_id = 1 # person type id for patient
   fetch_data(query) do |patient|
@@ -452,7 +455,8 @@ query = "SELECT * FROM #{@rds_db}.users WHERE updated_at >= '#{last_updated}' "
   # Updating Provider in person type table
   last_updated = get_last_updated('Patient')
 
-  query = "SELECT * FROM #{@rds_db}.users WHERE updated_at >= '#{last_updated}' "
+  query = "SELECT * FROM #{@rds_db}.users WHERE updated_at >= '#{last_updated}'
+           OR user_id IN #{load_error_records('user')} "
 
   person_type_id = 2 # person type id for provider
   fetch_data(query) do |provider|
