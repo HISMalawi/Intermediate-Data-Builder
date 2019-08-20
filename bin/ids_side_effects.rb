@@ -19,7 +19,8 @@ def ids_side_effects(patient_side_effect)
       void_reason: patient_side_effect['void_reason'],
       app_date_created: patient_side_effect['date_created'],
       app_date_updated: patient_side_effect['date_changed'])
-  else
+    
+  elsif ids_side_effects.blank?
     begin
       puts "Creating patient side effects for #{patient_side_effect['person_id']}"
       ids_side_effects                   = SideEffect.new

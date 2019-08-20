@@ -16,7 +16,8 @@ def ids_relationship(relation)
                        voided_by: relation['voided_by'],
                        voided_date: relation['date_voided'])
     'update relationship'
-  else
+    
+  elsif relationship.blank?
     begin
       relationsip = Relationship.new
       relationship.relationship_id = relation['relationship_id']

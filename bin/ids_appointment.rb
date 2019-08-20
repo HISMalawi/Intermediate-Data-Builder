@@ -2,6 +2,7 @@ def ids_appointment(rds_appointment)
 puts "processing Appointment for person_id #{rds_appointment['person_id']}"
 appointment = Appointment.find_by_appointment_id(rds_appointment['obs_id'])
     if appointment.blank?
+      begin
 	      appointment 					= Appointment.new
 	      appointment.appointment_id	= rds_appointment['obs_id']
 	      appointment.encounter_id 		= rds_appointment['encounter_id']
@@ -16,6 +17,12 @@ appointment = Appointment.find_by_appointment_id(rds_appointment['obs_id'])
 	      appointment.save
 
 	      puts "Successfully populated appointment with record for person #{rds_appointment['person_id']}"
+
+        remove_failed_record('appointment', rds_appointment['obs_id'].to_i)
+
+    rescue Exception => e
+      log_error_records('appointment', rds_appointment['obs_id'].to_i, e)
+    end
     elsif appointment && check_latest_record(rds_appointment, appointment)
       appointment.update(
       encounter_id: rds_appointment['encounter_id'],

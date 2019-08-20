@@ -21,7 +21,8 @@ def ids_tb_statuses(tb_status)
     void_reason: presenting_complaint['void_reason'],
     app_date_created: presenting_complaint['date_created'],
     app_date_updated: presenting_complaint['date_changed'])
-  else
+    
+  elsif ids_tb_statuses.blank?
     begin
       puts "Creating patient tb status for #{tb_status['person_id']}"
       ids_tb_statuses                    = TbStatus.new

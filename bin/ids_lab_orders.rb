@@ -23,7 +23,7 @@ def ids_lab_orders(lab_order)
                              voided_date: lab_order['voided_date'], void_reason: lab_order['void_reason'],
                              app_date_created: lab_order['date_created'], app_date_updated: lab_order['date_changed'],
                              updated_at: Time.now)
-    else
+    elsif lab_order_exist.blank?
       begin
         LabOrder.create(lab_order_id: lab_order['order_id'], tracking_number: lab_order['accession_number'],
                         order_date: lab_order['start_date'], encounter_id: lab_order['encounter_id'],
