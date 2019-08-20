@@ -1,8 +1,17 @@
 # frozen_string_literal: true
 
 def person_has_type(type_id, person)
-  unless PersonHasType.find_by(person_id: person['person_id'] || person['patient_id'] || person['person_b'], person_type_id: type_id)
-    PersonHasType.create(person_id: person['person_id'] || person['patient_id'] || person['person_b'], person_type_id: type_id)
+  unless PersonHasType.find_by(person_id: person['person_id'] || 
+                      person['patient_id'] || 
+                      person['person_b'], 
+                      person_type_id: type_id)
+   begin
+    PersonHasType.create(person_id: person['person_id'] || 
+                         person['patient_id'] || 
+                         person['person_b'], 
+                         person_type_id: type_id)
+   rescue
+   end
   end
 end
 
