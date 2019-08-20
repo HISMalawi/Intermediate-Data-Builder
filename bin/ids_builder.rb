@@ -871,23 +871,23 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  # populate_people
-  # populate_person_names
-  # populate_contact_details
-  # populate_person_address
-  # update_person_type
-  # populate_encounters
-  # populate_diagnosis
-  # populate_pregnant_status
-  # populate_breastfeeding_status
-  # populate_vitals
-  # populate_patient_history
-  # populate_symptoms
-  # populate_side_effects
-  # populate_presenting_complaints
-  # populate_tb_statuses
-  # populate_outcomes
-  # populate_family_planning
+  populate_people
+  populate_person_names
+  populate_contact_details
+  populate_person_address
+  update_person_type
+  populate_encounters
+  populate_diagnosis
+  populate_pregnant_status
+  populate_breastfeeding_status
+  populate_vitals
+  populate_patient_history
+  populate_symptoms
+  populate_side_effects
+  populate_presenting_complaints
+  populate_tb_statuses
+  populate_outcomes
+  populate_family_planning
   populate_appointment
   populate_prescription
   populate_lab_orders
