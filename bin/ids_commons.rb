@@ -1,17 +1,37 @@
 # frozen_string_literal: true
 
 def person_has_type(type_id, person)
-  unless PersonHasType.find_by(person_id: person['person_id'] || 
-                      person['patient_id'] || 
-                      person['person_b'], 
+  case type_id
+  when 1
+    model = 'patient'
+  when 2  
+    model = 'provider'
+  when 3 
+    model = 'client'
+  when 4
+    model = 'user'
+  when 5
+    model = 'guardian'
+  end
+
+  unless PersonHasType.find_by(person_id: person['person_id'] ||
+                      person['patient_id'] ||
+                      person['person_b'],
                       person_type_id: type_id)
-   begin
-    PersonHasType.create(person_id: person['person_id'] || 
-                         person['patient_id'] || 
-                         person['person_b'], 
-                         person_type_id: type_id)
-   rescue
-   end
+    begin
+      PersonHasType.create(person_id: person['person_id'] ||
+                           person['patient_id'] ||
+                           person['person_b'],
+                           person_type_id: type_id)
+
+      remove_failed_record(model, (person['person_id'] ||
+                                   person['patient_id'] ||
+                                   person['person_b']))
+    rescue Exception => e
+      log_error_records(model, ((person['person_id'] ||
+                                   person['patient_id'] ||
+                                   person['person_b'])).to_i, e)
+    end
   end
 end
 
@@ -125,14 +145,3 @@ end
 #       log_error_records('tb_status', tb_status['obs_id'].to_i, e)
 #     end
 #  end
-
-
-
-
-
-
-
-
-
-
-

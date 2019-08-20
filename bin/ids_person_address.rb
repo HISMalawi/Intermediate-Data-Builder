@@ -31,7 +31,7 @@ def grouped_address(person_address)
         app_date_created: person_address['date_created'], 
         app_date_updated: person_address['date_changed'])
 
-        remove_failed_record('person_address', person_address['person_address_id'])
+      remove_failed_record('person_address', person_address['person_address_id'])
        
     rescue Exception => e
       log_error_records('person_address', person_address['person_address_id'].to_i, e)
