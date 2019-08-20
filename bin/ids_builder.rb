@@ -23,6 +23,7 @@ require_relative 'ids_lab_test_results'
 require_relative 'ids_appointment'
 require_relative 'ids_tb_statuses'
 require_relative 'ids_prescription'
+require_relative 'ids_outcomes'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -653,13 +654,14 @@ end
 def populate_outcomes
   last_updated = get_last_updated('Outcome')
 
-   query = "SELECT * FROM #{@rds_db}.patient_program pp
-           INNER JOIN #{@rds_db}.patient_state ps ON  pp.patient_program_id = ps.patient_program_id
-           INNER JOIN  #{@rds_db}.program_workflow pw ON pp.program_id = pw.program_id
-           INNER JOIN #{@rds_db}.program_workflow_state pws ON pw.program_workflow_id = pws.program_workflow_id
-           ON en.encounter_type = et.encounter_type_id
-           WHERE patient_program_id IN #{load_error_records('outcomes')} 
-           OR ob.updated_at >= '#{last_updated}' "
+   query = "SELECT pp.patient_id, pws.* FROM #{@rds_db}.patient_program pp
+           INNER JOIN #{@rds_db}.patient_state ps 
+           ON pp.patient_program_id = ps.patient_program_id
+           INNER JOIN  #{@rds_db}.program_workflow pw 
+           ON pp.program_id = pw.program_id
+           INNER JOIN #{@rds_db}.program_workflow_state pws 
+           ON pw.program_workflow_id = pws.program_workflow_id
+           WHERE pp.updated_at >= '#{last_updated}' "
     
     fetch_data(query) do |record|
       ids_outcomes(record)
@@ -719,9 +721,9 @@ end
 def populate_appointment
   last_updated = get_last_updated('Appointment')
 
-   query = "SELECT obs.* FROM #{@rds_db}.obs 
+   query = "SELECT ob.* FROM #{@rds_db}.obs ob 
             JOIN #{@rds_db}.encounter en
-            ON obs.encounter_id = en.encounter_id
+            ON ob.encounter_id = en.encounter_id
             WHERE (en.encounter_type = 7
             AND ob.updated_at >= '#{last_updated}')
             OR obs_id IN #{load_error_records('appointment')} "
@@ -869,23 +871,23 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_breastfeeding_status
-  populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
-  populate_tb_statuses
-  populate_outcomes
-  populate_family_planning
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
+  # update_person_type
+  # populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_breastfeeding_status
+  # populate_vitals
+  # populate_patient_history
+  # populate_symptoms
+  # populate_side_effects
+  # populate_presenting_complaints
+  # populate_tb_statuses
+  # populate_outcomes
+  # populate_family_planning
   populate_appointment
   populate_prescription
   populate_lab_orders
