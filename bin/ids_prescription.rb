@@ -43,4 +43,5 @@ puts "processing Prescription for person_id #{rds_prescription['patient_id']}"
 
       puts "Successfully updated medication prescription details with record for person #{rds_prescription['patient_id']}"
     end
+  update_last_update('Prescription', rds_prescription['updated_at'])
 end

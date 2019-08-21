@@ -676,10 +676,10 @@ def populate_occupation
   last_updated = get_last_updated('Occupation')
 
    query = "SELECT * FROM #{@rds_db}.person_attribute 
-            WHERE person_attribute_type_id = 13
-            OR occupation_id IN #{load_error_records('occupation')} 
-            OR updated_at >= '#{last_updated}' "
-    
+            WHERE (person_attribute_type_id = 13
+            AND updated_at >= '#{last_updated}')
+            OR person_attribute_id IN #{load_error_records('occupation')} "
+
     fetch_data(query) do |record|
       ids_occupation(record)
     end
@@ -743,8 +743,8 @@ def populate_prescription
    query = "SELECT * FROM #{@rds_db}.orders o
             JOIN #{@rds_db}.drug_order d on o.order_id = d.order_id
             WHERE (o.order_type_id = 1       
-            AND ob.updated_at >= '#{last_updated}') OR 
-            ob.obs_id IN #{load_error_records('prescription')} "
+            AND o.updated_at >= '#{last_updated}') OR 
+            o.order_id IN #{load_error_records('prescription')} "
     
     fetch_data(query) do |record|
       ids_prescription(record)
@@ -754,27 +754,53 @@ end
 def populate_dispensation
   last_updated = get_last_updated('MedicationDispensation')
 
-  prescribed_drug_id = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT medication_prescription_id FROM medication_prescriptions;
-SQL
-  drug_dispensed = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT quantity,orders.date_created,orders.voided,orders.voided_by,orders.date_voided, orders.void_reason,orders.patient_id
-  FROM #{@rds_db}.orders
-  INNER JOIN #{@rds_db}.drug_order  ON orders.order_id = drug_order.order_id
-  WHERE (orders.updated_at >= '#{last_updated}');
-SQL
-  (prescribed_drug_id || []).each do |ids_prescribed_drug|
-    (drug_dispensed || []).each do |rds_dispensed_drug|
+  query = "SELECT o.order_id, quantity,o.date_created,o.voided,
+  o.voided_by,o.date_voided, o.void_reason,o.patient_id, do.updated_at
+  FROM #{@rds_db}.orders o
+  INNER JOIN #{@rds_db}.drug_order do  ON o.order_id = do.order_id
+  WHERE (do.updated_at >= '#{last_updated}')
+  OR do.order_id IN #{load_error_records('dispensation')}"
+
+  fetch_data(query) do |rds_dispensed_drug|
       puts "Processing dispensation record for person #{rds_dispensed_drug['patient_id']}"
 
-      MedicationDispensation.create(quantity: rds_dispensed_drug['quantity'], medication_prescription_id: ids_prescribed_drug['medication_prescription_id'],
-                                    voided: rds_dispensed_drug['voided'], voided_by: rds_dispensed_drug['voided_by'], voided_date: rds_dispensed_drug['date_voided'],
-                                    void_reason: rds_dispensed_drug['void_reason'], app_date_created: rds_dispensed_drug['date_created'],
-                                    app_date_updated: '')
+     dispensation_exist = MedicationDispensation.find_by_medication_dispensation_id(rds_dispensed_drug['order_id'])
 
-      puts "Successfully populated medication dispensation details with record for person #{rds_dispensed_drug['patient_id']}"
-    end
-  end
+     if dispensation_exist.blank?
+      begin
+        MedicationDispensation.create(
+          medication_dispensation_id: rds_dispensed_drug['order_id'],
+          quantity: rds_dispensed_drug['quantity'],
+          medication_prescription_id: ids_prescribed_drug['medication_prescription_id'],
+          voided: rds_dispensed_drug['voided'],
+          voided_by: rds_dispensed_drug['voided_by'],
+          voided_date: rds_dispensed_drug['date_voided'],
+          void_reason: rds_dispensed_drug['void_reason'],
+          app_date_created: rds_dispensed_drug['date_created'],
+          app_date_updated: ''
+          )
+         puts "Successfully INSERTED medication dispensation details for person #{rds_dispensed_drug['patient_id']}"
+
+         remove_failed_record('dispensation', rds_dispensed_drug['order_id'].to_i)
+
+      rescue Exception => e
+        log_error_records('dispensation', rds_dispensed_drug['order_id'].to_i, e)
+      end
+     elsif check_latest_record(rds_dispensed_drug, dispensation_exist)
+       dispensation_exist.update(
+        quantity: rds_dispensed_drug['quantity'],
+        medication_prescription_id: ids_prescribed_drug['medication_prescription_id'],
+        voided: rds_dispensed_drug['voided'],
+        voided_by: rds_dispensed_drug['voided_by'],
+        voided_date: rds_dispensed_drug['date_voided'],
+        void_reason: rds_dispensed_drug['void_reason'],
+        app_date_created: rds_dispensed_drug['date_created'],
+        app_date_updated: ''
+        )
+       puts "Successfully UPDATED medication dispensation details for person #{rds_dispensed_drug['patient_id']}"
+     end
+    update_last_update('Despensation', rds_dispensed_drug['updated_at'])
+  end    
 end
 
 def populate_relationships
@@ -797,7 +823,8 @@ SQL
   (medication_prescribed_id || []).each do |ids_prescribed_drug|
     drug_dispensed_id = ids_prescribed_drug['drug_id'].to_i # we need to include an order id which is a unique and we will need to compare in obs table
     prescription_drug_adherence = ActiveRecord::Base.connection.select_all <<SQL
-      SELECT oo.person_id,oo.value_text AS  adherence_in_percentage, date(oo.obs_datetime) as visit_date,dg.drug_id as rds_drug_id
+      SELECT oo.person_id,oo.value_text AS adherence_in_percentage, date(oo.obs_datetime) as visit_date,dg.drug_id as rds_drug_id,
+      oo.date_created, oo.updated_at
       FROM #{@rds_db}.obs oo
       LEFT JOIN #{@rds_db}.orders o ON oo.order_id = o.order_id
       LEFT JOIN #{@rds_db}.drug_order d ON o.order_id = d.order_id
@@ -807,14 +834,20 @@ SQL
     # where clause should read WHERE oo.concept_id = 6987 and ids_prescribed_drug['order_id'] = oo.order_id;
     (prescription_drug_adherence || []).each do |rds_drug_adherence|
       puts "Processing adherence record for person #{rds_drug_adherence['person_id']}"
-      MedicationAdherence.create(medication_dispensation_id: ids_prescribed_drug['medication_prescription_id'], drug_id: ids_prescribed_drug['drug_id'],
-                                 adherence: rds_drug_adherence['adherence_in_percentage'], voided: ids_prescribed_drug['voided'],
-                                 voided_by: ids_prescribed_drug['voided_by'], voided_date: ids_prescribed_drug['date_voided'],
-                                 void_reason: ids_prescribed_drug['void_reason'], app_date_created: ids_prescribed_drug['date_created'],
-                                 app_date_updated: ids_prescribed_drug['date_changed'])
+      MedicationAdherence.create(
+        medication_dispensation_id: ids_prescribed_drug['medication_prescription_id'],
+        drug_id: ids_prescribed_drug['drug_id'],
+        adherence: rds_drug_adherence['adherence_in_percentage'],
+        voided: ids_prescribed_drug['voided'],
+        voided_by: ids_prescribed_drug['voided_by'], 
+        voided_date: ids_prescribed_drug['date_voided'],
+        void_reason: ids_prescribed_drug['void_reason'], 
+        app_date_created: rds_drug_adherence['date_created'],
+        app_date_updated: ids_prescribed_drug['date_changed'])
 
       puts "Successfully populated medication adherence details with record for person #{rds_drug_adherence['person_id']}"
     end
+    pdate_last_update('Adherence', rds_drug_adherence['updated_at'])
   end
 end
 
@@ -897,6 +930,7 @@ def methods_init
   populate_lab_orders
   populate_occupation
   populate_dispensation
+  populate_adherence
   populate_relationships
   populate_hiv_staging_info
   populate_precription_has_regimen

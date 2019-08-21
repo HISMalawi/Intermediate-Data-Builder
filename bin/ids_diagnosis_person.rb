@@ -18,7 +18,7 @@ def ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
       puts "Failed to populated diagnosis with person id #{diag['person_id']}"
     end
   end
-  update_last_update('Diagnosis', diag['encounter_datetime'])
+  update_last_update('Diagnosis', diag['updated_at'])
 end
 
 def assign_data(diag)

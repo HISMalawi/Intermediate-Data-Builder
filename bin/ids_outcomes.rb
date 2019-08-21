@@ -54,4 +54,5 @@ def ids_outcomes(rds_outcomes)
 
       puts "Successfully updated outcome details with record for person #{rds_outcomes['patient_id']}"
     end
+  update_last_update('Outcomes', rds_outcomes['updated_at'])
 end

@@ -37,4 +37,5 @@ appointment = Appointment.find_by_appointment_id(rds_appointment['obs_id'])
 
       puts "Successfully updated appointment details with record for person #{rds_appointment['person_id']}"
     end
+  update_last_update('Appointment', rds_appointment['updated_at'])
 end
