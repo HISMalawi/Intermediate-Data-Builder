@@ -42,5 +42,5 @@ def ids_relationship(relation)
     end
 
   end
-  update_last_update('Relationship', relation['date_created'])
+  update_last_update('Relationship', relation['updated_at'])
 end
