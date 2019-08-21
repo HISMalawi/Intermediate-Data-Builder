@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 def ids_relationship(relation)
-  puts "processing Relationship for person ID #{presenting_complaint['person_id']}"
+  puts "processing Relationship for person ID #{relation['person_id_a']}"
 
-  relationship = Relationship.find_by(relation: relation['relationship_id'])
+  relationship = Relationship.find_by_relationship_id(relation['relationship_id'])
 
   relationship_type = get_master_def_id(relation['relationship'], 'relationship_type')
 
