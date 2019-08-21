@@ -817,10 +817,10 @@ end
 
 def populate_adherence
   last_updated = get_last_updated('MedicationAdherence')
-  medication_prescribed_id = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM medication_prescriptions;
-SQL
-  (medication_prescribed_id || []).each do |ids_prescribed_drug|
+  
+  query = "SELECT * FROM medication_prescriptions"
+
+  fetch_data(query) do |ids_prescribed_drug|
     drug_dispensed_id = ids_prescribed_drug['drug_id'].to_i # we need to include an order id which is a unique and we will need to compare in obs table
     prescription_drug_adherence = ActiveRecord::Base.connection.select_all <<SQL
       SELECT oo.obs_id, oo.person_id,oo.value_text AS adherence_in_percentage, 
@@ -834,9 +834,34 @@ SQL
 SQL
     # where clause should read WHERE oo.concept_id = 6987 and ids_prescribed_drug['order_id'] = oo.order_id;
     (prescription_drug_adherence || []).each do |rds_drug_adherence|
+
       puts "Processing adherence record for person #{rds_drug_adherence['person_id']}"
-      MedicationAdherence.create(
-        adherence_id: prescription_drug_adherence['obs_id'].to_i,
+
+    adherence_exists = MedicationAdherence.find_by_adherence_id(rds_drug_adherence['obs_id'].to_i)
+
+    if adherence_exists.blank?
+      begin
+        MedicationAdherence.create(
+          adherence_id: rds_drug_adherence['obs_id'].to_i,
+          medication_dispensation_id: ids_prescribed_drug['medication_prescription_id'],
+          drug_id: ids_prescribed_drug['drug_id'],
+          adherence: rds_drug_adherence['adherence_in_percentage'],
+          voided: ids_prescribed_drug['voided'],
+          voided_by: ids_prescribed_drug['voided_by'], 
+          voided_date: ids_prescribed_drug['date_voided'],
+          void_reason: ids_prescribed_drug['void_reason'], 
+          app_date_created: rds_drug_adherence['date_created'],
+          app_date_updated: ids_prescribed_drug['date_changed']
+          )
+
+      remove_failed_record('adherence', rds_drug_adherence['obs_id'].to_i)
+      
+      rescue Exception => e
+        log_error_records('adherence', rds_drug_adherence['obs_id'].to_i, e)
+      end
+
+    elsif check_latest_record(rds_drug_adherence, adherence_exists)
+      adherence_exists.update(
         medication_dispensation_id: ids_prescribed_drug['medication_prescription_id'],
         drug_id: ids_prescribed_drug['drug_id'],
         adherence: rds_drug_adherence['adherence_in_percentage'],
@@ -845,11 +870,15 @@ SQL
         voided_date: ids_prescribed_drug['date_voided'],
         void_reason: ids_prescribed_drug['void_reason'], 
         app_date_created: rds_drug_adherence['date_created'],
-        app_date_updated: ids_prescribed_drug['date_changed'])
+        app_date_updated: ids_prescribed_drug['date_changed']
+        )
+    end
+
+
 
       puts "Successfully populated medication adherence details with record for person #{rds_drug_adherence['person_id']}"
-    end
-    pdate_last_update('Adherence', rds_drug_adherence['updated_at'])
+      update_last_update('Adherence', rds_drug_adherence['updated_at'])
+    end    
   end
 end
 
@@ -932,11 +961,11 @@ def methods_init
   # populate_lab_orders
   # populate_occupation
   # populate_dispensation
-  # populate_adherence
-  # populate_relationships
-  # populate_hiv_staging_info
-  # populate_precription_has_regimen
-  # populate_lab_test_results
+  populate_adherence
+  populate_relationships
+  populate_hiv_staging_info
+  populate_precription_has_regimen
+  populate_lab_test_results
   initiate_de_duplication
   populate_de_identifier
 
