@@ -117,14 +117,14 @@ def check_for_duplicate(demographics)
   subject <<  demographics[:person_address][0]['address2'] rescue  nil
   subject <<  demographics[:person_address][0]['county_district'] rescue  nil
   subject <<  demographics[:person_address][0]['neighborhood_cell'] rescue  nil
-  duplicates = find_duplicates(subject, demographics[:person]['person_id'])
+  duplicates = find_duplicates(subject.squish, demographics[:person]['person_id'])
 
   person_present = DeDuplicator.find_by(person_id: demographics[:person]['person_id'])
   if person_present
     puts 'person_present'
     person_present.update(person_de_duplicator: subject)
   else
-    DeDuplicator.create(person_id: demographics[:person]['person_id'], person_de_duplicator: subject)
+    DeDuplicator.create(person_id: demographics[:person]['person_id'], person_de_duplicator: subject.squish)
     begin
       puts duplicates.first['score'].to_f.inspect
     rescue StandardError
@@ -823,7 +823,8 @@ SQL
   (medication_prescribed_id || []).each do |ids_prescribed_drug|
     drug_dispensed_id = ids_prescribed_drug['drug_id'].to_i # we need to include an order id which is a unique and we will need to compare in obs table
     prescription_drug_adherence = ActiveRecord::Base.connection.select_all <<SQL
-      SELECT oo.person_id,oo.value_text AS adherence_in_percentage, date(oo.obs_datetime) as visit_date,dg.drug_id as rds_drug_id,
+      SELECT oo.obs_id, oo.person_id,oo.value_text AS adherence_in_percentage, 
+      date(oo.obs_datetime) as visit_date,dg.drug_id as rds_drug_id,
       oo.date_created, oo.updated_at
       FROM #{@rds_db}.obs oo
       LEFT JOIN #{@rds_db}.orders o ON oo.order_id = o.order_id
@@ -835,6 +836,7 @@ SQL
     (prescription_drug_adherence || []).each do |rds_drug_adherence|
       puts "Processing adherence record for person #{rds_drug_adherence['person_id']}"
       MedicationAdherence.create(
+        adherence_id: prescription_drug_adherence['obs_id'].to_i,
         medication_dispensation_id: ids_prescribed_drug['medication_prescription_id'],
         drug_id: ids_prescribed_drug['drug_id'],
         adherence: rds_drug_adherence['adherence_in_percentage'],
@@ -908,33 +910,33 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_breastfeeding_status
-  populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
-  populate_tb_statuses
-  populate_outcomes
-  populate_family_planning
-  populate_appointment
-  populate_prescription
-  populate_lab_orders
-  populate_occupation
-  populate_dispensation
-  populate_adherence
-  populate_relationships
-  populate_hiv_staging_info
-  populate_precription_has_regimen
-  populate_lab_test_results
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
+  # update_person_type
+  # populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_breastfeeding_status
+  # populate_vitals
+  # populate_patient_history
+  # populate_symptoms
+  # populate_side_effects
+  # populate_presenting_complaints
+  # populate_tb_statuses
+  # populate_outcomes
+  # populate_family_planning
+  # populate_appointment
+  # populate_prescription
+  # populate_lab_orders
+  # populate_occupation
+  # populate_dispensation
+  # populate_adherence
+  # populate_relationships
+  # populate_hiv_staging_info
+  # populate_precription_has_regimen
+  # populate_lab_test_results
   initiate_de_duplication
   populate_de_identifier
 

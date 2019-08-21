@@ -10,14 +10,18 @@ def populate_precription_has_regimen
      puts "processing Prescription has info for encounter #{prescription['encounter_id']}"
 
     regimen = MedicationRegimen.where(drug_composition: prescription['drugs']).select('medication_regimen_id').limit(1)
+  begin
     prescription_has_reg_exist = MedicationPrescriptionHasMedicationRegimen.find_by(medication_regimen_id: regimen.first['medication_regimen_id'],
                                                                                    medication_prescription_encounter_id: prescription['encounter_id'])
+
     if prescription_has_reg_exist
       next
     else
       MedicationPrescriptionHasMedicationRegimen.create(medication_prescription_encounter_id: prescription['encounter_id'],
                                                         medication_regimen_id: regimen.first['medication_regimen_id'])
     end
+  rescue
+  end
     update_last_update('PrescriptionHasRegimen', prescription['updated_at'])
   end
 end

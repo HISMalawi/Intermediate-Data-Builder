@@ -8,7 +8,7 @@ def populate_hiv_staging_info
            #{@rds_db}.patient_program pp on p.patient_id = pp.patient_id
            JOIN #{@rds_db}.patient_state ps ON pp.patient_program_id = ps.patient_program_id 
            WHERE (pp.program_id = 1 AND p.voided = 0 AND pp.voided = 0  
-           AND ps.state = 7 AND ps.voided = 0 AND p.updated_at >= #{last_updated})
+           AND ps.state = 7 AND ps.voided = 0 AND p.updated_at >= '#{last_updated}')
            OR p.patient_id IN #{load_error_records('hiv_staging_info')} "
 
 fetch_data(query) do |patient|
