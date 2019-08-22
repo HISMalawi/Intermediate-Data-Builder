@@ -10,8 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_17_093939) do
 
+ActiveRecord::Schema.define(version: 2019_08_17_093939) do
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
     t.datetime "appointment_date", null: false
@@ -246,6 +246,7 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
 
   create_table "locations", primary_key: "location_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", null: false
+    t.string "code", null: false
     t.integer "parent_location"
     t.string "description"
     t.string "latitude"
@@ -327,8 +328,6 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["drug_id"], name: "fk_rails_2ae6a3ad59"
-    t.index ["encounter_id"], name: "fk_rails_458448a9a4"
   end
 
   create_table "medication_regimen", primary_key: "medication_regimen_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -634,17 +633,16 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
   create_table "users", primary_key: "user_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "person_id", null: false
     t.string "username", null: false
-    t.string "password", null: false
+    t.string "password_digest"
     t.integer "user_role", null: false
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
-    t.datetime "app_date_created", null: false
+    t.datetime "app_date_created", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["person_id"], name: "fk_rails_fa67535741"
   end
 
   create_table "vitals", primary_key: "vitals_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -689,11 +687,10 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
   add_foreign_key "lab_test_results", "lab_orders", primary_key: "lab_order_id"
   add_foreign_key "medication_adherences", "master_definitions", column: "drug_id", primary_key: "master_definition_id"
   add_foreign_key "medication_adherences", "medication_dispensations", primary_key: "medication_dispensation_id"
+
   add_foreign_key "medication_dispensations", "medication_prescriptions", primary_key: "medication_prescription_id"
-  add_foreign_key "medication_prescription_has_medication_regimen", "medication_prescriptions", column: "medication_prescription_encounter_id", primary_key: "encounter_id"
+ 
   add_foreign_key "medication_prescription_has_medication_regimen", "medication_regimen", column: "medication_regimen_id", primary_key: "medication_regimen_id"
-  add_foreign_key "medication_prescriptions", "encounters", primary_key: "encounter_id"
-  add_foreign_key "medication_prescriptions", "master_definitions", column: "drug_id", primary_key: "master_definition_id"
   add_foreign_key "occupations", "master_definitions", column: "occupation", primary_key: "master_definition_id"
   add_foreign_key "occupations", "people", primary_key: "person_id"
   add_foreign_key "outcomes", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
@@ -729,7 +726,6 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
   add_foreign_key "symptoms", "encounters", primary_key: "encounter_id"
   add_foreign_key "symptoms", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "tb_statuses", "encounters", primary_key: "encounter_id"
-  add_foreign_key "users", "people", primary_key: "person_id"
   add_foreign_key "vitals", "encounters", primary_key: "encounter_id"
   add_foreign_key "vitals", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
 end
