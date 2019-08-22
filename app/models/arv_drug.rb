@@ -1,0 +1,2 @@
+class ArvDrug < ApplicationRecord
+end

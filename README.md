@@ -44,6 +44,16 @@ application up and running.
   
     rails db:setup
     
+**Using an Existing Database**
+> Run the following command to migrate your database with new schema changes:
+  
+    rails db:migrate
+    
+**Resetting an Existing Database**
+> Run the following command to reset and initialize your database with metadata:
+  
+    rails db:reset    
+    
 > Metadata files reside in the following directory
 
     db/seed_dumps/
@@ -58,16 +68,29 @@ application up and running.
     
 ## Services (job queues, cache servers, search engines, etc.)
 
-**1. IDS Builder**
+###1. IDS Builder
 
+> **Pre-requisites:**  
+
+>BHT RDS Application  
+Find out more from the link below
+
+    git@github.com:BaobabHealthTrust/BHT-RDS-API.git
+    
+>Make sure your config/database.yml file is pre-configured for RDS to IDS  
+In config/database.yml modify the section below
+
+    rds:
+      <<: *default
+      database: your_rds_database_name
+   
 This service is used for getting data from RDS (Row Data Storage) to this repository
 
 To build the IDS, you get data from RDS by running the ids_builder service with the following command;
 
     rails runner bin/ids_builder.rb
     
-> **Pre-requisites: Make sure your config/database.yml file is pre-configured for RDS to IDS**
-    
+ 
 ...
 
 ## Deployment instructions    
