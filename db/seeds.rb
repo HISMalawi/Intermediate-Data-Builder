@@ -54,6 +54,7 @@ CSV.foreach("#{Rails.root}/app/assets/data/districts_with_codes.csv", headers: t
 
   row[1] = 'Nkhata-bay' if row[1].match(/Nkhata/i)
   location = Location.new
+  location.code = row[0]
   location.name = row[1]
   location.latitude = row[3]
   location.longitude = row[4]
