@@ -3,17 +3,13 @@
 class CreateLabTestResults < ActiveRecord::Migration[5.2]
   def change
     create_table :lab_test_results, primary_key: :test_result_id do |t|
-      t.integer  :lab_order_id, null: false
-      t.integer  :results_test_facility_id, null: false
-      t.bigint  :test_measure_id, null: false
-      t.bigint  :test_type_id
+      t.bigint  :lab_order_id, null: false
+      t.string  :results_test_facility, null: false
+      t.string  :test_type, null: false
+      t.string  :sample_type
+      t.string :test_measure
       t.datetime :test_result_date
-      t.string :value_text
-      t.integer :value_numeric
-      t.string :value_modifier
-      t.integer  :value_min
-      t.integer  :value_max
-      t.bigint :creator
+      t.string :result
       t.boolean  :voided, null: false, default: 0
       t.integer  :voided_by
       t.datetime :voided_date
@@ -23,7 +19,5 @@ class CreateLabTestResults < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
-
-    change_column :lab_test_results, :test_result_id, :integer
-  end
+   end
 end

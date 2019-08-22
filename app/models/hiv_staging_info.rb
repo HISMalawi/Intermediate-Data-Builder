@@ -1,3 +1,3 @@
 class HivStagingInfo < ApplicationRecord
-	belongs_to :encounter
+	belongs_to :person
 end

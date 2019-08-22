@@ -13,7 +13,7 @@
 # Load metadata into database
 puts '================ Loading SQL Metadata ====================='
 
-metadata_sql_files = %w[person_types master_definitions drugs_and_regimens]
+metadata_sql_files = %w[person_types master_definitions drugs_and_regimens failed_record_types]
 connection = ActiveRecord::Base.connection
 (metadata_sql_files || []).each do |metadata_sql_file|
   puts "Loading #{metadata_sql_file} metadata sql file"
