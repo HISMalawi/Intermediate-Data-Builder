@@ -1,7 +1,7 @@
 def populate_lab_orders
   last_updated = get_last_updated('LabOrders')
 
-  query = "SELECT * FROM #{@rds_db}.orders 
+  query = "SELECT * FROM #{@rds_db}.orders
            WHERE (ORDER_TYPE_ID = 4
            AND updated_at >= '#{last_updated}')
            OR order_id IN #{load_error_records('lab_orders')} "

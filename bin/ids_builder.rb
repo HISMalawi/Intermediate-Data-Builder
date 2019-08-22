@@ -760,18 +760,18 @@ def populate_dispensation
   INNER JOIN #{@rds_db}.drug_order do  ON o.order_id = do.order_id
   WHERE (do.updated_at >= '#{last_updated}')
   OR do.order_id IN #{load_error_records('dispensation')}"
+    
 
   fetch_data(query) do |rds_dispensed_drug|
       puts "Processing dispensation record for person #{rds_dispensed_drug['patient_id']}"
 
      dispensation_exist = MedicationDispensation.find_by_medication_dispensation_id(rds_dispensed_drug['order_id'])
-
      if dispensation_exist.blank?
       begin
         MedicationDispensation.create(
           medication_dispensation_id: rds_dispensed_drug['order_id'],
           quantity: rds_dispensed_drug['quantity'],
-          medication_prescription_id: ids_prescribed_drug['medication_prescription_id'],
+          medication_prescription_id: rds_dispensed_drug['order_id'],
           voided: rds_dispensed_drug['voided'],
           voided_by: rds_dispensed_drug['voided_by'],
           voided_date: rds_dispensed_drug['date_voided'],
@@ -940,8 +940,8 @@ def methods_init
   end
 
   populate_people
-  populate_person_names
-  #populate_contact_details
+  # populate_person_names
+  # populate_contact_details
   populate_person_address
   update_person_type
   populate_encounters

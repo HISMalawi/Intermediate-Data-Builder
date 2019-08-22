@@ -4,6 +4,7 @@ class CreateLocations < ActiveRecord::Migration[5.2]
   def change
     create_table :locations, primary_key: :location_id do |t|
       t.string :name, null: false
+      t.string :code, null: false
       t.integer :parent_location
       t.string  :description
       t.string  :latitude
