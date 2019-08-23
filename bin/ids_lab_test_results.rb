@@ -1,5 +1,5 @@
 require 'json'
-@lims_url = 'localhost:3010'
+@lims_url = '192.168.12.71:3010'
 @lims_user = 'lab_test'
 @lims_pwd = 'lab_test'
 
@@ -22,41 +22,35 @@ def populate_lab_test_results
                                                       header))
     if get_lab_order_results['status'] == 200
        get_lab_order_results['data']['results'].each do |measure, value|
-            value.each do  | test, v|
+         value.each do  | test, v|
               next if test == 'result_date'
-              begin
-                  lab_result = LabTestResult.find_by(lab_order_id: lab_order['lab_order_id'],
-                                                     results_test_facility: get_lab_order_details['data']['other']['receiving_lab'],
-                                                     test_type: measure,
-                                                     test_measure: test,
-                                                     sample_type: get_lab_order_details['data']['other']['sample_type'],
-                                                     test_result_date: value['result_date'])
-
+              #begin
+                  lab_result = LabTestResult.find_by(lab_order_id: lab_order['lab_order_id'])
                 if lab_result
                   lab_result.update(lab_order_id: lab_order['lab_order_id'],
-                  results_test_facility: get_lab_order_details['data']['other']['receiving_lab'],
+                  results_test_facility: (get_lab_order_details['data']['other']['receiving_lab'] rescue 'N/A'),
                   test_type: measure,
-                  sample_type: get_lab_order_details['data']['other']['sample_type'],
+                  sample_type: (get_lab_order_details['data']['other']['sample_type'] rescue 'N/A'),
                   test_measure: test,
-                  test_result_date: value['result_date'],
+                  test_result_date: (value['result_date'] || lab_order['app_date_created']).strftime('%Y-%m-%d'),
                   result: v,
                   app_date_created: Time.now)
                 else
                   lab_result = LabTestResult.new
                   lab_result['lab_order_id'] = lab_order['lab_order_id']
-                  lab_result['results_test_facility'] = get_lab_order_details['data']['other']['receiving_lab']
+                  lab_result['results_test_facility'] = (get_lab_order_details['data']['other']['receiving_lab'] rescue 'N/A')
                   lab_result['test_type'] = measure
-                  lab_result['sample_type']  = get_lab_order_details['data']['other']['sample_type']
+                  lab_result['sample_type']  = (get_lab_order_details['data']['other']['sample_type'] rescue 'N/A')
                   lab_result['test_measure'] = test
-                  lab_result['test_result_date'] = value['result_date']
+                  lab_result['test_result_date'] = (value['result_date'] || lab_order['app_date_created']).strftime('%Y-%m-%d')
                   lab_result['result'] = v
                   lab_result['app_date_created'] = Time.now
 
                   lab_result.save
                 end
-              rescue Exception => e
-               File.write('log/app_errors.log', e.message, mode: 'a')
-              end
+              # rescue Exception => e
+              #  File.write('log/app_errors.log', e.message, mode: 'a')
+              # end
             end
           end
     end
