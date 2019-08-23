@@ -103,7 +103,7 @@ end
 
 def check_latest_record(src, des)
   (src['date_changed'] || src['date_created']).to_date >
-  (des['app_date_updated'] || des['app_date_created']).to_date
+  (des['app_date_updated'] || des['app_date_created']).to_date rescue false
 end
 
 def update_record(concept_id, value_coded, record, update)

@@ -766,7 +766,6 @@ def populate_dispensation
       puts "Processing dispensation record for person #{rds_dispensed_drug['patient_id']}"
 
      dispensation_exist = MedicationDispensation.find_by_medication_dispensation_id(rds_dispensed_drug['order_id'])
-
      if dispensation_exist.blank?
       begin
         MedicationDispensation.create(
