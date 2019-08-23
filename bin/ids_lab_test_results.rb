@@ -25,20 +25,14 @@ def populate_lab_test_results
          value.each do  | test, v|
               next if test == 'result_date'
               #begin
-                  lab_result = LabTestResult.find_by(lab_order_id: lab_order['lab_order_id'],
-                                                     results_test_facility: (get_lab_order_details['data']['other']['receiving_lab'] rescue 'N/A'),
-                                                     test_type: measure,
-                                                     test_measure: test,
-                                                     sample_type: (get_lab_order_details['data']['other']['sample_type'] rescue 'N/A'),
-                                                     test_result_date: value['result_date'])
-
+                  lab_result = LabTestResult.find_by(lab_order_id: lab_order['lab_order_id'])
                 if lab_result
                   lab_result.update(lab_order_id: lab_order['lab_order_id'],
                   results_test_facility: (get_lab_order_details['data']['other']['receiving_lab'] rescue 'N/A'),
                   test_type: measure,
                   sample_type: (get_lab_order_details['data']['other']['sample_type'] rescue 'N/A'),
                   test_measure: test,
-                  test_result_date: (value['result_date'] || Date.today).strftime('%Y-%m-%d'),
+                  test_result_date: (value['result_date'] || lab_order['app_date_created']).strftime('%Y-%m-%d'),
                   result: v,
                   app_date_created: Time.now)
                 else
@@ -48,7 +42,7 @@ def populate_lab_test_results
                   lab_result['test_type'] = measure
                   lab_result['sample_type']  = (get_lab_order_details['data']['other']['sample_type'] rescue 'N/A')
                   lab_result['test_measure'] = test
-                  lab_result['test_result_date'] = (value['result_date'] || Date.today).strftime('%Y-%m-%d')
+                  lab_result['test_result_date'] = (value['result_date'] || lab_order['app_date_created']).strftime('%Y-%m-%d')
                   lab_result['result'] = v
                   lab_result['app_date_created'] = Time.now
 
