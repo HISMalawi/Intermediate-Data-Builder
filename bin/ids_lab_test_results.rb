@@ -1,5 +1,5 @@
 require 'json'
-@lims_url = '192.168.12.71:3010'
+@lims_url = 'localhost:3010'
 @lims_user = 'lab_test'
 @lims_pwd = 'lab_test'
 
@@ -32,7 +32,7 @@ def populate_lab_test_results
                   test_type: measure,
                   sample_type: (get_lab_order_details['data']['other']['sample_type'] rescue 'N/A'),
                   test_measure: test,
-                  test_result_date: (value['result_date'] || lab_order['app_date_created']).strftime('%Y-%m-%d'),
+                  test_result_date: value['result_date'],
                   result: v,
                   app_date_created: Time.now)
                 else
@@ -42,7 +42,7 @@ def populate_lab_test_results
                   lab_result['test_type'] = measure
                   lab_result['sample_type']  = (get_lab_order_details['data']['other']['sample_type'] rescue 'N/A')
                   lab_result['test_measure'] = test
-                  lab_result['test_result_date'] = (value['result_date'] || lab_order['app_date_created']).strftime('%Y-%m-%d')
+                  lab_result['test_result_date'] = value['result_date']
                   lab_result['result'] = v
                   lab_result['app_date_created'] = Time.now
 
