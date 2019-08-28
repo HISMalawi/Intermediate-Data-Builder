@@ -3,7 +3,7 @@
 class AddLevenshteinFunctionToMysql < ActiveRecord::Migration[5.2]
   def change
     ActiveRecord::Base.connection.execute <<~QUERY
-          CREATE DEFINER=`root`@`localhost` FUNCTION `ids`.`levenshtein`( s1 VARCHAR(255), s2 VARCHAR(255), dam BOOL) RETURNS int(11)
+          CREATE DEFINER=`root`@`localhost` FUNCTION `levenshtein`( s1 VARCHAR(255), s2 VARCHAR(255), dam BOOL) RETURNS int(11)
           DETERMINISTIC
           BEGIN
           DECLARE s1_len, s2_len, i, j, c, c_temp, cost INT;
