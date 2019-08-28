@@ -45,7 +45,7 @@ def get_rds_person_name(person_id)
   person_name = []
   rds_person_name = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_name where person_id = #{person_id}
-	AND (created_at >= '#{last_updated}');
+	AND (updated_at >= '#{last_updated}');
 QUERY
   rds_person_name.each { |name| person_name << name }
 end
@@ -55,8 +55,7 @@ def get_rds_person_addresses(person_id)
   person_address = []
   rds_address = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_address where person_id = #{person_id}
-	AND (updated_at >= '#{last_updated}'
-	OR date_voided  >=  '#{last_updated}');
+	AND (updated_at >= '#{last_updated}';
 
 QUERY
 
@@ -68,8 +67,7 @@ def get_rds_person_attributes
   person_attribute = []
   rds_attribute = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_attribute WHERE person_attribute_type_id IN (12,14,15)
-	AND (updated_at >= '#{last_updated}'
-	OR date_voided  >=  '#{last_updated}');
+	AND (updated_at >= '#{last_updated}';
 
 QUERY
 
@@ -117,14 +115,14 @@ def check_for_duplicate(demographics)
   subject <<  demographics[:person_address][0]['address2'] rescue  nil
   subject <<  demographics[:person_address][0]['county_district'] rescue  nil
   subject <<  demographics[:person_address][0]['neighborhood_cell'] rescue  nil
-  duplicates = find_duplicates(subject.squish, demographics[:person]['person_id'])
+  duplicates = find_duplicates(subject.gsub!(/\s+/, ''), demographics[:person]['person_id'])
 
   person_present = DeDuplicator.find_by(person_id: demographics[:person]['person_id'])
   if person_present
     puts 'person_present'
     person_present.update(person_de_duplicator: subject)
   else
-    DeDuplicator.create(person_id: demographics[:person]['person_id'], person_de_duplicator: subject.squish)
+    DeDuplicator.create(person_id: demographics[:person]['person_id'], person_de_duplicator: subject.gsub!(/\s+/, ''))
     begin
       puts duplicates.first['score'].to_f.inspect
     rescue StandardError
