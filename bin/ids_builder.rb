@@ -151,7 +151,7 @@ def update_last_update(model, timestamp)
 end
 
 def initiate_de_duplication
-  last_updated = get_last_updated('People')
+  last_updated = get_last_updated('Deduplicaton')
 
   query = "SELECT * FROM #{@rds_db}.person WHERE updated_at >= '#{last_updated}' "
 
