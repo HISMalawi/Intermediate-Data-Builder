@@ -87,17 +87,15 @@ end
 
 def find_duplicates(subject, subject_person_id)
   ActiveRecord::Base.connection.select_all <<QUERY
-			SELECT person_id, ROUND(CAST((((length("#{subject}") - levenshtein(person_de_duplicator,"#{subject}",2))/ length("#{subject}")) * 100) AS DECIMAL),2)
- as score FROM de_duplicators WHERE person_id != #{subject_person_id};
+			SELECT person_id, ROUND(CAST((((length("#{subject}") - damlev(person_de_duplicator,"#{subject}"))/ length("#{subject}")) * 100) AS DECIMAL),2)
+ as score FROM de_duplicators WHERE person_id != #{subject_person_id} HAVING score >= #{@threshold};
 QUERY
 end
 
 def process_duplicates(duplicates, duplicate_id)
   duplicates.each do |duplicate|
-    if duplicate['score'].to_f >= @threshold
       # save to duplicate_statuses
       PotentialDuplicate.create(person_id_a: duplicate_id, person_id_b: duplicate['person_id'], score: duplicate['score'].to_f)
-    end
   end
 end
 
@@ -105,13 +103,13 @@ def check_for_duplicate(demographics)
   # find matching text in de_duplicator table
 
   subject = ''
-  subject  += demographics[:person_names][0]['given_name'] rescue  nil
-  subject << demographics[:person_names][0]['family_name'] rescue  nil
+  subject += demographics[:person_names][0]['given_name'] rescue  ''
+  subject << demographics[:person_names][0]['family_name'] rescue  ''
   subject <<  demographics[:person]['gender'] rescue  nil
-  subject <<  demographics[:person]['birthdate'].strftime('%Y-%m-%d').gsub('-', '') rescue  nil
-  subject <<  demographics[:person_address][0]['address2'] rescue  nil
-  subject <<  demographics[:person_address][0]['county_district'] rescue  nil
-  subject <<  demographics[:person_address][0]['neighborhood_cell'] rescue  nil
+  subject <<  demographics[:person]['birthdate'].strftime('%Y-%m-%d').gsub('-', '') rescue ''
+  subject <<  demographics[:person_address][0]['address2'] rescue  ''
+  subject <<  demographics[:person_address][0]['county_district'] rescue  ''
+  subject <<  demographics[:person_address][0]['neighborhood_cell'] rescue  ''
   subject.gsub!(/\s+/, '')
   
   duplicates = find_duplicates(subject, demographics[:person]['person_id'])
@@ -164,6 +162,8 @@ def initiate_de_duplication
     demographics.update("person_address": get_rds_person_addresses(person['person_id']))
 
     check_for_duplicate(demographics)
+
+    update_last_update('Deduplicaton', person['updated_at'])
   end
 end
 
@@ -936,33 +936,33 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  # populate_people
-  # populate_person_names
-  # populate_contact_details
-  # populate_person_address
-  # update_person_type
-  # populate_encounters
-  # populate_diagnosis
-  # populate_pregnant_status
-  # populate_breastfeeding_status
-  # populate_vitals
-  # populate_patient_history
-  # populate_symptoms
-  # populate_side_effects
-  # populate_presenting_complaints
-  # populate_tb_statuses
-  # populate_outcomes
-  # populate_family_planning
-  # populate_appointment
-  # populate_prescription
-  # populate_lab_orders
-  # populate_occupation
-  # populate_dispensation
-  # populate_adherence
-  # populate_relationships
-  # populate_hiv_staging_info
-  # populate_precription_has_regimen
-  # populate_lab_test_results
+  populate_people
+  populate_person_names
+  populate_contact_details
+  populate_person_address
+  update_person_type
+  populate_encounters
+  populate_diagnosis
+  populate_pregnant_status
+  populate_breastfeeding_status
+  populate_vitals
+  populate_patient_history
+  populate_symptoms
+  populate_side_effects
+  populate_presenting_complaints
+  populate_tb_statuses
+  populate_outcomes
+  populate_family_planning
+  populate_appointment
+  populate_prescription
+  populate_lab_orders
+  populate_occupation
+  populate_dispensation
+  populate_adherence
+  populate_relationships
+  populate_hiv_staging_info
+  populate_precription_has_regimen
+  populate_lab_test_results
   initiate_de_duplication
   populate_de_identifier
 
