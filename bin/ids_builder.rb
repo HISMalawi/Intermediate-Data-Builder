@@ -44,8 +44,7 @@ def get_rds_person_name(person_id)
   last_updated = get_last_updated('PersonName')
   person_name = []
   rds_person_name = ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.person_name where person_id = #{person_id}
-	AND (updated_at >= '#{last_updated}');
+	SELECT * FROM #{@rds_db}.person_name where person_id = #{person_id};
 QUERY
   rds_person_name.each { |name| person_name << name }
 end
@@ -54,9 +53,7 @@ def get_rds_person_addresses(person_id)
   last_updated = get_last_updated('PersonAddress')
   person_address = []
   rds_address = ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.person_address where person_id = #{person_id}
-	AND (updated_at >= '#{last_updated}';
-
+	SELECT * FROM #{@rds_db}.person_address where person_id = #{person_id};
 QUERY
 
   rds_address.each { |address| person_address << address }
@@ -67,7 +64,7 @@ def get_rds_person_attributes
   person_attribute = []
   rds_attribute = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_attribute WHERE person_attribute_type_id IN (12,14,15)
-	AND (updated_at >= '#{last_updated}';
+	AND (updated_at >= '#{last_updated};
 
 QUERY
 
@@ -115,14 +112,16 @@ def check_for_duplicate(demographics)
   subject <<  demographics[:person_address][0]['address2'] rescue  nil
   subject <<  demographics[:person_address][0]['county_district'] rescue  nil
   subject <<  demographics[:person_address][0]['neighborhood_cell'] rescue  nil
-  duplicates = find_duplicates(subject.gsub!(/\s+/, ''), demographics[:person]['person_id'])
+  subject.gsub!(/\s+/, '')
+  
+  duplicates = find_duplicates(subject, demographics[:person]['person_id'])
 
   person_present = DeDuplicator.find_by(person_id: demographics[:person]['person_id'])
   if person_present
     puts 'person_present'
     person_present.update(person_de_duplicator: subject)
   else
-    DeDuplicator.create(person_id: demographics[:person]['person_id'], person_de_duplicator: subject.gsub!(/\s+/, ''))
+    DeDuplicator.create(person_id: demographics[:person]['person_id'], person_de_duplicator: subject)
     begin
       puts duplicates.first['score'].to_f.inspect
     rescue StandardError
@@ -937,33 +936,33 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_breastfeeding_status
-  populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
-  populate_tb_statuses
-  populate_outcomes
-  populate_family_planning
-  populate_appointment
-  populate_prescription
-  populate_lab_orders
-  populate_occupation
-  populate_dispensation
-  populate_adherence
-  populate_relationships
-  populate_hiv_staging_info
-  populate_precription_has_regimen
-  populate_lab_test_results
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
+  # update_person_type
+  # populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_breastfeeding_status
+  # populate_vitals
+  # populate_patient_history
+  # populate_symptoms
+  # populate_side_effects
+  # populate_presenting_complaints
+  # populate_tb_statuses
+  # populate_outcomes
+  # populate_family_planning
+  # populate_appointment
+  # populate_prescription
+  # populate_lab_orders
+  # populate_occupation
+  # populate_dispensation
+  # populate_adherence
+  # populate_relationships
+  # populate_hiv_staging_info
+  # populate_precription_has_regimen
+  # populate_lab_test_results
   initiate_de_duplication
   populate_de_identifier
 
