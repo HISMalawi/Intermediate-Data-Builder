@@ -64,7 +64,7 @@ def get_rds_person_attributes
   person_attribute = []
   rds_attribute = ActiveRecord::Base.connection.select_all <<QUERY
 	SELECT * FROM #{@rds_db}.person_attribute WHERE person_attribute_type_id IN (12,14,15)
-	AND (updated_at >= '#{last_updated};
+	AND updated_at >= '#{last_updated}' ORDER by updated_at;
 
 QUERY
 
