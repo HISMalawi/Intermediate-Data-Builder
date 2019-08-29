@@ -103,14 +103,18 @@ def check_for_duplicate(demographics)
   # find matching text in de_duplicator table
 
   subject = ''
-  subject += demographics[:person_names][0]['given_name'] rescue  ''
+  subject += (demographics[:person_names][0]['given_name'] ||  '')
   subject << demographics[:person_names][0]['family_name'] rescue  ''
   subject <<  demographics[:person]['gender'] rescue  nil
   subject <<  demographics[:person]['birthdate'].strftime('%Y-%m-%d').gsub('-', '') rescue ''
   subject <<  demographics[:person_address][0]['address2'] rescue  ''
   subject <<  demographics[:person_address][0]['county_district'] rescue  ''
   subject <<  demographics[:person_address][0]['neighborhood_cell'] rescue  ''
-  subject.gsub!(/\s+/, '')
+
+
+  return if subject.blank?
+
+  subject.gsub!(/\s+/, '') 
   
   duplicates = find_duplicates(subject, demographics[:person]['person_id'])
 
@@ -880,7 +884,7 @@ SQL
 end
 
 def populate_de_identifier
-  last_updated = get_last_updated('PersonNames')
+  last_updated = get_last_updated('DeIdentifiedIdentifier')
 
   query = "SELECT * FROM people
   WHERE updated_at >= '#{last_updated}'"
@@ -903,7 +907,9 @@ def populate_de_identifier
                                   app_date_created: person_details['app_date_created'], app_date_updated: person_details['app_date_updated'])
 
     puts "Successfully populated De_Identified identifier details with record for person #{person_details['person_id']}"
+
     end
+    update_last_update('DeIdentifiedIdentifier',person_details['updated_at'])
   end
 end
 
