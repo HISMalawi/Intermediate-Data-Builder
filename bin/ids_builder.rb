@@ -114,7 +114,7 @@ def check_for_duplicate(demographics)
 
   return if subject.blank?
 
-  subject.gsub!(/\s+/, '') 
+  subject.downcase!.gsub!(/[[:space:]]/, '')
   
   duplicates = find_duplicates(subject, demographics[:person]['person_id'])
 
@@ -125,7 +125,7 @@ def check_for_duplicate(demographics)
   else
     DeDuplicator.create(person_id: demographics[:person]['person_id'], person_de_duplicator: subject)
     begin
-      puts duplicates.first['score'].to_f.inspect
+      puts duplicates.first['score'].to_f
     rescue StandardError
       nil
     end
