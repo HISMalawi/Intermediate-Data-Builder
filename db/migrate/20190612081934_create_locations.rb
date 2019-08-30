@@ -15,5 +15,6 @@ class CreateLocations < ActiveRecord::Migration[5.2]
       t.timestamps
     end
 		change_column :locations, :location_id, :integer,  auto_increment: true
+    add_index :locations, :name
 	end
 end

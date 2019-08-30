@@ -2,8 +2,7 @@
 
 class CreateDiagnosis < ActiveRecord::Migration[5.2]
   def change
-    create_table :diagnosis, primary_key: :diagnosis_id do |t|
-      t.bigint  :encounter_id
+    create_table :diagnosis, primary_key: :encounter_id do |t|
       t.bigint  :primary_diagnosis
       t.bigint :secondary_diagnosis
       t.boolean :voided, null: false, default: 0

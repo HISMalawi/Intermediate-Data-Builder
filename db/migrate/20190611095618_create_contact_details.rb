@@ -2,8 +2,7 @@
 
 class CreateContactDetails < ActiveRecord::Migration[5.2]
   def change
-    create_table :contact_details, primary_key: :contact_details_id do |t|
-      t.bigint  :person_id, null: false
+    create_table :contact_details, primary_key: :person_id do |t|
       t.string  :home_phone_number
       t.string  :cell_phone_number
       t.string  :work_phone_number
@@ -18,5 +17,7 @@ class CreateContactDetails < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
+    change_column :contact_details, :created_at, :datetime, null: false, default: -> { 'CURRENT_TIMESTAMP' }
+    change_column :contact_details, :updated_at, :datetime, null: false, default: -> { 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP' }
   end
 end

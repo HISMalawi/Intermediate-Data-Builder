@@ -14,5 +14,8 @@ class CreateMasterDefinitions < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
+    add_index :master_definitions, :openmrs_metadata_id
+    add_index :master_definitions, :openmrs_entity_name
+    add_index :master_definitions, [:openmrs_metadata_id, :openmrs_entity_name], name: 'dual_index'
   end
 end

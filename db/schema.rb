@@ -49,8 +49,7 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.index ["encounter_id"], name: "fk_rails_5ac9413d58"
   end
 
-  create_table "contact_details", primary_key: "contact_details_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.bigint "person_id", null: false
+  create_table "contact_details", primary_key: "person_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "home_phone_number"
     t.string "cell_phone_number"
     t.string "work_phone_number"
@@ -62,9 +61,8 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.string "void_reason"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["person_id"], name: "fk_rails_0250a15bd9"
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
   end
 
   create_table "countries", primary_key: "country_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -97,8 +95,7 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.index ["person_id"], name: "fk_rails_a018965096"
   end
 
-  create_table "diagnosis", primary_key: "diagnosis_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.bigint "encounter_id"
+  create_table "diagnosis", primary_key: "encounter_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "primary_diagnosis"
     t.bigint "secondary_diagnosis"
     t.boolean "voided", default: false, null: false
@@ -110,7 +107,6 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["encounter_id"], name: "fk_rails_8d8afe9ece"
     t.index ["primary_diagnosis"], name: "fk_rails_0a7dc9fd37"
     t.index ["secondary_diagnosis"], name: "fk_rails_2ae6eb8b86"
   end
@@ -240,6 +236,7 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.integer "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_locations_on_name"
   end
 
   create_table "master_definitions", primary_key: "master_definition_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -253,6 +250,9 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["openmrs_entity_name"], name: "index_master_definitions_on_openmrs_entity_name"
+    t.index ["openmrs_metadata_id", "openmrs_entity_name"], name: "dual_index"
+    t.index ["openmrs_metadata_id"], name: "index_master_definitions_on_openmrs_metadata_id"
   end
 
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|

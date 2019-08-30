@@ -22,6 +22,7 @@ require_relative 'ids_breastfeeding_status'
 require_relative 'ids_people'
 require_relative 'ids_lab_test_results'
 require_relative 'ids_encounter'
+require_relative 'ids_contacts'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -178,77 +179,21 @@ end
 def populate_contact_details
   last_updated = get_last_updated('PersonAttribute')
 
-  fetch_data("SELECT * FROM #{@rds_db}.person_attribute WHERE person_attribute_type_id IN (12,14,15)
-  AND updated_at >= '#{last_updated}' ORDER BY updated_at ") do |person_attribute|
-    attribute_value = person_attribute['value']
+  query = "SELECT person_id,
+           MAX((CASE WHEN person_attribute_type_id = 12 THEN value ELSE NULL END)) AS cell_phone_number,
+           MAX((CASE WHEN person_attribute_type_id = 14 THEN value ELSE NULL END)) AS home_phone_number,
+           MAX((CASE WHEN person_attribute_type_id = 15 THEN value ELSE NULL END)) AS work_phone_number,
+           MAX(date_created) date_created,
+           MAX(date_changed) date_changed,
+           updated_at
+           FROM 
+           #{@rds_db}.person_attribute
+           group by person_id 
+           ORDER BY updated_at "
 
-    cell_phone_number = ''
-    home_phone_number = ''
-    work_phone_number = ''
+ populate_data(query, 'ids_contact_details', 'contact_details', 'ContactDetails',
+    ContactDetail.column_names[0..-3].join(','))   
 
-    case person_attribute['person_attribute_type_id']
-
-    when 12
-      cell_phone_number = attribute_value
-    when 14
-      home_phone_number = attribute_value
-    when 15
-      work_phone_number = attribute_value
-
-      # TODO: Add email address code
-      # email_address to be added when applications having email addresses start pushing to IDS
-    end
-
-    puts "processing person_id #{person_attribute['person_id']}"
-
-    person = Person.find_by(person_id: person_attribute['person_id'])
-
-    if person
-      if ContactDetail.find_by(person_id: person_attribute['person_id']).blank?
-        contact_detail = ContactDetail.new
-        contact_detail.person_id = person_attribute['person_id']
-        contact_detail.home_phone_number = home_phone_number
-        contact_detail.cell_phone_number = cell_phone_number
-        contact_detail.work_phone_number = work_phone_number
-        contact_detail.creator = person_attribute['creator']
-        contact_detail.voided = person_attribute['voided']
-        contact_detail.voided_by = person_attribute['voided_by']
-        contact_detail.voided_date = person_attribute['date_voided']
-        contact_detail.void_reason = person_attribute['void_reason']
-        contact_detail.created_at = Date.today.strftime('%Y-%m-%d %H:%M:%S')
-        contact_detail.updated_at = Date.today.strftime('%Y-%m-%d %H:%M:%S')
-        contact_detail.app_date_created = person_attribute['date_created']
-
-        contact_detail.save
-
-        puts "Successfully populated contact details with record for person #{person_attribute['person_id']}"
-      else
-        contact_detail = ContactDetail.where(person_id: person_attribute['person_id'])
-        contact_detail.update(home_phone_number: '') unless home_phone_number.nil?
-        contact_detail.update(cell_phone_number: '') unless cell_phone_number.nil?
-        contact_detail.update(work_phone_number: '') unless work_phone_number.nil?
-        contact_detail.update(creator: person_attribute['creator'])
-        contact_detail.update(voided: person_attribute['voided'])
-        contact_detail.update(voided_by: person_attribute['voided_by'])
-        contact_detail.update(voided_date: person_attribute['date_voided'])
-        contact_detail.update(void_reason: person_attribute['void_reason'])
-        contact_detail.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
-        contact_detail.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
-
-        puts "Successfully updated contact details with record for person #{person_attribute['person_id']}"
-      end
-    else
-      puts '==================================================================='
-      puts "Skipped record for Person with ID #{person_attribute['person_id']}"
-      puts 'Reason: Person records for the above ID not available in People'
-      puts '==================================================================='
-      puts ''
-      puts 'Ending script'
-      break
-    end
-     # Updating last record processed
-      update_last_update('PersonAttribute', person_attribute['updated_at'])
-  end
 end
 
 def populate_encounters
@@ -353,31 +298,22 @@ def populate_diagnosis
   primary_diagnosis = 6542
   secondary_diagnosis = 6543
 
-  (get_rds_diagnosis || []).each do |diag|
-    ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
-  end
+  query = "SELECT ob.*,
+           MAX(CASE WHEN ob.concept_id = 6542 THEN value_coded ELSE NULL END) AS primary_diag,
+           MAX(CASE WHEN ob.concept_id = 6543 THEN value_coded ELSE NULL END) AS sec_diag
+           FROM obs ob
+           INNER JOIN encounter en
+           ON ob.encounter_id = en.encounter_id
+           WHERE ob.concept_id IN (6542,6543)
+           GROUP BY encounter_id
+           ORDER BY updated_at "
+
+  populate_data(query, 'ids_diagnosis_person', 'diagnosis', 'Diagnosis', 
+    Vital.column_names[0..-3].join(','))
 end
 
 def get_district_id(district)
   Location.find_by(name: district)['location_id'].to_i
-end
-
-def get_rds_vitals
-  last_updated = get_last_updated('Vital')
-
-  ActiveRecord::Base.connection.select_all <<~QUERY
-    SELECT * FROM #{@rds_db}.obs ob
-    INNER JOIN #{@rds_db}.encounter en
-    on ob.encounter_id = en.encounter_id
-    INNER JOIN #{@rds_db}.encounter_type et
-    ON en.encounter_type = et.encounter_type_id
-    INNER JOIN #{@rds_db}.concept_name cn
-    ON cn.concept_id = ob.concept_id
-    WHERE et.encounter_type_id = 6
-    AND ob.concept_id IN (5085,5086,5087,5088,5089,5090,5092)
-    AND ob.updated_at >= '#{last_updated}'
-
-  QUERY
 end
 
 def populate_vitals
@@ -425,7 +361,7 @@ def populate_pregnant_status
   query = "SELECT * FROM #{@rds_db}.obs WHERE updated_at >= '#{last_updated}' 
            AND concept_id in (1755,6131) order by updated_at "
   
-  populate_data(query, 'ids_pregnant_statuses', 'pregnant_status','PregnantStatus', 
+  populate_data(query, 'ids_pregnant_status', 'pregnant_status','PregnantStatus', 
     PregnantStatus.column_names[0..-3].join(','))
 end
 
@@ -851,25 +787,25 @@ def methods_init
   populate_diagnosis
   populate_pregnant_status
   populate_breastfeeding_status
-  populate_vitals
+  #populate_vitals
   populate_patient_history
   populate_symptoms
   populate_side_effects
   populate_presenting_complaints
   populate_tb_statuses
-  populate_outcomes
+  #populate_outcomes
   populate_family_planning
-  populate_appointment
-  populate_prescription
-  populate_lab_orders
-  populate_occupation
-  populate_dispensation
-  populate_relationships
-  populate_hiv_staging_info
-  populate_precription_has_regimen
-  populate_lab_test_results
-  initiate_de_duplication
-  get_people
+  #populate_appointment
+  # populate_prescription
+  # populate_lab_orders
+  # populate_occupation
+  # populate_dispensation
+  # populate_relationships
+  # populate_hiv_staging_info
+  # populate_precription_has_regimen
+  # populate_lab_test_results
+  # initiate_de_duplication
+  # get_people
 
   if File.file?('/tmp/ids_builder.lock')
     FileUtils.rm '/tmp/ids_builder.lock'

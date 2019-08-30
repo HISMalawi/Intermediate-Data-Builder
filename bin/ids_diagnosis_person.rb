@@ -1,14 +1,9 @@
 # frozen_string_literal: true
 
-def ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
-  diagnosis = Diagnosis.find_by_encounter_id(diag['encounter_id'])
+def ids_diagnosis_person(diag)
   value_coded = get_master_def_id(diag[:value_coded], 'concept_name')
 
-  if diagnosis
-    puts 'Update code not yet available'
-  else
-    diagnosis = Diagnosis.new
-    diagnosis.encounter_id = diag['encounter_id']
+  diagnosis = "(#{diag['encounter_id'].to_i}
 
     diagnosis.primary_diagnosis = (
     diag['concept_id'] == primary_diagnosis ? value_coded : '')
