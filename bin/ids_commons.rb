@@ -9,13 +9,11 @@ def person_has_type(person)
 end
 
 
-def fetch_data(query, last_updated)
+def fetch_data(query)
   offset = 0
   begin
     batch = ActiveRecord::Base.connection.select_all <<-SQL
       #{query}
-      #{query.split.last} >= '#{last_updated}'
-      ORDER BY updated_at 
       LIMIT #{@batch_size}
       OFFSET #{offset}
     SQL
@@ -48,17 +46,15 @@ SQL
   rescue Exception => e 
     File.write('log/app_errors.log',e.message,mode: 'a')
     puts "Handled Exception"
-    exit
   end
 end
 
 def populate_data(query, method, table_name, model, columns)
-  last_updated = get_last_updated(model.to_s)
   i = 1
   data = ''
   latest_updated = '1900-01-01'
 
-  fetch_data(query, last_updated) do |data_item|
+  fetch_data(query) do |data_item|
     latest_updated = data_item['updated_at']
     data_item['person_type'] = 4 if model == 'User'
     data_item['person_type'] = 5 if model == 'Guardian'

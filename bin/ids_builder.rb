@@ -132,7 +132,10 @@ def check_for_duplicate(demographics)
 end
 
 def populate_people
-  query = "SELECT * FROM #{@rds_db}.person WHERE"
+  last_updated = get_last_updated('Person')
+
+  query = "SELECT * FROM #{@rds_db}.person WHERE updated_at >= '#{last_updated}'
+           ORDER BY updated_at "
 
   populate_data(query, 'ids_people', 'people','Person', 
     Person.column_names[0..-3].join(','))
@@ -163,7 +166,10 @@ def initiate_de_duplication
 end
 
 def populate_person_names
-  query = "SELECT * FROM #{@rds_db}.person_name WHERE"
+  last_updated = get_last_updated('PersonNames')
+
+  query = "SELECT * FROM #{@rds_db}.person_name WHERE
+           updated_at >= '#{last_updated}' ORDER BY updated_at "
 
   populate_data(query, 'ids_person_name', 'person_names','PersonName', 
     PersonName.column_names[0..-3].join(','))
@@ -173,7 +179,7 @@ def populate_contact_details
   last_updated = get_last_updated('PersonAttribute')
 
   fetch_data("SELECT * FROM #{@rds_db}.person_attribute WHERE person_attribute_type_id IN (12,14,15)
-  AND ", last_updated) do |person_attribute|
+  AND updated_at >= '#{last_updated}' ORDER BY updated_at ") do |person_attribute|
     attribute_value = person_attribute['value']
 
     cell_phone_number = ''
@@ -246,7 +252,10 @@ def populate_contact_details
 end
 
 def populate_encounters
-  query = "SELECT * FROM #{@rds_db}.encounter WHERE"
+  last_updated = get_last_updated('Encounter')
+
+  query = "SELECT * FROM #{@rds_db}.encounter WHERE
+           updated_at >= '#{last_updated}' ORDER BY updated_at "
 
    populate_data(query, 'process_encounter', 'encounters','Encounter', 
     Encounter.column_names[0..-3].join(','))
@@ -292,26 +301,34 @@ def get_last_updated(model)
 end
 
 def update_person_type
+  last_updated = get_last_updated('User')
   # Updating users type in person_type table
-   query = "SELECT * FROM #{@rds_db}.users WHERE "
+   query = "SELECT * FROM #{@rds_db}.users WHERE 
+            updated_at >= '#{last_updated}' ORDER BY updated_at "
 
    populate_data(query, 'person_has_type', 'person_has_types','User', 
     PersonHasType.column_names[0..-3].join(','))
 
+  last_updated = get_last_updated('Guardian')
   # Updating Guardians in person type table
-   query = "SELECT * FROM #{@rds_db}.relationship WHERE "
+   query = "SELECT * FROM #{@rds_db}.relationship WHERE
+            updated_at >= '#{last_updated}' ORDER BY updated_at "
 
    populate_data(query, 'person_has_type', 'person_has_types','Guardian', 
     PersonHasType.column_names[0..-3].join(','))
 
+  last_updated = get_last_updated('Patient')
   # Updating Patients in person type table
-  query = "SELECT * FROM #{@rds_db}.patient WHERE "
+  query = "SELECT * FROM #{@rds_db}.patient WHERE
+           updated_at >= '#{last_updated}' ORDER BY updated_at "
 
    populate_data(query, 'person_has_type', 'person_has_types','Patient', 
     PersonHasType.column_names[0..-3].join(','))
 
+  last_updated = get_last_updated('Provider')
   # Updating Provider in person type table
-  query = "SELECT * FROM #{@rds_db}.users WHERE "
+  query = "SELECT * FROM #{@rds_db}.users WHERE
+           updated_at >= '#{last_updated}' ORDER BY updated_at "
 
    populate_data(query, 'person_has_type', 'person_has_types','Provider', 
     PersonHasType.column_names[0..-3].join(','))
@@ -358,13 +375,28 @@ def get_rds_vitals
     ON cn.concept_id = ob.concept_id
     WHERE et.encounter_type_id = 6
     AND ob.concept_id IN (5085,5086,5087,5088,5089,5090,5092)
-    AND (ob.updated_at >= '#{last_updated}');
+    AND ob.updated_at >= '#{last_updated}'
 
   QUERY
 end
 
 def populate_vitals
-  (get_rds_vitals || []).each(&method(:vital_value_coded))
+  last_updated = get_last_updated('Vital')
+  
+  query = "SELECT * FROM #{@rds_db}.obs ob
+    INNER JOIN #{@rds_db}.encounter en
+    on ob.encounter_id = en.encounter_id
+    INNER JOIN #{@rds_db}.encounter_type et
+    ON en.encounter_type = et.encounter_type_id
+    INNER JOIN #{@rds_db}.concept_name cn
+    ON cn.concept_id = ob.concept_id
+    WHERE et.encounter_type_id = 6
+    AND ob.concept_id IN (5085,5086,5087,5088,5089,5090,5092)
+    AND ob.updated_at >= '#{last_updated}' "
+
+  populate_data(query, 'vital_value_coded', 'vitals', 'Vital', 
+    Vital.column_names[0..-3].join(','))
+
 end
 
 def categorize_address(addresses)
@@ -390,27 +422,30 @@ end
 def populate_pregnant_status
   last_updated = get_last_updated('PregnantStatus')
 
-  pregnant_status = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.obs WHERE updated_at >= '#{last_updated}' and concept_id in (1755,6131) order by updated_at;
-SQL
-
-  (pregnant_status || []).each(&method(:ids_pregnant_status))
+  query = "SELECT * FROM #{@rds_db}.obs WHERE updated_at >= '#{last_updated}' 
+           AND concept_id in (1755,6131) order by updated_at "
+  
+  populate_data(query, 'ids_pregnant_statuses', 'pregnant_status','PregnantStatus', 
+    PregnantStatus.column_names[0..-3].join(','))
 end
 
 def populate_breastfeeding_status
   last_updated = get_last_updated('BreastfeedingStatus')
 
-  breastfeeding_statuses = ActiveRecord::Base.connection.select_all <<SQL
-  SELECT * FROM #{@rds_db}.obs WHERE updated_at >= '#{last_updated}'
-  AND concept_id IN (SELECT concept_id FROM #{@rds_db}.concept_name WHERE name LIKE '%breastfeeding%')
-  ORDER BY updated_at;
-SQL
-
-  (breastfeeding_statuses || []).each(&method(:ids_breastfeeding_status))
+  query = "SELECT * FROM #{@rds_db}.obs WHERE updated_at >= '#{last_updated}'
+           AND concept_id IN (SELECT concept_id FROM #{@rds_db}.concept_name 
+           WHERE name LIKE '%breastfeeding%')
+           ORDER BY updated_at "
+  
+  populate_data(query, 'ids_breastfeeding_status', 'breastfeeding_statuses', 'BreastfeedingStatus', 
+    PregnantStatus.column_names[0..-3].join(','))
 end
 
 def populate_person_address
-  query = "SELECT * FROM #{@rds_db}.person_address WHERE"
+  last_updated = get_last_updated('PersonAddress')
+
+  query = "SELECT * FROM #{@rds_db}.person_address WHERE
+           updated_at >= '#{last_updated}' ORDER BY updated_at "
 
   populate_data(query, 'grouped_address', 'person_addresses','PersonAddress', 
     PersonAddress.column_names[0..-3].join(','))
@@ -419,97 +454,98 @@ end
 def populate_patient_history
   last_updated = get_last_updated('PatientHistory')
 
-  patient_histories = ActiveRecord::Base.connection.select_all <<~SQL
-    SELECT * FROM #{@rds_db}.obs ob
-                      INNER JOIN #{@rds_db}.encounter en
-                                 ON ob.encounter_id = en.encounter_id
-                      INNER JOIN #{@rds_db}.encounter_type et
-                                 ON en.encounter_type = et.encounter_type_id
+  query = "SELECT * FROM #{@rds_db}.obs ob
+    INNER JOIN #{@rds_db}.encounter en
+    ON ob.encounter_id = en.encounter_id
+    INNER JOIN #{@rds_db}.encounter_type et
+    ON en.encounter_type = et.encounter_type_id
     WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%history%')
-    AND ob.updated_at >= '#{last_updated}';
-  SQL
-
-  (patient_histories || []).each(&method(:ids_patient_history))
+    AND ob.updated_at >= '#{last_updated}'
+    ORDER BY ob.updated_at "
+  
+  populate_data(query, 'ids_patient_history', 'person_histories', 'PatientHistory',
+    PersonHistory.column_names[0..-3].join(','))
 end
 
 def populate_symptoms
   last_updated = get_last_updated('Symptom')
 
-  patient_symptoms = ActiveRecord::Base.connection.select_all <<~SQL
-    SELECT * FROM #{@rds_db}.obs ob
-                      INNER JOIN #{@rds_db}.encounter en
-                                 ON ob.encounter_id = en.encounter_id
-                      INNER JOIN #{@rds_db}.encounter_type et
-                                 ON en.encounter_type = et.encounter_type_id
+  query = "SELECT * FROM #{@rds_db}.obs ob
+    INNER JOIN #{@rds_db}.encounter en
+    ON ob.encounter_id = en.encounter_id
+    INNER JOIN #{@rds_db}.encounter_type et
+    ON en.encounter_type = et.encounter_type_id
     WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%symptoms')
-    AND ob.updated_at >= '#{last_updated}';
-  SQL
-
-  (patient_symptoms || []).each(&method(:ids_patient_symptoms))
+    AND ob.updated_at >= '#{last_updated}'
+    ORDER BY ob.updated_at "
+  
+  populate_data(query, 'ids_patient_symptoms', 'symptoms', 'Symptom',
+    PersonHistory.column_names[0..-3].join(','))
 end
 
 def populate_side_effects
   last_updated = get_last_updated('SideEffects')
 
-  patient_side_effects = ActiveRecord::Base.connection.select_all <<~SQL
-    SELECT * FROM #{@rds_db}.obs ob
-                      INNER JOIN #{@rds_db}.encounter en
-                                 ON ob.encounter_id = en.encounter_id
-                      INNER JOIN #{@rds_db}.encounter_type et
-                                 ON en.encounter_type = et.encounter_type_id
+  query = "SELECT * FROM #{@rds_db}.obs ob
+    INNER JOIN #{@rds_db}.encounter en
+    ON ob.encounter_id = en.encounter_id
+    INNER JOIN #{@rds_db}.encounter_type et
+    ON en.encounter_type = et.encounter_type_id
     WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type where name like '%hiv clinic consultation%')
-    AND ob.updated_at >= '#{last_updated}';
-  SQL
-
-  (patient_side_effects || []).each(&method(:ids_side_effects))
+    AND ob.updated_at >= '#{last_updated}'
+    ORDER BY ob.updated_at "
+  
+  populate_data(query, 'ids_side_effects', 'side_effects', 'SideEffects',
+    SideEffect.column_names[0..-3].join(','))
 end
 
 def populate_presenting_complaints
   last_updated = get_last_updated('PresentingComplaints')
 
-  presenting_complaints = ActiveRecord::Base.connection.select_all <<~SQL
-    SELECT * FROM #{@rds_db}.obs ob
-                      INNER JOIN #{@rds_db}.encounter en
-                                 ON ob.encounter_id = en.encounter_id
-                      INNER JOIN #{@rds_db}.encounter_type et
-                                 ON en.encounter_type = et.encounter_type_id
+  query = "SELECT * FROM #{@rds_db}.obs ob
+    INNER JOIN #{@rds_db}.encounter en
+    ON ob.encounter_id = en.encounter_id
+    INNER JOIN #{@rds_db}.encounter_type et
+    ON en.encounter_type = et.encounter_type_id
     WHERE et.encounter_type_id = 122
-    AND ob.updated_at >= '#{last_updated}';
-  SQL
-
-  (presenting_complaints || []).each(&method(:ids_presenting_complaints))
+    AND ob.updated_at >= '#{last_updated}'
+    ORDER BY ob.updated_at "
+  
+  populate_data(query, 'ids_presenting_complaints', 'presenting_complaints', 'PresentingComplaints',
+    PresentingComplaint.column_names[0..-3].join(','))
 end
 
 def populate_tb_statuses
   last_updated = get_last_updated('TbStatus')
 
-  tb_statuses = ActiveRecord::Base.connection.select_all <<~SQL
-    SELECT * FROM #{@rds_db}.obs ob
-                      INNER JOIN #{@rds_db}.encounter en
-                                 ON ob.encounter_id = en.encounter_id
-                      INNER JOIN #{@rds_db}.encounter_type et
-                                 ON en.encounter_type = et.encounter_type_id
-    WHERE et.encounter_type_id = 7459
-    AND ob.updated_at >= '#{last_updated}';
-  SQL
 
-  (tb_statuses || []).each(&method(:ids_tb_statuses))
+  query = "SELECT * FROM #{@rds_db}.obs ob
+    INNER JOIN #{@rds_db}.encounter en
+    ON ob.encounter_id = en.encounter_id
+    INNER JOIN #{@rds_db}.encounter_type et
+    ON en.encounter_type = et.encounter_type_id
+    WHERE et.encounter_type_id = 7459
+    AND ob.updated_at >= '#{last_updated}'
+    ORDER BY ob.updated_at "
+  
+  populate_data(query, 'ids_tb_statuses', 'tb_statuses', 'TbStatus',
+    PresentingComplaint.column_names[0..-3].join(','))
 end
 
 def populate_family_planning
   last_updated = get_last_updated('FamilyPlanning')
 
-  family_planning_methods = ActiveRecord::Base.connection.select_all <<~SQL
-    SELECT * FROM #{@rds_db}.obs ob
-                      INNER JOIN #{@rds_db}.encounter en
-                                 ON ob.encounter_id = en.encounter_id
-                      INNER JOIN #{@rds_db}.encounter_type et
-                                 ON en.encounter_type = et.encounter_type_id
+  query = "SELECT * FROM #{@rds_db}.obs ob
+    INNER JOIN #{@rds_db}.encounter en
+    ON ob.encounter_id = en.encounter_id
+    INNER JOIN #{@rds_db}.encounter_type et
+    ON en.encounter_type = et.encounter_type_id
     WHERE et.encounter_type_id = 7459
-    AND ob.updated_at >= '#{last_updated}';
-  SQL
-
-  (family_planning_methods || []).each(&method(:ids_family_planning))
+    AND ob.updated_at >= '#{last_updated}'
+    ORDER BY ob.updated_at "
+  
+  populate_data(query, 'ids_family_planning', 'family_plannings', 'FamilyPlanning',
+    FamilyPlanning.column_names[0..-3].join(','))
 end
 
 def populate_outcomes
@@ -612,46 +648,48 @@ SQL
   end
 end
 
-def populate_appointment
-  last_updated = get_last_updated('Appointment')
+# def populate_appointment
+#   last_updated = get_last_updated('Appointment')
 
-  appointments = ActiveRecord::Base.connection.select_all <<SQL
-    SELECT ob.person_id,ob.encounter_id, value_datetime,ob.voided,ob.voided_by,ob.creator,ob.date_voided,ob.void_reason,en.date_created ,en.date_changed
-    FROM #{@rds_db}.encounter en
-    INNER JOIN #{@rds_db}.obs ob on en.encounter_id = ob.encounter_id
-    WHERE ob.concept_id = 5096
-    AND (en.updated_at >= '#{last_updated}' );
-SQL
+#   appointments = ActiveRecord::Base.connection.select_all <<SQL
+#     SELECT ob.person_id,ob.encounter_id, value_datetime,ob.voided,ob.voided_by,ob.creator,ob.date_voided,ob.void_reason,en.date_created ,en.date_changed
+#     FROM #{@rds_db}.encounter en
+#     INNER JOIN #{@rds_db}.obs ob on en.encounter_id = ob.encounter_id
+#     WHERE ob.concept_id = 5096
+#     AND en.updated_at >= '#{last_updated}' );
+# SQL
 
-  appointments.each do |rds_appointment|
-    puts "processing person_id #{rds_appointment['person_id']}"
+# end
 
-    if Appointment.find_by(encounter_id: rds_appointment['encounter_id']).blank?
-      appointment = Appointment.new
-      appointment.encounter_id = rds_appointment['encounter_id']
-      appointment.appointment_date = rds_appointment['value_datetime']
-      appointment.voided = rds_appointment['voided']
-      appointment.voided_by = rds_appointment['voided_by']
-      appointment.creator = rds_appointment['creator']
-      appointment.voided_date = rds_appointment['date_voided']
-      appointment.void_reason = rds_appointment['void_reason']
-      appointment.app_date_created = rds_appointment['date_created']
-      appointment.app_date_updated = rds_appointment['date_changed']
-      appointment.save
+# def ids_appointment(rds_appointment)
+#     puts "processing person_id #{rds_appointment['person_id']}"
 
-      puts "Successfully populated appointment with record for person #{rds_appointment['person_id']}"
-    else
-      appointment = Appointment.where(encounter_id: rds_appointment['encounter_id'])
-      appointment.update(encounter_id: rds_appointment['encounter_id'], appointment_date: rds_appointment['value_datetime'],
-                         voided: rds_appointment['voided'], voided_by: rds_appointment['voided_by'],
-                         creator: rds_appointment['creator'], voided_date: rds_appointment['date_voided'],
-                         void_reason: rds_appointment['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
-                         updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+#     if Appointment.find_by(encounter_id: rds_appointment['encounter_id']).blank?
+#       appointment = Appointment.new
+#       appointment.encounter_id = rds_appointment['encounter_id']
+#       appointment.appointment_date = rds_appointment['value_datetime']
+#       appointment.voided = rds_appointment['voided']
+#       appointment.voided_by = rds_appointment['voided_by']
+#       appointment.creator = rds_appointment['creator']
+#       appointment.voided_date = rds_appointment['date_voided']
+#       appointment.void_reason = rds_appointment['void_reason']
+#       appointment.app_date_created = rds_appointment['date_created']
+#       appointment.app_date_updated = rds_appointment['date_changed']
+#       appointment.save
 
-      puts "Successfully updated appointment details with record for person #{rds_appointment['person_id']}"
-    end
-  end
-end
+#       puts "Successfully populated appointment with record for person #{rds_appointment['person_id']}"
+#     else
+#       appointment = Appointment.where(encounter_id: rds_appointment['encounter_id'])
+#       appointment.update(encounter_id: rds_appointment['encounter_id'], appointment_date: rds_appointment['value_datetime'],
+#                          voided: rds_appointment['voided'], voided_by: rds_appointment['voided_by'],
+#                          creator: rds_appointment['creator'], voided_date: rds_appointment['date_voided'],
+#                          void_reason: rds_appointment['void_reason'], created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'),
+#                          updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
+
+#       puts "Successfully updated appointment details with record for person #{rds_appointment['person_id']}"
+#     end
+#   end
+# end
 
 def populate_prescription
   last_updated = get_last_updated('MedicationPrescription')
