@@ -541,12 +541,11 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.bigint "creator"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["concept_id"], name: "fk_rails_2ecd253a4e"
-    t.index ["encounter_id"], name: "fk_rails_c5abe278dc"
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
   end
 
   create_table "side_effects_has_medication_prescriptions", primary_key: "side_effects_has_medication_prescription_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -639,12 +638,11 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.bigint "creator"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["concept_id"], name: "fk_rails_49a56b35f0"
-    t.index ["encounter_id"], name: "fk_rails_27601f1758"
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
   end
 
   add_foreign_key "appointments", "encounters", primary_key: "encounter_id"
@@ -699,13 +697,9 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
   add_foreign_key "relationships", "master_definitions", column: "relationship_type_id", primary_key: "master_definition_id"
   add_foreign_key "relationships", "people", column: "person_id_a", primary_key: "person_id"
   add_foreign_key "relationships", "people", column: "person_id_b", primary_key: "person_id"
-  add_foreign_key "side_effects", "encounters", primary_key: "encounter_id"
-  add_foreign_key "side_effects", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "sites", "site_types", primary_key: "site_type_id"
   add_foreign_key "symptoms", "encounters", primary_key: "encounter_id"
   add_foreign_key "symptoms", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "tb_statuses", "encounters", primary_key: "encounter_id"
   add_foreign_key "users", "people", primary_key: "person_id"
-  add_foreign_key "vitals", "encounters", primary_key: "encounter_id"
-  add_foreign_key "vitals", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
 end

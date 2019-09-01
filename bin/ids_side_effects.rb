@@ -18,7 +18,7 @@ def ids_side_effects(patient_side_effect)
                    '#{patient_side_effect['void_reason']}',
                     #{patient_side_effect['creator'].to_i},
                     #{patient_side_effect['date_created']},
-                    #{patient_side_effect['date_changed']}), "
+                    #{patient_side_effect['date_changed']}),"
 
   return patient_side_effect
 end

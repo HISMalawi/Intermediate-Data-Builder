@@ -15,10 +15,13 @@ class CreateVitals < ActiveRecord::Migration[5.2]
       t.bigint  :voided_by
       t.datetime :voided_date
       t.string :void_reason
+      t.bigint :creator
       t.datetime  :app_date_created, null: false
       t.datetime  :app_date_updated
 
       t.timestamps
     end
+    change_column :vitals, :created_at, :datetime, null: false, default: -> { 'CURRENT_TIMESTAMP' }
+    change_column :vitals, :updated_at, :datetime, null: false, default: -> { 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP' }
   end
 end

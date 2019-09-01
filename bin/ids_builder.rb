@@ -318,16 +318,12 @@ end
 def populate_vitals
   last_updated = get_last_updated('Vital')
   
-  query = "SELECT * FROM #{@rds_db}.obs ob
-    INNER JOIN #{@rds_db}.encounter en
-    on ob.encounter_id = en.encounter_id
-    INNER JOIN #{@rds_db}.encounter_type et
-    ON en.encounter_type = et.encounter_type_id
-    INNER JOIN #{@rds_db}.concept_name cn
-    ON cn.concept_id = ob.concept_id
-    WHERE et.encounter_type_id = 6
-    AND ob.concept_id IN (5085,5086,5087,5088,5089,5090,5092)
-    AND ob.updated_at >= '#{last_updated}' "
+    query = "SELECT ob.* FROM #{@rds_db}.obs ob
+              INNER JOIN #{@rds_db}.encounter en
+              ON ob.encounter_id = en.encounter_id
+              WHERE (encounter_type = 6
+              AND ob.updated_at >= '#{last_updated}') 
+              ORDER BY ob.updated_at "
 
   populate_data(query, 'vital_value_coded', 'vitals', 'Vital', 
     Vital.column_names[0..-3].join(','))
@@ -773,23 +769,23 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_breastfeeding_status
-  #populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
-  populate_tb_statuses
-  #populate_outcomes
-  populate_family_planning
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
+  # update_person_type
+  # populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_breastfeeding_status
+  populate_vitals
+  # populate_patient_history
+  # populate_symptoms
+  # populate_side_effects
+  # populate_presenting_complaints
+  # populate_tb_statuses
+  # #populate_outcomes
+  # populate_family_planning
   #populate_appointment
   # populate_prescription
   # populate_lab_orders
