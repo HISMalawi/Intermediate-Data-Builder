@@ -2,30 +2,26 @@
 
 def ids_tb_statuses(tb_status)
 
+  puts "Processing Patient Symptoms for person_id: #{tb_status['person_id']}"
+
   concept_id = get_master_def_id(tb_status['concept_id'], 'concept_name')
   value_coded = get_master_def_id(tb_status['value_coded'], 'concept_name')
 
-  ids_tb_statuses = TbStatus.find_by(encounter_id: tb_status['encounter_id'], concept_id: concept_id)
+  tb_status = handle_commons(patient_symptom)
 
-  if ids_tb_statuses
-    puts "Updating patient tb status for #{tb_status['person_id']}"
-    ids_tb_statuses.update(concept_id: concept_id)
-    ids_tb_statuses.update(encounter_id: tb_status['encounter_id'])
-    ids_tb_statuses.update(value_coded: value_coded)
-  else
-    puts "Creating patient tb status for #{tb_status['person_id']}"
-    ids_tb_statuses = TbStatus.new
-    ids_tb_statuses.concept_id = concept_id
-    ids_tb_statuses.encounter_id = tb_status['encounter_id']
-    ids_tb_statuses.value_coded = value_coded
 
-    if ids_tb_statuses.save
-      puts 'Successfully save tb statuses'
-    else
-      puts 'Failed to save tb statuses'
-    end
-  end
+  tb_status = "(#{tb_status['obs_id'].to_i},
+                    #{concept_id.to_i},
+                    #{tb_status['encounter_id'].to_i},
+                    #{value_coded.to_i},
+                    #{tb_status['voided'].to_i},
+                    #{tb_status['voided_by']},
+                    #{tb_status['date_voided']},
+                   '#{tb_status['void_reason']}',
+                    #{tb_status['creator'].to_i},
+                    #{tb_status['date_created']},
+                    #{tb_status['date_changed']}), "
 
-  update_last_update('TbStatus', tb_status['updated_at'])
+  return tb_status
 end
 

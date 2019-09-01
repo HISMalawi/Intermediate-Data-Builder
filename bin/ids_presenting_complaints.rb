@@ -1,29 +1,26 @@
 # frozen_string_literal: true
 
 def ids_presenting_complaints(presenting_complaint)
-  ids_presenting_complaints = PresentingComplaint.find_by(encounter_id: presenting_complaint['encounter_id'], concept_id: presenting_complaint['concept_id'])
+puts "Processing Patient Symptoms for person_id: #{presenting_complaint['person_id']}"
 
   concept_id = get_master_def_id(presenting_complaint['concept_id'], 'concept_name')
   value_coded = get_master_def_id(presenting_complaint['value_coded'], 'concept_name')
 
-  if ids_presenting_complaints
-    puts "Updating presenting complaints for #{presenting_complaint['person_id']}"
-    ids_presenting_complaints.update(concept_id: concept_id)
-    ids_presenting_complaints.update(encounter_id: presenting_complaint['encounter_id'])
-    ids_presenting_complaints.update(value_coded: value_coded)
-  else
-    puts "Creating presenting complaints for #{presenting_complaint['person_id']}"
-    ids_presenting_complaints = PresentingComplaint.new
-    ids_presenting_complaints.concept_id = concept_id
-    ids_presenting_complaints.encounter_id = presenting_complaint['encounter_id']
-    ids_presenting_complaints.value_coded = value_coded
+  presenting_complaint = handle_commons(patient_symptom)
 
-    if ids_presenting_complaints.save
-      puts 'Successfully saved presenting complaints'
-    else
-      puts 'Failed to save presenting complaints'
-    end
-  end
 
-  update_last_update('PresentingComplaint', presenting_complaint['updated_at'])
+  presenting_complaint = "(#{presenting_complaint['obs_id'].to_i},
+                    #{concept_id.to_i},
+                    #{presenting_complaint['encounter_id'].to_i},
+                    #{value_coded.to_i},
+                    #{presenting_complaint['voided'].to_i},
+                    #{presenting_complaint['voided_by']},
+                    #{presenting_complaint['date_voided']},
+                   '#{presenting_complaint['void_reason']}',
+                    #{presenting_complaint['creator'].to_i},
+                    #{presenting_complaint['date_created']},
+                    #{presenting_complaint['date_changed']}), "
+
+  return presenting_complaint
+
 end

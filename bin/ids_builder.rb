@@ -421,14 +421,10 @@ end
 def populate_side_effects
   last_updated = get_last_updated('SideEffects')
 
-  query = "SELECT * FROM #{@rds_db}.obs ob
-    INNER JOIN #{@rds_db}.encounter en
-    ON ob.encounter_id = en.encounter_id
-    INNER JOIN #{@rds_db}.encounter_type et
-    ON en.encounter_type = et.encounter_type_id
-    WHERE et.encounter_type_id IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type where name like '%hiv clinic consultation%')
-    AND ob.updated_at >= '#{last_updated}'
-    ORDER BY ob.updated_at "
+  query = "SELECT ob.* FROM #{@rds_db}.obs ob
+            WHERE concept_id IN 
+            (SELECT concept_id FROM #{@rds_db}.concept_name WHERE name like '%side%')
+            AND ob.updated_at >= '#{last_updated}' "
   
   populate_data(query, 'ids_side_effects', 'side_effects', 'SideEffects',
     SideEffect.column_names[0..-3].join(','))
