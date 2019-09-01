@@ -295,21 +295,20 @@ QUERY
 end
 
 def populate_diagnosis
-  primary_diagnosis = 6542
-  secondary_diagnosis = 6543
+last_updated = get_last_updated('Diagnosis')
 
   query = "SELECT ob.*,
            MAX(CASE WHEN ob.concept_id = 6542 THEN value_coded ELSE NULL END) AS primary_diag,
            MAX(CASE WHEN ob.concept_id = 6543 THEN value_coded ELSE NULL END) AS sec_diag
-           FROM obs ob
-           INNER JOIN encounter en
+           FROM #{@rds_db}.obs ob
+           INNER JOIN #{@rds_db}.encounter en
            ON ob.encounter_id = en.encounter_id
            WHERE ob.concept_id IN (6542,6543)
            GROUP BY encounter_id
            ORDER BY updated_at "
 
   populate_data(query, 'ids_diagnosis_person', 'diagnosis', 'Diagnosis', 
-    Vital.column_names[0..-3].join(','))
+    Diagnosis.column_names[0..-3].join(','))
 end
 
 def get_district_id(district)
@@ -361,7 +360,7 @@ def populate_pregnant_status
   query = "SELECT * FROM #{@rds_db}.obs WHERE updated_at >= '#{last_updated}' 
            AND concept_id in (1755,6131) order by updated_at "
   
-  populate_data(query, 'ids_pregnant_status', 'pregnant_status','PregnantStatus', 
+  populate_data(query, 'ids_pregnant_status', 'pregnant_statuses', 'PregnantStatus', 
     PregnantStatus.column_names[0..-3].join(','))
 end
 
@@ -399,8 +398,8 @@ def populate_patient_history
     AND ob.updated_at >= '#{last_updated}'
     ORDER BY ob.updated_at "
   
-  populate_data(query, 'ids_patient_history', 'person_histories', 'PatientHistory',
-    PersonHistory.column_names[0..-3].join(','))
+  populate_data(query, 'ids_patient_history', 'patient_histories', 'PatientHistory',
+    PatientHistory.column_names[0..-3].join(','))
 end
 
 def populate_symptoms
@@ -416,7 +415,7 @@ def populate_symptoms
     ORDER BY ob.updated_at "
   
   populate_data(query, 'ids_patient_symptoms', 'symptoms', 'Symptom',
-    PersonHistory.column_names[0..-3].join(','))
+    Symptom.column_names[0..-3].join(','))
 end
 
 def populate_side_effects

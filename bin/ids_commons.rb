@@ -28,7 +28,7 @@ def write_to_db(table, columns, data)
   begin
   columns = '(' + columns + ')'
   puts "Loading into #{table}"
-  data.chomp!(',')
+  data = data.chomp(',')
    ActiveRecord::Base.connection.execute <<~SQL
   SET FOREIGN_KEY_CHECKS=0;
 SQL
@@ -46,6 +46,7 @@ SQL
   rescue Exception => e 
     File.write('log/app_errors.log',e.message,mode: 'a')
     puts "Handled Exception"
+    exit
   end
 end
 
@@ -70,7 +71,7 @@ def populate_data(query, method, table_name, model, columns)
     i += 1
   end
   
-  if data
+  unless data.blank?
     write_to_db(table_name, columns, data)
     update_last_update(model, latest_updated)
   end

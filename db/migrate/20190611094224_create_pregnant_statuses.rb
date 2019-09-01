@@ -15,5 +15,7 @@ class CreatePregnantStatuses < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
+    change_column :pregnant_statuses, :created_at, :datetime, null: false, default: -> { 'CURRENT_TIMESTAMP' }
+    change_column :pregnant_statuses, :updated_at, :datetime, null: false, default: -> { 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP' }
   end
 end

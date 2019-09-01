@@ -250,9 +250,6 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["openmrs_entity_name"], name: "index_master_definitions_on_openmrs_entity_name"
-    t.index ["openmrs_metadata_id", "openmrs_entity_name"], name: "dual_index"
-    t.index ["openmrs_metadata_id"], name: "index_master_definitions_on_openmrs_metadata_id"
   end
 
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -485,10 +482,8 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
     t.string "void_reason"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["concept_id"], name: "fk_rails_1f3f5dcd65"
-    t.index ["encounter_id"], name: "fk_rails_02b4eb37ba"
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
   end
 
   create_table "presenting_complaints", primary_key: "presenting_complaint_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -697,8 +692,6 @@ ActiveRecord::Schema.define(version: 2019_06_29_181240) do
   add_foreign_key "potential_duplicates", "duplicate_statuses", primary_key: "duplicate_status_id"
   add_foreign_key "potential_duplicates", "people", column: "person_id_a", primary_key: "person_id"
   add_foreign_key "potential_duplicates", "people", column: "person_id_b", primary_key: "person_id"
-  add_foreign_key "pregnant_statuses", "encounters", primary_key: "encounter_id"
-  add_foreign_key "pregnant_statuses", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "presenting_complaints", "encounters", primary_key: "encounter_id"
   add_foreign_key "presenting_complaints", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "providers", "person_names", primary_key: "person_name_id"

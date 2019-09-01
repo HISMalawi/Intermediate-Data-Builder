@@ -14,10 +14,10 @@ def ids_pregnant_status(pregnant)
                      #{value_coded.to_i},
                      #{pregnant['voided'].to_i},
                      #{pregnant['voided_by'].to_i},
-                     #{pregnant['voided_date']},
+                     #{pregnant['date_voided']},
                      '#{pregnant['void_reason']}',
                      #{pregnant['date_created']},
-                    #{pregnant['date_updated']}),"
+                     #{pregnant['date_changed']}),"
  
   return pregnant_status
 end
