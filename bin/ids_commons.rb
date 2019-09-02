@@ -46,7 +46,6 @@ SQL
   rescue Exception => e 
     File.write('log/app_errors.log',e.message,mode: 'a')
     puts "Handled Exception"
-    exit
   end
 end
 
