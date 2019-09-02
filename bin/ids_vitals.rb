@@ -3,7 +3,7 @@
 # Process IDS vitals functions
 
 def vital_value_coded(vital)
-  puts "Processing Patient Side Effects for person_id: #{vital['person_id']}"
+  puts "Processing Vitals for person_id: #{vital['person_id']}"
 
   concept_id = get_master_def_id(vital['concept_id'], 'concept_name')
   value_coded = get_master_def_id(vital['value_coded'], 'concept_name')
@@ -18,8 +18,8 @@ def vital_value_coded(vital)
                     #{vital['value_numeric'].to_i},
                     '#{vital['value_text']}',
                     '#{vital['value_modifier']}',
-                    '',
-                    '',
+                    0,
+                    0,
                     #{vital['voided'].to_i},
                     #{vital['voided_by']},
                     #{vital['date_voided']},

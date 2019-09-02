@@ -23,6 +23,7 @@ require_relative 'ids_people'
 require_relative 'ids_lab_test_results'
 require_relative 'ids_encounter'
 require_relative 'ids_contacts'
+require_relative 'ids_patient_outcomes'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -478,64 +479,18 @@ end
 def populate_outcomes
   last_updated = get_last_updated('Outcome')
 
-  outcomes = ActiveRecord::Base.connection.select_all <<SQL
-    SELECT * FROM #{@rds_db}.patient_program pp
-    INNER JOIN #{@rds_db}.patient_state ps ON  pp.patient_program_id = ps.patient_program_id
-    INNER JOIN  #{@rds_db}.program_workflow pw ON pp.program_id = pw.program_id
-   INNER JOIN #{@rds_db}.program_workflow_state pws ON pw.program_workflow_id = pws.program_workflow_id
-   WHERE  (pp.updated_at >= '#{last_updated}' );
-SQL
-
-  (outcomes || []).each do |rds_outcomes|
-    puts "processing person_id #{rds_outcomes['patient_id']}"
-
-    if Outcome.find_by(person_id: rds_outcomes['patient_id']).blank?
-      outcome = Outcome.new
-      outcome.person_id = rds_outcomes['patient_id']
-      outcome.concept_id = rds_outcomes['concept_id']
-      outcome.outcome_reason = begin
-        MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id']).master_definition_id
-                               rescue StandardError
-                                 nil
-      end
-      outcome.outcome_source = begin
-        MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id']).master_definition_id
-                               rescue StandardError
-                                 nil
-      end
-      outcome.voided = rds_outcomes['voided']
-      outcome.voided_by = rds_outcomes['voided_by']
-      outcome.voided_date = rds_outcomes['date_voided']
-      outcome.void_reason = rds_outcomes['void_reason']
-      outcome.app_date_created = rds_outcomes['date_created']
-      outcome.app_date_updated = rds_outcomes['date_changed']
-      outcome.save
-
-      puts "Successfully populated Outcome with record for person #{rds_outcomes['patient_id']}"
-    else
-      outcome = Outcome.where(person_id: rds_outcomes['patient_id'])
-      outcome.update(person_id: rds_outcomes['patient_id'])
-      outcome.update(concept_id: rds_outcomes['concept_id'])
-      begin
-        outcome.update(outcome_reason: MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['concept_id']).master_definition_id)
-      rescue StandardError
-        nil
-      end
-      begin
-        outcome.update(outcome_source: MasterDefinition.find_by(openmrs_metadata_id: rds_outcomes['program_id']).master_definition_id)
-      rescue StandardError
-        nil
-      end
-      outcome.update(voided: rds_outcomes['voided'])
-      outcome.update(voided_by: rds_outcomes['voided_by'])
-      outcome.update(voided_date: rds_outcomes['date_voided'])
-      outcome.update(void_reason: rds_outcomes['void_reason'])
-      outcome.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
-      outcome.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
-
-      puts "Successfully updated outcome details with record for person #{rds_outcomes['patient_id']}"
-    end
-  end
+  query = "SELECT * FROM #{@rds_db}.patient_program pp
+           INNER JOIN #{@rds_db}.patient_state ps 
+           ON  pp.patient_program_id = ps.patient_program_id
+           INNER JOIN  #{@rds_db}.program_workflow pw 
+           ON pp.program_id = pw.program_id
+           INNER JOIN #{@rds_db}.program_workflow_state pws 
+           ON pw.program_workflow_id = pws.program_workflow_id
+           WHERE pp.updated_at >= '#{last_updated}'
+           ORDER BY pp.updated_at "
+  
+  populate_data(query, 'ids_patient_outcome', 'outcomes', 'PatientOutcome',
+    PatientOutcome.column_names[0..-3].join(','))
 end
 
 def populate_occupation
@@ -769,34 +724,34 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  # populate_people
-  # populate_person_names
-  # populate_contact_details
-  # populate_person_address
-  # update_person_type
-  # populate_encounters
-  # populate_diagnosis
-  # populate_pregnant_status
-  # populate_breastfeeding_status
+  populate_people
+  populate_person_names
+  populate_contact_details
+  populate_person_address
+  update_person_type
+  populate_encounters
+  populate_diagnosis
+  populate_pregnant_status
+  populate_breastfeeding_status
   populate_vitals
-  # populate_patient_history
-  # populate_symptoms
-  # populate_side_effects
-  # populate_presenting_complaints
-  # populate_tb_statuses
-  # #populate_outcomes
-  # populate_family_planning
-  #populate_appointment
-  # populate_prescription
-  # populate_lab_orders
-  # populate_occupation
-  # populate_dispensation
-  # populate_relationships
-  # populate_hiv_staging_info
-  # populate_precription_has_regimen
-  # populate_lab_test_results
-  # initiate_de_duplication
-  # get_people
+  populate_patient_history
+  populate_symptoms
+  populate_side_effects
+  populate_presenting_complaints
+  populate_tb_statuses
+  populate_outcomes
+  populate_family_planning
+  populate_appointment
+  populate_prescription
+  populate_lab_orders
+  populate_occupation
+  populate_dispensation
+  populate_relationships
+  populate_hiv_staging_info
+  populate_precription_has_regimen
+  populate_lab_test_results
+  initiate_de_duplication
+  get_people
 
   if File.file?('/tmp/ids_builder.lock')
     FileUtils.rm '/tmp/ids_builder.lock'
