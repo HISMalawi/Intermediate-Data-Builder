@@ -2,8 +2,6 @@
 
 def ids_tb_statuses(tb_status)
 
-  puts "processing TB Status for person ID #{tb_status['person_id']}"
-
   concept_id = get_master_def_id(tb_status['concept_id'], 'concept_name')
   value_coded = get_master_def_id(tb_status['value_coded'], 'concept_name')
 
@@ -24,7 +22,6 @@ def ids_tb_statuses(tb_status)
     
   elsif ids_tb_statuses.blank?
     begin
-      puts "Creating patient tb status for #{tb_status['person_id']}"
       ids_tb_statuses                    = TbStatus.new
       ids_tb_statuses.tb_status_id       = tb_status['obs_id']
       ids_tb_statuses.concept_id         = concept_id
@@ -38,16 +35,12 @@ def ids_tb_statuses(tb_status)
       ids_tb_statuses.app_date_updated   = tb_status['date_changed']
 
       if ids_tb_statuses.save
-        puts 'Successfully save tb statuses'
         remove_failed_record('tb_status', tb_status['obs_id'].to_i)
       else
-        puts 'Failed to save tb statuses'
       end
         
     rescue Exception => e
       log_error_records('tb_status', tb_status['obs_id'].to_i, e)
     end
   end
-
-  update_last_update('TbStatus', tb_status['updated_at'])
 end

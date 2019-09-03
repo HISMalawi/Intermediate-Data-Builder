@@ -8,6 +8,12 @@ gem 'rails', '~> 5.2.3'
 
 gem 'rest-client'
 
+#Parallelism
+gem 'parallel'
+gem 'ruby-progressbar'
+
+gem 'redis-mutex'
+
 #matching algorithm
 gem 'damerau-levenshtein'
 # Use mysql as the database for Active Record

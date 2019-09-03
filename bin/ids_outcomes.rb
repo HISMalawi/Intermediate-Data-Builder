@@ -1,6 +1,4 @@
 def ids_outcomes(rds_outcomes)
-  puts "processing Outcomes for person_id #{rds_outcomes['patient_id']}"
-
       if Outcome.find_by(person_id: rds_outcomes['patient_id'],
                          concept_id: rds_outcomes['concept_id']).blank?
         #begin
@@ -25,7 +23,6 @@ def ids_outcomes(rds_outcomes)
           outcome.app_date_updated = rds_outcomes['date_changed']
           outcome.save
 
-          puts "Successfully populated Outcome with record for person #{rds_outcomes['patient_id']}"
         #     remove_failed_record('outcomes', outcome['patient_program_id'].to_i)
         # rescue Exception => e
         #   log_error_records('outcomes', outcome['patient_program_id'].to_i, e)
@@ -52,7 +49,5 @@ def ids_outcomes(rds_outcomes)
                      app_date_created: rds_outcomes['date_created'],
                      app_date_updated: rds_outcomes['date_changed'])
 
-      puts "Successfully updated outcome details with record for person #{rds_outcomes['patient_id']}"
     end
-  update_last_update('Outcomes', rds_outcomes['updated_at'])
 end

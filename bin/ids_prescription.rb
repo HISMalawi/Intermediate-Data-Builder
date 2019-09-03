@@ -1,7 +1,5 @@
 def ids_prescription(rds_prescription)
 
-puts "processing Prescription for person_id #{rds_prescription['patient_id']}"
-
     prescription = MedicationPrescription.find_by_medication_prescription_id(rds_prescription['order_id'])
 
     if prescription.blank?
@@ -25,7 +23,6 @@ puts "processing Prescription for person_id #{rds_prescription['patient_id']}"
 	      log_error_records('prescription', rds_prescription['order_id'].to_i, e)
       end
 
-	      puts "Successfully populated medication prescription details with record for person #{rds_prescription['patient_id']}"
     elsif check_latest_record(rds_prescription, prescription)
       medication_prescription.update(
         drug_id: rds_prescription['drug_inventory_id'],
@@ -40,8 +37,5 @@ puts "processing Prescription for person_id #{rds_prescription['patient_id']}"
         app_date_created: rds_prescription['date_created'],
         app_date_updated: rds_prescription['date_changed']
         )
-
-      puts "Successfully updated medication prescription details with record for person #{rds_prescription['patient_id']}"
     end
-  update_last_update('Prescription', rds_prescription['updated_at'])
 end

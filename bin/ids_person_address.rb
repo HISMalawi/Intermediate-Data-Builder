@@ -11,8 +11,6 @@ def grouped_address(person_address)
     get_district_id('other')
   end
 
-  puts "Updating Person Address for person_id: #{person_address['person_id']}"
-
   person_address_exist = PersonAddress.find_by(person_address_id: person_address['person_address_id'])
 
   if person_address_exist.blank?
@@ -52,5 +50,4 @@ def grouped_address(person_address)
       app_date_updated: person_address['date_changed']
       )  
   end
-  update_last_update('PersonAddress', person_address['updated_at'])
 end
