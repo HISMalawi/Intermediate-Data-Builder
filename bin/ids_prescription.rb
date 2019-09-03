@@ -1,5 +1,4 @@
 def ids_prescription(rds_prescription)
-
     prescription = MedicationPrescription.find_by_medication_prescription_id(rds_prescription['order_id'])
 
     if prescription.blank?

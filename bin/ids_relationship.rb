@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 def ids_relationship(relation)
-  puts "processing Relationship for person ID #{relation['person_id_a']}"
-
   relationship = Relationship.find_by_relationship_id(relation['relationship_id'])
 
   relationship_type = get_master_def_id(relation['relationship'], 'relationship_type')
@@ -31,16 +29,12 @@ def ids_relationship(relation)
       relationsip.app_date_created = relation['date_created']
 
       if relationsip.save
-        puts 'created relationship'
         remove_failed_record('relationships', relation['relationship_id'].to_i)
       else
-        puts 'Failed to create relationship'
       end
 
     rescue Exception => e
       log_error_records('relationships', relation['relationship_id'].to_i, e)
     end
-
   end
-  update_last_update('Relationship', relation['updated_at'])
 end

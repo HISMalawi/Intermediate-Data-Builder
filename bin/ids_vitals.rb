@@ -4,7 +4,7 @@
 
 def vital_value_coded(vital)
 
-  vital_exist = Vital.find_by_vitals_id(vital['obs_id'])
+  vital_exist = Vital.find_by_vitals_id(vital['obs_id'].to_i)
 
   concept_id = get_master_def_id(vital['concept_id'], 'concept_name')
   value_coded = get_master_def_id(vital['value_coded'], 'concept_name')

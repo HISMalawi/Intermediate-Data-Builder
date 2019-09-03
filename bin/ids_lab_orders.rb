@@ -1,19 +1,23 @@
 def populate_lab_orders
   last_updated = get_last_updated('LabOrders')
 
-  query = "SELECT * FROM #{@rds_db}.orders
-           WHERE (ORDER_TYPE_ID = 4
-           AND updated_at >= '#{last_updated}')
-           OR order_id IN #{load_error_records('lab_orders')} "
+  lab_orders = ActiveRecord::Base.connection.select_all <<~SQL
+    SELECT * FROM #{@rds_db}.orders
+    WHERE (ORDER_TYPE_ID = 4
+    AND updated_at >= '#{last_updated}')
+    OR order_id IN #{load_error_records('lab_orders')} 
+    ORDER BY updated_at;
+SQL
 
-  fetch_data(query) do |lab_order|
+  return if lab_orders.blank?
+  
+  Parallel.each(lab_orders, progress: 'Processing LabOrders' ) do |lab_order|
     ids_lab_orders(lab_order)
   end
+  update_last_update('LabOrders', lab_orders.last['updated_at'])
 end
 
 def ids_lab_orders(lab_order)
-
-  puts "Processing LabOrder for Person_id: #{lab_order['patient_id']}"
     lab_order_exist = LabOrder.find_by(lab_order_id: lab_order['order_id'])
 
     if lab_order_exist && check_latest_record(lab_order, lab_order_exist)
@@ -37,5 +41,4 @@ def ids_lab_orders(lab_order)
         log_error_records('lab_orders', lab_order['order_id'].to_i, e)
       end
     end
-  update_last_update('LabOrders', lab_order['updated_at'])
 end
