@@ -1,6 +1,5 @@
 # If fails, include it in the ids_builder file just before the populate_patient_history method
 def ids_patient_history(patient_history)
-  puts "processing History for person ID #{patient_history['person_id']}"
 
   ids_patient_history = PatientHistory.find_by_history_id(patient_history['obs_id'])
 
@@ -10,7 +9,6 @@ def ids_patient_history(patient_history)
   if ids_patient_history
     if check_latest_record(patient_history, ids_patient_history)
 
-      puts "Updating patient history for #{patient_history['person_id']}"
       ids_patient_history.update(concept_id: concept_id,
                                  encounter_id: patient_history['encounter_id'],
                                  value_coded: value_coded,
@@ -24,7 +22,6 @@ def ids_patient_history(patient_history)
     end
   else
     begin
-      puts "Creating patient history for #{patient_history['person_id']}"
       ids_patient_history                       = PatientHistory.new
       ids_patient_history.history_id            = patient_history['obs_id']
       ids_patient_history.concept_id            = concept_id
@@ -38,10 +35,8 @@ def ids_patient_history(patient_history)
       ids_patient_history.app_date_updated      = patient_history['date_changed']
 
       if ids_patient_history.save
-        puts 'Successfully saved patient history'
         remove_failed_record('person_history', patient_history['obs_id'].to_i)
       else
-        puts 'Failed to save patient history'
       end
         
     rescue Exception => e
@@ -49,5 +44,4 @@ def ids_patient_history(patient_history)
     end
     
   end
-  update_last_update('PatientHistory', patient_history['updated_at'])
 end

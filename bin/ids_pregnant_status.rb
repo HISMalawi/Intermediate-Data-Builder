@@ -1,5 +1,4 @@
 def ids_pregnant_status(pregnant)
-  puts "Processing Pregnant Status for person_id: #{pregnant['person_id']}"
   pregnant_status_exist = PregnantStatus.find_by_pregnant_status_id(pregnant['obs_id'])
 
   concept_id = get_master_def_id(pregnant['concept_id'], 'concept_name')
@@ -31,6 +30,5 @@ def ids_pregnant_status(pregnant)
                                  value_coded: value_coded, voided: pregnant['voided'],
                                  voided_by: pregnant['voided_by'], voided_date: pregnant['voided_date'],
                                  app_date_created: pregnant['date_created'], app_date_updated: pregnant['date_updated'])
-  end
-  update_last_update('PregnantStatus', pregnant['updated_at'])
+  end  
 end

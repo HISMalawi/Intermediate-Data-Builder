@@ -2,8 +2,6 @@
 
 def ids_presenting_complaints(presenting_complaint)
   
-  puts "processing Complaints for person ID #{presenting_complaint['person_id']}"
-
   ids_presenting_complaints = PresentingComplaint.find_by_presenting_complaint_id(presenting_complaint['obs_id'])
 
   concept_id = get_master_def_id(presenting_complaint['concept_id'], 'concept_name')
@@ -26,7 +24,6 @@ def ids_presenting_complaints(presenting_complaint)
     
   elsif ids_presenting_complaints.blank?
     begin
-      puts "Creating presenting complaints for #{presenting_complaint['person_id']}"
       ids_presenting_complaints                  = PresentingComplaint.new
       ids_presenting_complaints.presenting_complaint_id = presenting_complaint['obs_id']
       ids_presenting_complaints.concept_id       = concept_id
@@ -40,16 +37,12 @@ def ids_presenting_complaints(presenting_complaint)
       ids_presenting_complaints.app_date_updated = presenting_complaint['date_changed']
 
       if ids_presenting_complaints.save
-        puts 'Successfully saved presenting complaints'
         remove_failed_record('presenting_complaints', presenting_complaint['obs_id'].to_i)
       else
-        puts 'Failed to save presenting complaints'
       end
 
     rescue Exception => e
       log_error_records('presenting_complaints', presenting_complaint['obs_id'].to_i, e)
     end
   end
-
-  update_last_update('PresentingComplaints', presenting_complaint['updated_at'])
 end

@@ -1,5 +1,4 @@
 def ids_patient_symptoms(patient_symptom)
-  puts "processing Symptoms for person ID #{patient_symptom['person_id']}"
 
   ids_patient_symptoms = Symptom.find_by_symptom_id(patient_symptom['obs_id'])
 
@@ -7,7 +6,6 @@ def ids_patient_symptoms(patient_symptom)
   value_coded = get_master_def_id(patient_symptom['value_coded'], 'concept_name')
 
   if ids_patient_symptoms && check_latest_record(patient_symptom, ids_patient_symptoms)
-    puts "Updating patient symptom for #{patient_symptom['person_id']}"
     ids_patient_symptoms.update(concept_id: concept_id,
                                 encounter_id: patient_symptom['encounter_id'],
                                 value_coded: value_coded,
@@ -20,7 +18,6 @@ def ids_patient_symptoms(patient_symptom)
     
   elsif ids_patient_symptoms.blank? 
     begin
-      puts "Creating patient symptom for #{patient_symptom['person_id']}"
       ids_patient_symptoms                   = Symptom.new
       ids_patient_symptoms.symptom_id        = patient_symptom['obs_id']
       ids_patient_symptoms.concept_id        = concept_id
@@ -34,15 +31,11 @@ def ids_patient_symptoms(patient_symptom)
       ids_patient_symptoms.app_date_updated  = patient_symptom['date_changed']
 
       if ids_patient_symptoms.save
-        puts 'Successfully saved patient symptoms'
         remove_failed_record('symptoms', patient_symptom['obs_id'].to_i)
       else
-        puts 'Failed to save patient symptoms. Logging'
       end        
     rescue Exception => e
       log_error_records('symptoms', patient_symptom['obs_id'].to_i, e)
     end
   end
-
-  update_last_update('Symptom', patient_symptom['updated_at'])
 end

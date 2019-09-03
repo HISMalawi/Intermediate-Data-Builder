@@ -5,20 +5,12 @@ def ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
   if diagnosis && diag['encounter_datetime'].to_date >
                   (diagnosis['app_date_updated'] ||
                    diagnosis['app_date_created']).to_date
-    puts 'Update code not yet available'
     assign_data(diag)
     diagnosis.update
   else
     diagnosis = Diagnosis.new
     assign_data(diag)
-    if diagnosis.save
-      puts "Successfully populated diagnosis
-            with person id #{diag['person_id']}"
-    else
-      puts "Failed to populated diagnosis with person id #{diag['person_id']}"
-    end
   end
-  update_last_update('Diagnosis', diag['updated_at'])
 end
 
 def assign_data(diag)

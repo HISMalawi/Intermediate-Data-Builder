@@ -114,6 +114,7 @@ GEM
     nio4r (2.3.1)
     nokogiri (1.10.3)
       mini_portile2 (~> 2.4.0)
+    parallel (1.17.0)
     public_suffix (3.1.0)
     puma (3.12.1)
     rack (2.0.7)
@@ -147,11 +148,19 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.10.0)
       ffi (~> 1.0)
+    redis (4.1.2)
+    redis-classy (2.4.1)
+      redis-namespace (~> 1.0)
+    redis-mutex (4.0.1)
+      redis-classy (~> 2.0)
+    redis-namespace (1.6.0)
+      redis (>= 3.0.4)
     regexp_parser (1.5.1)
     rest-client (2.0.2)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
+    ruby-progressbar (1.10.0)
     ruby_dep (1.5.0)
     rubyzip (1.2.3)
     sass (3.7.4)
@@ -217,9 +226,12 @@ DEPENDENCIES
   jbuilder (~> 2.5)
   listen (>= 3.0.5, < 3.2)
   mysql2 (>= 0.4.4, < 0.6.0)
+  parallel
   puma (~> 3.11)
   rails (~> 5.2.3)
+  redis-mutex
   rest-client
+  ruby-progressbar
   sass-rails (~> 5.0)
   selenium-webdriver
   spring
