@@ -93,7 +93,9 @@ QUERY
 end
 
 def process_duplicates(duplicates, duplicate_id)
+
   duplicates.each do |duplicate|
+      next if PotentialDuplicate.find_by(person_id_a: duplicate_id, person_id_b: duplicate['person_id']).present?       
       # save to duplicate_statuses
       PotentialDuplicate.create(person_id_a: duplicate_id, person_id_b: duplicate['person_id'], score: duplicate['score'].to_f)
   end
@@ -114,7 +116,7 @@ def check_for_duplicate(demographics)
 
   return if subject.blank?
 
-  subject.downcase!.gsub!(/[[:space:]]/, '')
+  subject.downcase!.gsub!(/[[:space:]]/, '') rescue return
   
   duplicates = find_duplicates(subject, demographics[:person]['person_id'])
 
@@ -168,7 +170,7 @@ def update_last_update(model, timestamp)
 end
 
 def initiate_de_duplication
-  last_updated = get_last_updated('Deduplicaton')
+  last_updated = get_last_updated('Deduplication')
 
   query = "SELECT * FROM #{@rds_db}.person WHERE updated_at >= '#{last_updated}' ORDER BY updated_at "
 
@@ -524,7 +526,7 @@ end
 def populate_vitals
    last_updated = get_last_updated('Vital')
 
-   vitals = ActiveRecord::Base.connetion.select_all <<~SQL
+   vitals = ActiveRecord::Base.connection.select_all <<~SQL
     SELECT ob.* FROM #{@rds_db}.obs ob
     INNER JOIN #{@rds_db}.encounter en
     ON ob.encounter_id = en.encounter_id
@@ -537,7 +539,7 @@ SQL
    return if vitals.blank?
 
    Parallel.each(vitals, progress: 'Processing Vitals') do |vital|
-    vital_value_coded(vitals)
+    vital_value_coded(vital)
   end
   update_last_update('Vital', vitals.last['updated_at'])
 end
@@ -582,7 +584,7 @@ end
 def populate_breastfeeding_status
   last_updated = get_last_updated('BreastfeedingStatus')
 
-  breastfeeding = ActiveRecord::Base.connection <<~SQL
+  breastfeeding = ActiveRecord::Base.connection.select_all <<~SQL
     SELECT * FROM #{@rds_db}.obs WHERE (concept_id IN
     (834,5253,5579,5632,8040,5632,9538)
     AND updated_at >= '#{last_updated}')
@@ -698,7 +700,7 @@ def populate_presenting_complaints
            ORDER BY ob.updated_at 
 SQL
     
-    returns if complaints
+    returns if complaints.blank?
 
     Parallel.each(complaints, progress: 'Processing Complaints') do |record|
     ids_presenting_complaints(record)
@@ -751,7 +753,7 @@ def populate_outcomes
   last_updated = get_last_updated('Outcome')
 
    outcomes = ActiveRecord::Base.connection.select_all <<~SQL
-   SELECT pp.patient_id, pws.* FROM #{@rds_db}.patient_program pp
+   SELECT pp.patient_id, pp.updated_at, pws.* FROM #{@rds_db}.patient_program pp
            INNER JOIN #{@rds_db}.patient_state ps 
            ON pp.patient_program_id = ps.patient_program_id
            INNER JOIN  #{@rds_db}.program_workflow pw 
@@ -773,19 +775,23 @@ end
 def populate_occupation
   last_updated = get_last_updated('Occupation')
 
-   query = "SELECT * FROM #{@rds_db}.person_attribute 
+   occupation = ActiveRecord::Base.connection.select_all <<~SQL
+    SELECT * FROM #{@rds_db}.person_attribute 
             WHERE (person_attribute_type_id = 13
             AND updated_at >= '#{last_updated}')
             OR person_attribute_id IN #{load_error_records('occupation')} 
-            ORDER BY updated_at "
+            ORDER BY updated_at;
+SQL
 
-    fetch_data(query) do |record|
+   return if occupation.blank?
+
+    Parallel.each(occupation) do |record|
       ids_occupation(record)
     end
+    update_last_update('Occupation', occupation.last['updated_at'])
 end
     
   def ids_occupation(rds_occupation)
-    puts "processing Occupation for person_id #{rds_occupation['person_id']}"
     occupation_exists = Occupation.find_by(occupation_id: rds_occupation['person_attribute_id'])
     if occupation_exists.blank?
       begin
@@ -802,7 +808,6 @@ end
         person_occupation.app_date_updated = rds_occupation['date_changed']
         person_occupation.save
 
-        puts "Successfully populated occupation with record for person #{rds_occupation['person_id']}"
           remove_failed_record('occupation', rds_occupation['person_attribute_id'])
       rescue Exception => e
         log_error_records('occupation', rds_occupation['person_attribute_id'].to_i, e)
@@ -815,23 +820,20 @@ end
                                void_reason: rds_occupation['void_reason'], 
                                app_date_created: rds_occupation['date_created'],
                                app_date_updated: rds_occupation['date_changed']) 
-
-      puts "Successfully updated occupation details with record for person #{rds_occupation['person_id']}"
-
     end
   end
 
 def populate_appointment
   last_updated = get_last_updated('Appointment')
 
-   appointments = ActiveRecord::Base.connection <<~SQL
+   appointments = ActiveRecord::Base.connection.select_all <<~SQL
      SELECT ob.* FROM #{@rds_db}.obs ob 
      JOIN #{@rds_db}.encounter en
      ON ob.encounter_id = en.encounter_id
      WHERE (en.encounter_type = 7
      AND ob.updated_at >= '#{last_updated}')
      OR obs_id IN #{load_error_records('appointment')} 
-     ORDER BY ob.updated_at 
+     ORDER BY ob.updated_at;
 SQL
     
     return if appointments.blank?
@@ -845,7 +847,7 @@ end
 def populate_prescription
   last_updated = get_last_updated('MedicationPrescription')
 
-   prescription = ActiveRecord::Base.connection <<~SQL
+   prescription = ActiveRecord::Base.connection.select_all <<~SQL
     SELECT * FROM #{@rds_db}.orders o
             JOIN #{@rds_db}.drug_order d on o.order_id = d.order_id
             WHERE (o.order_type_id = 1       
@@ -864,18 +866,19 @@ end
 def populate_dispensation
   last_updated = get_last_updated('MedicationDispensation')
 
-  query = "SELECT o.order_id, quantity,o.date_created,o.voided,
-  o.voided_by,o.date_voided, o.void_reason,o.patient_id, do.updated_at
-  FROM #{@rds_db}.orders o
-  INNER JOIN #{@rds_db}.drug_order do  ON o.order_id = do.order_id
-  WHERE (do.updated_at >= '#{last_updated}')
-  OR do.order_id IN #{load_error_records('dispensation')} 
-  ORDER BY o.updated_at "
-    
+  dispensation = ActiveRecord::Base.connection.select_all <<~SQL
+    SELECT o.order_id, quantity,o.date_created,o.voided,
+    o.voided_by,o.date_voided, o.void_reason,o.patient_id, do.updated_at
+    FROM #{@rds_db}.orders o
+    INNER JOIN #{@rds_db}.drug_order do  ON o.order_id = do.order_id
+    WHERE (do.updated_at >= '#{last_updated}')
+    OR do.order_id IN #{load_error_records('dispensation')} 
+    ORDER BY o.updated_at;
+SQL
+  
+  return if dispensation.blank?    
 
-  fetch_data(query) do |rds_dispensed_drug|
-      puts "Processing dispensation record for person #{rds_dispensed_drug['patient_id']}"
-
+  Parallel.each(dispensation, progress: 'Processing Dispensations') do |rds_dispensed_drug|
      dispensation_exist = MedicationDispensation.find_by_medication_dispensation_id(rds_dispensed_drug['order_id'])
      if dispensation_exist.blank?
       begin
@@ -890,7 +893,6 @@ def populate_dispensation
           app_date_created: rds_dispensed_drug['date_created'],
           app_date_updated: ''
           )
-         puts "Successfully INSERTED medication dispensation details for person #{rds_dispensed_drug['patient_id']}"
 
          remove_failed_record('dispensation', rds_dispensed_drug['order_id'].to_i)
 
@@ -908,34 +910,42 @@ def populate_dispensation
         app_date_created: rds_dispensed_drug['date_created'],
         app_date_updated: ''
         )
-       puts "Successfully UPDATED medication dispensation details for person #{rds_dispensed_drug['patient_id']}"
      end
-    update_last_update('Despensation', rds_dispensed_drug['updated_at'])
-  end    
+  end 
+  update_last_update('Despensation', dispensation.last['updated_at'])
 end
 
 def populate_relationships
   last_updated = get_last_updated('Relationship')
 
-  query = "SELECT * from #{@rds_db}.relationship 
+  relationship = ActiveRecord::Base.connection.select_all <<~SQL 
+    SELECT * from #{@rds_db}.relationship 
            WHERE relationship_id IN #{load_error_records('relationships')} 
            OR updated_at >= '#{last_updated}' 
-           ORDER BY updated_at "
+           ORDER BY updated_at 
+  SQL
+
+  return if relationship.blank?
     
-  fetch_data(query) do |record|
+  Parallel.each(relationship, progress: 'Processing Relationships') do |record|
     ids_relationship(record)
   end
+  update_last_update('Relationship', relationship.last['updated_at'])
 end
 
 def populate_adherence
   last_updated = get_last_updated('MedicationAdherence')
   
-  query = "SELECT * FROM medication_prescriptions
-          ORDER BY updated_at"
+  adherence = ActiveRecord::Base.connection.select_all <<~SQL
+    SELECT * FROM medication_prescriptions
+          ORDER BY updated_at;
+SQL
 
-  fetch_data(query) do |ids_prescribed_drug|
+   return if adherence.blank?
+
+  Parallel.each(adherence, progress: 'Processing Adherence') do |ids_prescribed_drug|
     drug_dispensed_id = ids_prescribed_drug['drug_id'].to_i # we need to include an order id which is a unique and we will need to compare in obs table
-    prescription_drug_adherence = ActiveRecord::Base.connection.select_all <<SQL
+    prescription_drug_adherence = ActiveRecord::Base.connection.select_all <<~SQL
       SELECT oo.obs_id, oo.person_id,oo.value_text AS adherence_in_percentage, 
       date(oo.obs_datetime) as visit_date,dg.drug_id as rds_drug_id,
       oo.date_created, oo.updated_at
@@ -943,19 +953,37 @@ def populate_adherence
       LEFT JOIN #{@rds_db}.orders o ON oo.order_id = o.order_id
       LEFT JOIN #{@rds_db}.drug_order d ON o.order_id = d.order_id
       LEFT JOIN #{@rds_db}.drug dg ON d.drug_inventory_id = dg.drug_id
-      WHERE oo.concept_id = 6987 and dg.drug_id = #{drug_dispensed_id};
-SQL
+      WHERE (oo.concept_id = 6987 and dg.drug_id = #{drug_dispensed_id})
+      OR oo.obs_id IN #{load_error_records('adherence')};
+    SQL
     # where clause should read WHERE oo.concept_id = 6987 and ids_prescribed_drug['order_id'] = oo.order_id;
     (prescription_drug_adherence || []).each do |rds_drug_adherence|
 
-      puts "Processing adherence record for person #{rds_drug_adherence['person_id']}"
+      adherence_exists = MedicationAdherence.find_by_adherence_id(rds_drug_adherence['obs_id'].to_i)
 
-    adherence_exists = MedicationAdherence.find_by_adherence_id(rds_drug_adherence['obs_id'].to_i)
+      if adherence_exists.blank?
+        begin
+          MedicationAdherence.create(
+            adherence_id: rds_drug_adherence['obs_id'].to_i,
+            medication_dispensation_id: ids_prescribed_drug['medication_prescription_id'],
+            drug_id: ids_prescribed_drug['drug_id'],
+            adherence: rds_drug_adherence['adherence_in_percentage'],
+            voided: ids_prescribed_drug['voided'],
+            voided_by: ids_prescribed_drug['voided_by'], 
+            voided_date: ids_prescribed_drug['date_voided'],
+            void_reason: ids_prescribed_drug['void_reason'], 
+            app_date_created: rds_drug_adherence['date_created'],
+            app_date_updated: ids_prescribed_drug['date_changed']
+            )
 
-    if adherence_exists.blank?
-      begin
-        MedicationAdherence.create(
-          adherence_id: rds_drug_adherence['obs_id'].to_i,
+        remove_failed_record('adherence', rds_drug_adherence['obs_id'].to_i)
+        
+        rescue Exception => e
+          log_error_records('adherence', rds_drug_adherence['obs_id'].to_i, e)
+        end
+
+      elsif check_latest_record(rds_drug_adherence, adherence_exists)
+        adherence_exists.update(
           medication_dispensation_id: ids_prescribed_drug['medication_prescription_id'],
           drug_id: ids_prescribed_drug['drug_id'],
           adherence: rds_drug_adherence['adherence_in_percentage'],
@@ -966,33 +994,10 @@ SQL
           app_date_created: rds_drug_adherence['date_created'],
           app_date_updated: ids_prescribed_drug['date_changed']
           )
-
-      remove_failed_record('adherence', rds_drug_adherence['obs_id'].to_i)
-      
-      rescue Exception => e
-        log_error_records('adherence', rds_drug_adherence['obs_id'].to_i, e)
       end
-
-    elsif check_latest_record(rds_drug_adherence, adherence_exists)
-      adherence_exists.update(
-        medication_dispensation_id: ids_prescribed_drug['medication_prescription_id'],
-        drug_id: ids_prescribed_drug['drug_id'],
-        adherence: rds_drug_adherence['adherence_in_percentage'],
-        voided: ids_prescribed_drug['voided'],
-        voided_by: ids_prescribed_drug['voided_by'], 
-        voided_date: ids_prescribed_drug['date_voided'],
-        void_reason: ids_prescribed_drug['void_reason'], 
-        app_date_created: rds_drug_adherence['date_created'],
-        app_date_updated: ids_prescribed_drug['date_changed']
-        )
-    end
-
-
-
-      puts "Successfully populated medication adherence details with record for person #{rds_drug_adherence['person_id']}"
-      update_last_update('Adherence', rds_drug_adherence['updated_at'])
     end    
   end
+  update_last_update('Adherence', adherence.last['updated_at'])
 end
 
 def populate_de_identifier
@@ -1055,33 +1060,33 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  #populate_breastfeeding_status
-  #populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
-  populate_tb_statuses
-  populate_outcomes
-  populate_family_planning
-  populate_appointment
-  populate_prescription
-  populate_lab_orders
-  populate_occupation
-  populate_dispensation
-  populate_adherence
-  populate_relationships
-  populate_hiv_staging_info
-  populate_precription_has_regimen
-  populate_lab_test_results
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
+  # update_person_type
+  # populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_breastfeeding_status
+  # populate_vitals
+  # # populate_patient_history
+  # # populate_symptoms
+  # # populate_side_effects
+  # # populate_presenting_complaints
+  # # populate_tb_statuses
+   populate_outcomes
+  # # populate_family_planning
+  # populate_appointment
+  # populate_prescription
+  # populate_lab_orders
+  # populate_occupation
+  # populate_dispensation
+  #populate_adherence
+  # populate_relationships
+  # populate_hiv_staging_info
+  # populate_precription_has_regimen
+  # populate_lab_test_results
   initiate_de_duplication
   populate_de_identifier
 

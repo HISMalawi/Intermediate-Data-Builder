@@ -1,20 +1,20 @@
 require 'json'
-@lims_url = '192.168.12.71:3010'
+@lims_url = 'localhost:3010'
 @lims_user = 'lab_test'
 @lims_pwd = 'lab_test'
 
 def populate_lab_test_results
-  LabOrder.find_each do |lab_order|
+  token_key = authenticate
+  header = {token: token_key}
+  lastest_update = LabOrder.maximum('updated_at')
+
+  Parallel.each(LabOrder.all, progress: 'Processing Lab Results') do |lab_order|
     if lab_order['tracking_number'].blank?
        puts 'Skipping Record'
        next
     end
     
-    last_updated = get_last_updated('LabTestResults')
-
-    token_key = authenticate
-    header = {token: token_key}
-    puts "processing #{lab_order['tracking_number']}"
+    last_updated = get_last_updated('LabTestResults')    
 
     get_lab_order_details = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_order_by_tracking_number/#{lab_order['tracking_number']}",
                                            header))
@@ -54,8 +54,8 @@ def populate_lab_test_results
             end
           end
     end
-    update_last_update('LabTestResults', lab_order['updated_at'])
-      end
+  end
+  update_last_update('LabTestResults', lastest_update)
 end
 
 def authenticate
