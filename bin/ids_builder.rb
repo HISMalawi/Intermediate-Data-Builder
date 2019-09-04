@@ -271,22 +271,28 @@ def populate_contact_details
    person_attribute = handle_commons(person_attribute)
 
    contact_exist = ContactDetail.find_by(person_id: person_attribute['person_id'])
-
+    
       if contact_exist.blank?
-        contact_detail = ContactDetail.new
-        contact_detail.person_id = person_attribute['person_id']
-        contact_detail.home_phone_number = home_phone_number
-        contact_detail.cell_phone_number = cell_phone_number
-        contact_detail.work_phone_number = work_phone_number
-        contact_detail.creator = person_attribute['creator']
-        contact_detail.voided = person_attribute['voided']
-        contact_detail.voided_by = person_attribute['voided_by']
-        contact_detail.voided_date = person_attribute['date_voided']
-        contact_detail.void_reason = person_attribute['void_reason']
-        contact_detail.app_date_created = person_attribute['date_created']
-        contact_detail.app_date_updated = person_attribute['date_changed']
+        begin
+            contact_detail = ContactDetail.new
+            contact_detail.person_id = person_attribute['person_id']
+            contact_detail.home_phone_number = home_phone_number
+            contact_detail.cell_phone_number = cell_phone_number
+            contact_detail.work_phone_number = work_phone_number
+            contact_detail.creator = person_attribute['creator']
+            contact_detail.voided = person_attribute['voided']
+            contact_detail.voided_by = person_attribute['voided_by']
+            contact_detail.voided_date = person_attribute['date_voided']
+            contact_detail.void_reason = person_attribute['void_reason']
+            contact_detail.app_date_created = person_attribute['date_created']
+            contact_detail.app_date_updated = person_attribute['date_changed']
 
-        contact_detail.save
+            contact_detail.save
+
+            remove_failed_record('person_attribute', person_attribute['person_id'].to_i)
+        rescue Exception => e
+          log_error_records('person_attribute', person_attribute['person_id'].to_i, e)
+        end
       else
         contact_exist.update(home_phone_number: home_phone_number,
           cell_phone_number: cell_phone_number,
