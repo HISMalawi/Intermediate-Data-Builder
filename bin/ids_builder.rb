@@ -383,33 +383,6 @@ SQL
   update_last_update('Encounter', encounters.last['updated_at'])
 end
 
-def populate_users
-  # person_id, username, user_role
-  get_rds_users.each do |rds_user|
-    person = Person.find_by(person_id: rds_user['person_id'])
-
-    # TODO: code for getting all people skipping user, to talk about this
-    if person
-      if User.find_by(person_id: rds_user['person_id']).blank?
-        user = User.new
-        user.person_id = rds_user['person_id']
-        user.username = rds_user['username']
-        user.password = rds_user['password']
-        user.user_role = ''
-        user.save
-      end
-    else
-      puts '==================================================================='
-      puts "Skipped record for User with ID #{rds_user['person_id']}"
-      puts 'Reason: Person records for the above ID not available in People'
-      puts '==================================================================='
-      puts ''
-      puts 'Ending script'
-      break
-    end
-  end
-end
-
 def get_last_updated(model)
   if @last_updated
     if @last_updated.include?(model)
