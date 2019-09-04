@@ -1048,10 +1048,9 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  # populate_people
-  # populate_person_names
+  populate_people
+  populate_person_names
   populate_contact_details
-  exit
   populate_person_address
   update_person_type
   populate_encounters
