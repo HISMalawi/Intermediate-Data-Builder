@@ -62,11 +62,11 @@ end
 def get_rds_person_attributes
   last_updated = get_last_updated('PersonAttribute')
   person_attribute = []
-  rds_attribute = ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.person_attribute WHERE person_attribute_type_id IN (12,14,15)
-	AND updated_at >= '#{last_updated}' ORDER by updated_at;
-
-QUERY
+  rds_attribute = ActiveRecord::Base.connection.select_all <<~SQL
+  	SELECT * FROM #{@rds_db}.person_attribute WHERE (person_attribute_type_id IN (12,14,15)
+  	AND updated_at >= '#{last_updated}' AND voided = 0)
+    OR person_id IN #{load_error_records('person_attribute')} ORDER by updated_at;
+  SQL
 
   rds_attribute.each { |attribute| person_attribute << attribute }
 end
