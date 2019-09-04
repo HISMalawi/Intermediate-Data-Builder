@@ -268,10 +268,11 @@ def populate_contact_details
       # email_address to be added when applications having email addresses start pushing to IDS
     end
 
-    person = Person.find_by(person_id: person_attribute['person_id'])
+   person_attribute = handle_commons(person_attribute)
 
-    if person
-      if ContactDetail.find_by(person_id: person_attribute['person_id']).blank?
+   contact_exist = ContactDetail.find_by(person_id: person_attribute['person_id'])
+
+      if contact_exist.blank?
         contact_detail = ContactDetail.new
         contact_detail.person_id = person_attribute['person_id']
         contact_detail.home_phone_number = home_phone_number
@@ -282,35 +283,22 @@ def populate_contact_details
         contact_detail.voided_by = person_attribute['voided_by']
         contact_detail.voided_date = person_attribute['date_voided']
         contact_detail.void_reason = person_attribute['void_reason']
-        contact_detail.created_at = Date.today.strftime('%Y-%m-%d %H:%M:%S')
-        contact_detail.updated_at = Date.today.strftime('%Y-%m-%d %H:%M:%S')
         contact_detail.app_date_created = person_attribute['date_created']
+        contact_detail.app_date_updated = person_attribute['date_changed']
 
         contact_detail.save
-
       else
-        contact_detail = ContactDetail.where(person_id: person_attribute['person_id'])
-        contact_detail.update(home_phone_number: '') unless home_phone_number.nil?
-        contact_detail.update(cell_phone_number: '') unless cell_phone_number.nil?
-        contact_detail.update(work_phone_number: '') unless work_phone_number.nil?
-        contact_detail.update(creator: person_attribute['creator'])
-        contact_detail.update(voided: person_attribute['voided'])
-        contact_detail.update(voided_by: person_attribute['voided_by'])
-        contact_detail.update(voided_date: person_attribute['date_voided'])
-        contact_detail.update(void_reason: person_attribute['void_reason'])
-        contact_detail.update(created_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
-        contact_detail.update(updated_at: Date.today.strftime('%Y-%m-%d %H:%M:%S'))
-
+        contact_exist.update(home_phone_number: home_phone_number,
+          cell_phone_number: cell_phone_number,
+          work_phone_number: work_phone_number,
+          creator: person_attribute['creator'].to_i,
+          voided: person_attribute['voided'].to_i,
+          voided_by: person_attribute['voided_by'].to_i,
+          voided_date: person_attribute['date_voided'],
+          void_reason: person_attribute['void_reason'],
+          app_date_created: person_attribute['date_created'],
+          app_date_updated: person_attribute['date_changed'])
       end
-    else
-      puts '==================================================================='
-      puts "Skipped record for Person with ID #{person_attribute['person_id']}"
-      puts 'Reason: Person records for the above ID not available in People'
-      puts '==================================================================='
-      puts ''
-      puts 'Ending script'
-      break
-    end
   end
   # Updating last record processed
   update_last_update('PersonAttribute', get_rds_person_attributes.last['updated_at'])
@@ -1060,9 +1048,10 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  populate_people
-  populate_person_names
+  # populate_people
+  # populate_person_names
   populate_contact_details
+  exit
   populate_person_address
   update_person_type
   populate_encounters
