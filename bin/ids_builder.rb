@@ -328,7 +328,7 @@ def populate_encounters
     #{query}
   SQL
 
-    Parallel.map(encounters, progress: "Processing Encounters") do |rds_encounter|
+    Parallel.each(encounters, progress: "Processing Encounters") do |rds_encounter|
       rds_prog_id = rds_encounter['program_id']
       program_name = ActiveRecord::Base.connection.select_all <<SQL
     SELECT name FROM #{@rds_db}.program  WHERE program_id = #{rds_prog_id} limit 1
