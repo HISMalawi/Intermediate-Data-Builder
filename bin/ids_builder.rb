@@ -293,7 +293,7 @@ def populate_contact_details
         rescue Exception => e
           log_error_records('person_attribute', person_attribute['person_id'].to_i, e)
         end
-      else
+      elsif check_latest_record(person_attribute, contact_exist)
         contact_exist.update(home_phone_number: home_phone_number,
           cell_phone_number: cell_phone_number,
           work_phone_number: work_phone_number,
