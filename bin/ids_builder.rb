@@ -240,6 +240,7 @@ end
 def populate_contact_details
   last_updated = get_last_updated('PersonAttribute')
 
+<<<<<<< HEAD
    query = "SELECT person_id,
            MAX((CASE WHEN person_attribute_type_id = 12 THEN value ELSE NULL END)) AS cell_phone_number,
            MAX((CASE WHEN person_attribute_type_id = 14 THEN value ELSE NULL END)) AS home_phone_number,
@@ -257,6 +258,10 @@ def populate_contact_details
 end
 
 def ids_contact_details(person_attribute)
+=======
+  Parallel.each(get_rds_person_attributes, progress: 'Processing Contact Details') do |person_attribute|
+
+>>>>>>> Updated Optimization
     attribute_value = person_attribute['value']
 
     cell_phone_number = ''
@@ -313,6 +318,12 @@ def ids_contact_details(person_attribute)
           app_date_created: person_attribute['date_created'],
           app_date_updated: person_attribute['date_changed'])
       end
+<<<<<<< HEAD
+=======
+  end
+  # Updating last record processed
+  update_last_update('PersonAttribute', get_rds_person_attributes.last['updated_at']) unless get_rds_person_attributes.blank?
+>>>>>>> Updated Optimization
 end
 
 def populate_encounters
