@@ -35,7 +35,7 @@ def person_has_type(type_id, person)
   end
 end
 
-def fetch_data(query, method, model)
+def fetch_data(query)
   offset = 0
   begin
     batch = ActiveRecord::Base.connection.select_all <<-SQL
@@ -43,11 +43,9 @@ def fetch_data(query, method, model)
       LIMIT #{@batch_size}
       OFFSET #{offset}
     SQL
-    Parallel.each(batch, progress: "Processing #{model} From #{offset} to #{offset + @batch_size}") do |row|
-      send(method, row)
+    batch.each do |row|
+      yield row
     end
-    update_last_update(model, batch.last['updated_at']) unless batch.empty?
-
     offset += @batch_size
   end until batch.empty?
 end
