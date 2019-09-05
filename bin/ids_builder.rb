@@ -1053,4 +1053,4 @@ def methods_init
    FileUtils.rm '/tmp/ids_builder.lock' if File.file?('/tmp/ids_builder.lock')
 end
 
-methods_init 
+methods_init
