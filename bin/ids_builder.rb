@@ -240,7 +240,20 @@ end
 def populate_contact_details
   last_updated = get_last_updated('PersonAttribute')
 
-  Parallel.each(get_rds_person_attributes, progress: 'Processing Contact Details') do |person_attribute|
+   query = "SELECT person_id,
+           MAX((CASE WHEN person_attribute_type_id = 12 THEN value ELSE NULL END)) AS cell_phone_number,
+           MAX((CASE WHEN person_attribute_type_id = 14 THEN value ELSE NULL END)) AS home_phone_number,
+           MAX((CASE WHEN person_attribute_type_id = 15 THEN value ELSE NULL END)) AS work_phone_number,
+           MAX(date_created) date_created,
+           MAX(date_changed) date_changed,
+           updated_at
+           FROM 
+           #{@rds_db}.person_attribute
+           WHERE updated_at >= '#{last_updated}'
+           group by person_id 
+           ORDER BY updated_at "
+
+  fetch_data(query, 'ids_contact_details', 'PersonAttribute')
 end
 
 def ids_contact_details(person_attribute)
@@ -300,7 +313,6 @@ def ids_contact_details(person_attribute)
           app_date_created: person_attribute['date_created'],
           app_date_updated: person_attribute['date_changed'])
       end
-  end
 end
 
 def populate_encounters
@@ -1020,8 +1032,8 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  populate_people
-  populate_person_names
+  # populate_people
+  # populate_person_names
   populate_contact_details
   exit
   populate_person_address
