@@ -1018,10 +1018,9 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  # populate_people
-  # populate_person_names
+  populate_people
+  populate_person_names
   populate_contact_details
-  exit
   populate_person_address
   update_person_type
   populate_encounters
@@ -1052,4 +1051,4 @@ def methods_init
    FileUtils.rm '/tmp/ids_builder.lock' if File.file?('/tmp/ids_builder.lock')
 end
 
-methods_init 
+methods_init
