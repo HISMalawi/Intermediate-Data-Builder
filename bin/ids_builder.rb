@@ -306,6 +306,7 @@ def populate_contact_details
           app_date_created: person_attribute['date_created'],
           app_date_updated: person_attribute['date_changed'])
       end
+  end
   # Updating last record processed
   update_last_update('PersonAttribute', get_rds_person_attributes.last['updated_at']) unless get_rds_person_attributes.blank?
 end
