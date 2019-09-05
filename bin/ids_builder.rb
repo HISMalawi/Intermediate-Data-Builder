@@ -137,17 +137,9 @@ end
 
 def populate_people
   last_updated = get_last_updated('People')
-  query = "SELECT * FROM #{@rds_db}.person WHERE updated_at >= '#{last_updated}' ORDER BY updated_at;"
+  query = "SELECT * FROM #{@rds_db}.person WHERE updated_at >= '#{last_updated}' ORDER BY updated_at "
 
-  people = ActiveRecord::Base.connection.select_all <<~SQL
-    #{query}
-  SQL
-  return if people.blank?
-
-  Parallel.each(people, progress: 'Processing People') do |person|
-   ids_people(person)
-  end
-  update_last_update('Person', people.last['updated_at'])
+   fetch_data(query, 'ids_people', 'People') 
 end
 
 def update_last_update(model, timestamp)
@@ -249,7 +241,6 @@ def populate_contact_details
   last_updated = get_last_updated('PersonAttribute')
 
   Parallel.each(get_rds_person_attributes, progress: 'Processing Contact Details') do |person_attribute|
-
     attribute_value = person_attribute['value']
 
     cell_phone_number = ''
@@ -306,7 +297,6 @@ def populate_contact_details
           app_date_created: person_attribute['date_created'],
           app_date_updated: person_attribute['date_changed'])
       end
-  end
   # Updating last record processed
   update_last_update('PersonAttribute', get_rds_person_attributes.last['updated_at']) unless get_rds_person_attributes.blank?
 end
