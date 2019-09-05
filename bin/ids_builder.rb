@@ -249,6 +249,7 @@ def populate_contact_details
   last_updated = get_last_updated('PersonAttribute')
 
   Parallel.each(get_rds_person_attributes, progress: 'Processing Contact Details') do |person_attribute|
+
     attribute_value = person_attribute['value']
 
     cell_phone_number = ''
@@ -307,7 +308,7 @@ def populate_contact_details
       end
   end
   # Updating last record processed
-  update_last_update('PersonAttribute', get_rds_person_attributes.last['updated_at'])
+  update_last_update('PersonAttribute', get_rds_person_attributes.last['updated_at']) unless get_rds_person_attributes.blank?
 end
 
 def populate_encounters
