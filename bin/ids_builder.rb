@@ -137,9 +137,17 @@ end
 
 def populate_people
   last_updated = get_last_updated('People')
-  query = "SELECT * FROM #{@rds_db}.person WHERE updated_at >= '#{last_updated}' ORDER BY updated_at "
+  query = "SELECT * FROM #{@rds_db}.person WHERE updated_at >= '#{last_updated}' ORDER BY updated_at;"
 
-   fetch_data(query, 'ids_people', 'People') 
+  people = ActiveRecord::Base.connection.select_all <<~SQL
+    #{query}
+  SQL
+  return if people.blank?
+
+  Parallel.each(people, progress: 'Processing People') do |person|
+   ids_people(person)
+  end
+  update_last_update('Person', people.last['updated_at'])
 end
 
 def update_last_update(model, timestamp)
