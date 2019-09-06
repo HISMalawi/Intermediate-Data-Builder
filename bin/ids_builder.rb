@@ -28,7 +28,7 @@ require_relative 'ids_outcomes'
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
 @last_updated = YAML.load_file("#{Rails.root}/log/last_update.yml")
-@batch_size = 50_000
+@batch_size = 1_000_000
 @threshold = 85
 
 def get_all_rds_peoples
@@ -139,7 +139,7 @@ def populate_people
   last_updated = get_last_updated('People')
   query = "SELECT * FROM #{@rds_db}.person WHERE updated_at >= '#{last_updated}' ORDER BY updated_at "
 
-   fetch_data(query, 'ids_people', 'People') 
+   fetch_data_P(query, 'ids_people', 'People') 
 end
 
 def update_last_update(model, timestamp)
@@ -253,7 +253,7 @@ def populate_contact_details
            group by person_id 
            ORDER BY updated_at "
 
-  fetch_data(query, 'ids_contact_details', 'PersonAttribute')
+  fetch_data_P(query, 'ids_contact_details', 'PersonAttribute')
 end
 
 def ids_contact_details(person_attribute)
@@ -323,19 +323,18 @@ def populate_encounters
            OR encounter_id IN #{load_error_records('encounter')} 
            ORDER BY updated_at "
 
-  encounters = ActiveRecord::Base.connection.select_all <<~SQL
-    #{query}
-  SQL
+  fetch_data(query, 'ids_encounters', 'Encounter')
+end
 
-    Parallel.each(encounters, progress: "Processing Encounters") do |rds_encounter|
+def ids_encounters(rds_encounter)
       rds_prog_id = rds_encounter['program_id']
-      program_name = ActiveRecord::Base.connection.select_all <<SQL
-    SELECT name FROM #{@rds_db}.program  WHERE program_id = #{rds_prog_id} limit 1
-SQL
+    program_name = ActiveRecord::Base.connection.select_all <<~SQL
+     SELECT name FROM #{@rds_db}.program  WHERE program_id = #{rds_prog_id} limit 1
+    SQL
       rds_encounter_type_id = rds_encounter['encounter_type']
-      rds_encounter_type = ActiveRecord::Base.connection.select_all <<SQL
+      rds_encounter_type = ActiveRecord::Base.connection.select_all <<~SQL
     SELECT name FROM #{@rds_db}.encounter_type WHERE encounter_type_id = #{rds_encounter_type_id} limit 1
-SQL
+    SQL
       ids_encounter_type_name = rds_encounter_type.first
       ids_prog_name = program_name.first
       master_definition_prog_id = MasterDefinition.find_by(definition: ids_prog_name['name'])
@@ -383,9 +382,6 @@ SQL
                "#{rds_encounter['encounter_id']} "
         end
       end
-      # Updating last record processed
-  end
-  update_last_update('Encounter', encounters.last['updated_at'])
 end
 
 def get_last_updated(model)
@@ -1032,10 +1028,9 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  # populate_people
-  # populate_person_names
+  populate_people
+  populate_person_names
   populate_contact_details
-  exit
   populate_person_address
   update_person_type
   populate_encounters
