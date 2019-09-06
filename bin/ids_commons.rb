@@ -35,7 +35,7 @@ def person_has_type(type_id, person)
   end
 end
 
-def fetch_data(query, method, model)
+def fetch_data_P(query, method, model)
   offset = 0
   begin
     batch = ActiveRecord::Base.connection.select_all <<-SQL
@@ -48,6 +48,22 @@ def fetch_data(query, method, model)
     end
     update_last_update(model, batch.last['updated_at']) unless batch.empty?
 
+    offset += @batch_size
+  end until batch.empty?
+end
+
+def fetch_data(query, method, model)
+  offset = 0
+  begin
+    batch = ActiveRecord::Base.connection.select_all <<-SQL
+      #{query}
+      LIMIT #{@batch_size}
+      OFFSET #{offset}
+    SQL
+     batch.each do |row|
+      yield row
+     end
+     
     offset += @batch_size
   end until batch.empty?
 end
@@ -76,7 +92,11 @@ def log_error_records(model, record_id, msg)
                              record_id: record_id.to_i,
                              errr_message: msg) 
    else
-    record_present.update(updated_at: Time.now)
+    record_present.update(failed_record_type_id:
+        FailedRecordType.find_by(name: model.to_s).failed_record_type_id.to_i,
+                             record_id: record_id.to_i,
+                             errr_message: msg,
+                             updated_at: Time.now)
    end
 end
 
@@ -120,30 +140,3 @@ def update_record(concept_id, value_coded, record, update)
       app_date_created: update['date_created'],
       app_date_updated: update['date_changed'])
 end
-
-# def create_record(concept_id, value_coded, record, new_record, failed_index)
-#   begin
-#       puts "Creating patient tb status for #{new_record['person_id']}"
-#       record.create(
-#       ids_tb_statuses.tb_status_id       = new_record['obs_id']
-#       ids_tb_statuses.concept_id         = concept_id
-#       ids_tb_statuses.encounter_id       = tb_status['encounter_id']
-#       ids_tb_statuses.value_coded        = value_coded
-#       ids_tb_statuses.voided             = new_record['voided']
-#       ids_tb_statuses.voided_by          = new_record['voided_by']
-#       ids_tb_statuses.voided_date        = new_record['date_voided']
-#       ids_tb_statuses.void_reason        = new_record['void_reason']
-#       ids_tb_statuses.app_date_created   = new_record['date_created']
-#       ids_tb_statuses.app_date_updated   = new_record['date_changed']
-
-#       if ids_tb_statuses.save
-#         puts 'Successfully save tb statuses'
-#         remove_failed_record(failed_index.to_s, new_record['obs_id'].to_i)
-#       else
-#         puts 'Failed to save tb statuses'
-#       end
-        
-#     rescue Exception => e
-#       log_error_records('tb_status', tb_status['obs_id'].to_i, e)
-#     end
-#  end
