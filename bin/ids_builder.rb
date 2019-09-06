@@ -323,7 +323,7 @@ def populate_encounters
            OR encounter_id IN #{load_error_records('encounter')} 
            ORDER BY updated_at "
 
-  fetch_data(query, 'ids_encounters', 'Encounter')
+  fetch_data_P(query, 'ids_encounters', 'Encounter')
 end
 
 def ids_encounters(rds_encounter)
@@ -1028,13 +1028,14 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
+  # update_person_type
   populate_encounters
   populate_diagnosis
+  exit
   populate_pregnant_status
   populate_breastfeeding_status
   populate_vitals
