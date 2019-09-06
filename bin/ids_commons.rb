@@ -60,10 +60,9 @@ def fetch_data(query, method, model)
       LIMIT #{@batch_size}
       OFFSET #{offset}
     SQL
-     batch.each do |row|
+    batch.each do |row|
       yield row
-     end
-     
+    end   
     offset += @batch_size
   end until batch.empty?
 end
