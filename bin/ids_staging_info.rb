@@ -3,19 +3,20 @@
 def populate_hiv_staging_info
   last_updated = get_last_updated('StagingInfo')
 
-  staging = ActiveRecord::Base.connection.select_all <<~SQL
+  query = <<~SQL
     SELECT distinct p.patient_id, p.updated_at 
            FROM #{@rds_db}.patient p join 
            #{@rds_db}.patient_program pp on p.patient_id = pp.patient_id
            JOIN #{@rds_db}.patient_state ps ON pp.patient_program_id = ps.patient_program_id 
            WHERE (pp.program_id = 1 AND p.voided = 0 AND pp.voided = 0  
            AND ps.state = 7 AND ps.voided = 0 AND p.updated_at >= '#{last_updated}')
-           OR p.patient_id IN #{load_error_records('hiv_staging_info')};
+           OR p.patient_id IN #{load_error_records('hiv_staging_info')} 
   SQL
 
-   return if staging.blank?
+fetch_data_P(query, 'ids_hiv_staging', 'StagingInfo') 
+end
 
-Parallel.each(staging, progress: 'Processing Staging') do |patient|
+def ids_hiv_staging(patient)
     staging_exist = HivStagingInfo.find_by(person_id: patient['patient_id'])
     age_at_initiation = patient_age_at_initiation(patient['patient_id'])['age_at_initiation'] rescue nil
     age_in_days = patient_age_at_initiation(patient['patient_id'])['age_in_days'] rescue nil
@@ -54,8 +55,6 @@ Parallel.each(staging, progress: 'Processing Staging') do |patient|
         log_error_records('hiv_staging_info', patient['patient_id'].to_i, e)
       end
     end
-  end
-  update_last_update('StagingInfo', staging.last['updated_at'])
 end
 
 def get_start_date(patient_id)

@@ -52,7 +52,7 @@ def fetch_data_P(query, method, model)
   end until batch.empty?
 end
 
-def fetch_data(query, method, model)
+def fetch_data(query)
   offset = 0
   begin
     batch = ActiveRecord::Base.connection.select_all <<-SQL

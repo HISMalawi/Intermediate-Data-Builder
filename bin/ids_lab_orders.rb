@@ -1,20 +1,15 @@
 def populate_lab_orders
   last_updated = get_last_updated('LabOrders')
 
-  lab_orders = ActiveRecord::Base.connection.select_all <<~SQL
+  query =  <<~SQL
     SELECT * FROM #{@rds_db}.orders
     WHERE (ORDER_TYPE_ID = 4
     AND updated_at >= '#{last_updated}')
     OR order_id IN #{load_error_records('lab_orders')} 
-    ORDER BY updated_at;
+    ORDER BY updated_at 
 SQL
 
-  return if lab_orders.blank?
-  
-  Parallel.each(lab_orders, progress: 'Processing LabOrders' ) do |lab_order|
-    ids_lab_orders(lab_order)
-  end
-  update_last_update('LabOrders', lab_orders.last['updated_at'])
+  fetch_data_P(query, 'ids_lab_orders', 'LabOrders' )
 end
 
 def ids_lab_orders(lab_order)

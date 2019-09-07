@@ -2,7 +2,10 @@
 
 # frozen_string_literal: true
 
-def ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
+def ids_diagnosis_person(diag)
+ primary_diagnosis = 6542
+ secondary_diagnosis = 6543
+
   value_coded = get_master_def_id(diag['value_coded'], 'concept_name')
   
   diag = handle_commons(diag)
@@ -14,8 +17,8 @@ def ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
   if diagnosis && check_latest_record(diag, diagnosis)    
     diagnosis.update(
     encounter_id: diag['encounter_id'].to_i,
-    primary_diagnosis: primary_diag.to_i,
-    secondary_diagnosis: secondary_diag.to_i,
+    primary_diagnosis: primary_diag,
+    secondary_diagnosis: secondary_diag,
     voided: diag['voided'].to_i, 
     voided_by: diag['voided_by'].to_i,
     voided_date: diag['date_voided'],
@@ -28,8 +31,8 @@ def ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
      Diagnosis.create(
         diagnosis_id: diag['obs_id'].to_i,
         encounter_id: diag['encounter_id'].to_i,
-        primary_diagnosis: primary_diag.to_i,
-        secondary_diagnosis: secondary_diag.to_i,
+        primary_diagnosis: primary_diag,
+        secondary_diagnosis: secondary_diag,
         voided: diag['voided'].to_i, 
         voided_by: diag['voided_by'].to_i,
         voided_date: diag['date_voided'],

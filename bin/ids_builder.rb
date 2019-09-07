@@ -183,13 +183,13 @@ def populate_person_names
 
   query = "SELECT * FROM #{@rds_db}.person_name WHERE person_name_id 
            IN #{load_error_records('person_name')} OR updated_at >= '#{last_updated}'
-           ORDER BY updated_at;"
+           ORDER BY updated_at "
 
-  person_names = ActiveRecord::Base.connection.select_all <<~SQL
-    #{query}
-  SQL
+ 
+  fetch_data_P(query, 'ids_person_names', 'PersonNames')
+end 
 
-  Parallel.each(person_names, progress: 'Processing PersonNames') do |person_name|
+def ids_person_names(person_name)
     person_name_exist = PersonName.find_by(
       person_name_id: person_name['person_name_id']
     )
@@ -233,8 +233,6 @@ def populate_person_names
         app_date_updated: person_name['date_updated']
       )
     end
-  end
-  update_last_update('PersonName', person_names.last['updated_at'])
 end
 
 def populate_contact_details
@@ -287,9 +285,9 @@ def ids_contact_details(person_attribute)
             contact_detail.home_phone_number = home_phone_number
             contact_detail.cell_phone_number = cell_phone_number
             contact_detail.work_phone_number = work_phone_number
-            contact_detail.creator = person_attribute['creator']
-            contact_detail.voided = person_attribute['voided']
-            contact_detail.voided_by = person_attribute['voided_by']
+            contact_detail.creator = person_attribute['creator'].to_i
+            contact_detail.voided = person_attribute['voided'].to_i
+            contact_detail.voided_by = person_attribute['voided_by'].to_i
             contact_detail.voided_date = person_attribute['date_voided']
             contact_detail.void_reason = person_attribute['void_reason']
             contact_detail.app_date_created = person_attribute['date_created']
@@ -466,25 +464,17 @@ end
 
 def populate_diagnosis
   last_updated = get_last_updated('Diagnosis')
+ 
 
-  primary_diagnosis = 6542
-  secondary_diagnosis = 6543
-
-diagnosis = ActiveRecord::Base.connection.select_all <<~SQL
-  SELECT * FROM #{@rds_db}.obs ob
+query = "SELECT * FROM #{@rds_db}.obs ob
   INNER JOIN #{@rds_db}.encounter en
   ON ob.encounter_id = en.encounter_id
   WHERE ob.concept_id IN (6542,6543)
   AND ob.updated_at >= '#{last_updated}' 
-  ORDER BY ob.updated_at
-SQL
+  OR ob.obs_id IN #{load_error_records('diagnosis')}
+  ORDER BY ob.updated_at "
 
-return if diagnosis.blank?
-
-  Parallel.each(diagnosis, progress: 'Processing Diagnosis') do |diag|
-    ids_diagnosis_person(diag, primary_diagnosis, secondary_diagnosis)
-  end
-  update_last_update('Diagnosis', diagnosis.last['updated_at'])
+  fetch_data_P(query, 'ids_diagnosis_person', 'Diagnosis')
 end
 
 def get_district_id(district)
@@ -494,7 +484,7 @@ end
 def populate_vitals
    last_updated = get_last_updated('Vital')
 
-   vitals = ActiveRecord::Base.connection.select_all <<~SQL
+   vitals = <<~SQL
     SELECT ob.* FROM #{@rds_db}.obs ob
     INNER JOIN #{@rds_db}.encounter en
     ON ob.encounter_id = en.encounter_id
@@ -504,12 +494,7 @@ def populate_vitals
     ORDER BY ob.updated_at 
 SQL
    
-   return if vitals.blank?
-
-   Parallel.each(vitals, progress: 'Processing Vitals') do |vital|
-    vital_value_coded(vital)
-  end
-  update_last_update('Vital', vitals.last['updated_at'])
+  fetch_data_P(vitals, 'vital_value_coded', 'Vital') 
 end
 
 def categorize_address(addresses)
@@ -535,37 +520,26 @@ end
 def populate_pregnant_status
   last_updated = get_last_updated('PregnantStatus')
 
-  pregnant_statuses = ActiveRecord::Base.connection.select_all <<~SQL
+  query = "
    SELECT * FROM #{@rds_db}.obs 
    WHERE (concept_id in (1755,6131) 
    AND updated_at >= '#{last_updated}')
    OR obs_id IN #{load_error_records('pregnant_status')} 
-   ORDER BY updated_at
-SQL
+   ORDER BY updated_at "
 
-  Parallel.each(pregnant_statuses, progress: 'Processing Pregnant Status') do |pregnant_status|
-    ids_pregnant_status(pregnant_status)
-  end
-  update_last_update('PregnantStatus', pregnant_statuses.last['updated_at'])
+  fetch_data_P(query,  'ids_pregnant_status', 'PregnantStatus')
 end
 
 def populate_breastfeeding_status
   last_updated = get_last_updated('BreastfeedingStatus')
 
-  breastfeeding = ActiveRecord::Base.connection.select_all <<~SQL
-    SELECT * FROM #{@rds_db}.obs WHERE (concept_id IN
-    (834,5253,5579,5632,8040,5632,9538)
-    AND updated_at >= '#{last_updated}')
-    OR obs_id IN #{load_error_records('breastfeeding_status')}
-    ORDER BY updated_at
-SQL
+  query = " SELECT * FROM #{@rds_db}.obs WHERE (concept_id IN
+        (834,5253,5579,5632,8040,5632,9538)
+        AND updated_at >= '#{last_updated}')
+        OR obs_id IN #{load_error_records('breastfeeding_status')}
+        ORDER BY updated_at "
 
-  return if breastfeeding.blank?
-
-  Parallel.each(breastfeeding, progress: 'Processing Breast Feeding') do |status|
-    ids_breastfeeding_status(status)
-  end
-  update_last_update('BreastfeedingStatus', breastfeeding.last['updated_at'])
+  fetch_data_P(query, 'ids_breastfeeding_status', 'BreastfeedingStatus')
 end
 
 def populate_person_address
@@ -575,22 +549,14 @@ def populate_person_address
            person_address_id IN #{load_error_records('person_address')} OR
            updated_at >= '#{last_updated}' 
            ORDER BY updated_at "
- person_address = ActiveRecord::Base.connection.select_all <<~SQL
-  #{query}
- SQL
-
-
-
-  Parallel.each(person_address, progress: 'Processing Addresses') do |person_address|
-    grouped_address(person_address)
-  end
-  update_last_update('PersonAddress', person_address.last['updated_at'])
+ 
+  fetch_data_P(query, 'grouped_address', 'PersonAddress')
 end
 
 def populate_patient_history
   last_updated = get_last_updated('PatientHistory')
 
-  history = ActiveRecord::Base.connection.select_all <<~SQL
+  query = <<~SQL
         SELECT ob.* FROM #{@rds_db}.obs ob
          INNER JOIN #{@rds_db}.encounter en
            ON ob.encounter_id = en.encounter_id 
@@ -603,18 +569,13 @@ def populate_patient_history
            ORDER BY ob.updated_at
   SQL
 
-  return if history.blank?
-
-   Parallel.each(history, progress: 'Processing Patient History') do |patient_history|
-     ids_patient_history(patient_history)
-   end
-  update_last_update('PatientHistory', history.last['updated_at'])
+   fetch_data_P(query, 'ids_patient_history', 'PatientHistory') 
 end
 
 def populate_symptoms
   last_updated = get_last_updated('Symptom')
 
- symptoms = ActiveRecord::Base.connection.select_all <<~SQL
+ query = <<~SQL
    SELECT ob.* FROM #{@rds_db}.obs ob
    INNER JOIN #{@rds_db}.encounter en
    ON ob.encounter_id = en.encounter_id 
@@ -627,17 +588,13 @@ def populate_symptoms
    ORDER BY ob.updated_at
 SQL
   
-  return if symptoms.blank?
-
-  Parallel.each(symptoms, progress: 'Processing Symptoms') do |patient_symptoms|
-    ids_patient_symptoms(patient_symptoms)
-  end       
+  fetch_data_P(query, 'ids_patient_symptoms', 'Symptom') 
 end
 
 def populate_side_effects
   last_updated = get_last_updated('SideEffects')
 
-   side_effects = ActiveRecord::Base.connection.select_all <<~SQL
+   query =  <<~SQL
    SELECT ob.* FROM #{@rds_db}.obs ob
             WHERE concept_id IN 
             (SELECT concept_id FROM #{@rds_db}.concept_name WHERE name like '%side%')
@@ -645,18 +602,13 @@ def populate_side_effects
             OR ob.updated_at >= '#{last_updated}'
 SQL
 
-return if side_effects.blank?
-
-  Parallel.each(side_effects, progress: 'Processing Side Effects') do |patient_side_effect|
-    ids_side_effects(patient_side_effect)
-  end
-  update_last_update('Symptom', side_effects.last['updated_at'])
+  fetch_data_P(query, 'ids_side_effects', 'SideEffects')
 end
 
 def populate_presenting_complaints
   last_updated = get_last_updated('PresentingComplaints')
 
-   complaints = ActiveRecord::Base.connection.select_all <<~SQL
+   query = <<~SQL
       SELECT ob.* FROM #{@rds_db}.obs ob
            INNER JOIN #{@rds_db}.encounter en
            ON ob.encounter_id = en.encounter_id
@@ -668,37 +620,26 @@ def populate_presenting_complaints
            ORDER BY ob.updated_at 
 SQL
     
-    returns if complaints.blank?
-
-    Parallel.each(complaints, progress: 'Processing Complaints') do |record|
-    ids_presenting_complaints(record)
-  end
-  update_last_update('PresentingComplaints', complaints.last['updated_at'])
+    fetch_data_P(query, 'ids_presenting_complaints', 'PresentingComplaints') 
 end
 
 def populate_tb_statuses
   last_updated = get_last_updated('TbStatus')
 
-   tb_status = ActiveRecord::Base.connection.select_all <<~SQL
+   query =  <<~SQL
     SELECT ob.* FROM #{@rds_db}.obs ob
            WHERE (concept_id = 7459 
             OR ob.updated_at >= '#{last_updated}')
             OR obs_id IN #{load_error_records('tb_status')}
             ORDER BY ob.updated_at 
 SQL
-
-return if tb_status.blank?
-    
-    Parallel.each(tb_status, progress: 'Processing TB Status') do |record|
-    ids_tb_statuses(record)
-  end
-  update_last_update('TbStatus', tb_status.last['updated_at'])
+    fetch_data_P(query, 'ids_tb_statuses', 'TbStatus')
 end
 
 def populate_family_planning
   last_updated = get_last_updated('FamilyPlanning')
 
-   family_planning = ActiveRecord::Base.connection.select_all <<~SQL
+   query = <<~SQL
     SELECT * FROM #{@rds_db}.obs ob
             WHERE (concept_id IN
             (SELECT concept_id FROM 
@@ -709,18 +650,13 @@ def populate_family_planning
             ORDER BY ob.updated_at 
 SQL
 
-  return if family_planning.blank?
-
-  Parallel.each(family_planning, progress: 'Processing Family Planning') do |record|
-    ids_family_planning(record)
-  end
-  update_last_update('FamilyPlanning', family_planning.last['updated_at'])
+  fetch_data_P(query, 'ids_family_planning', 'FamilyPlanning')
 end
 
 def populate_outcomes
   last_updated = get_last_updated('Outcome')
 
-   outcomes = ActiveRecord::Base.connection.select_all <<~SQL
+   query = <<~SQL
    SELECT pp.patient_id, pp.updated_at, pws.* FROM #{@rds_db}.patient_program pp
            INNER JOIN #{@rds_db}.patient_state ps 
            ON pp.patient_program_id = ps.patient_program_id
@@ -732,31 +668,22 @@ def populate_outcomes
            ORDER BY pp.updated_at 
 SQL
     
-    return if outcomes.blank?
-
-    Parallel.each(outcomes, progress: 'Processing Outcomes') do |record|
-      ids_outcomes(record)
-    end
-  update_last_update('Outcomes', outcomes.last['updated_at'])
+   fetch_data_P(query, 'ids_outcomes', 'Outcome') 
 end
 
 def populate_occupation
   last_updated = get_last_updated('Occupation')
 
-   occupation = ActiveRecord::Base.connection.select_all <<~SQL
+   query = <<~SQL
     SELECT * FROM #{@rds_db}.person_attribute 
             WHERE (person_attribute_type_id = 13
             AND updated_at >= '#{last_updated}')
             OR person_attribute_id IN #{load_error_records('occupation')} 
-            ORDER BY updated_at;
+            ORDER BY updated_at 
 SQL
 
-   return if occupation.blank?
 
-    Parallel.each(occupation) do |record|
-      ids_occupation(record)
-    end
-    update_last_update('Occupation', occupation.last['updated_at'])
+   fetch_data_P(query, 'ids_occupation', 'Occupation')
 end
     
   def ids_occupation(rds_occupation)
@@ -794,28 +721,23 @@ end
 def populate_appointment
   last_updated = get_last_updated('Appointment')
 
-   appointments = ActiveRecord::Base.connection.select_all <<~SQL
+   query = <<~SQL
      SELECT ob.* FROM #{@rds_db}.obs ob 
      JOIN #{@rds_db}.encounter en
      ON ob.encounter_id = en.encounter_id
      WHERE (en.encounter_type = 7
      AND ob.updated_at >= '#{last_updated}')
      OR obs_id IN #{load_error_records('appointment')} 
-     ORDER BY ob.updated_at;
+     ORDER BY ob.updated_at 
 SQL
     
-    return if appointments.blank?
-
-    Parallel.each(appointments, progress: 'Processing Appointments') do |record|
-      ids_appointment(record)
-    end
-  update_last_update('Appointment', appointments.last['updated_at'])
+    fetch_data_P(query, 'ids_appointment', 'Appointment') 
 end
 
 def populate_prescription
   last_updated = get_last_updated('MedicationPrescription')
 
-   prescription = ActiveRecord::Base.connection.select_all <<~SQL
+   query =  <<~SQL
     SELECT * FROM #{@rds_db}.orders o
             JOIN #{@rds_db}.drug_order d on o.order_id = d.order_id
             WHERE (o.order_type_id = 1       
@@ -823,30 +745,27 @@ def populate_prescription
             o.order_id IN #{load_error_records('prescription')} 
             ORDER BY o.updated_at
 SQL
-    return if prescription.blank?
 
-    Parallel.each(prescription, progress: 'Processing Prescriptions') do |record|
-      ids_prescription(record)
-    end
-  update_last_update('Prescription', prescription.last['updated_at'])
+    fetch_data_P(query, 'ids_prescription', 'MedicationPrescription')
 end
 
 def populate_dispensation
   last_updated = get_last_updated('MedicationDispensation')
 
-  dispensation = ActiveRecord::Base.connection.select_all <<~SQL
+  query = <<~SQL
     SELECT o.order_id, quantity,o.date_created,o.voided,
     o.voided_by,o.date_voided, o.void_reason,o.patient_id, do.updated_at
     FROM #{@rds_db}.orders o
     INNER JOIN #{@rds_db}.drug_order do  ON o.order_id = do.order_id
     WHERE (do.updated_at >= '#{last_updated}')
     OR do.order_id IN #{load_error_records('dispensation')} 
-    ORDER BY o.updated_at;
+    ORDER BY o.updated_at 
 SQL
   
-  return if dispensation.blank?    
+  fetch_data_P(query, 'ids_dispensation', 'MedicationDispensation') 
+end
 
-  Parallel.each(dispensation, progress: 'Processing Dispensations') do |rds_dispensed_drug|
+def ids_dispensation (rds_dispensed_drug)
      dispensation_exist = MedicationDispensation.find_by_medication_dispensation_id(rds_dispensed_drug['order_id'])
      if dispensation_exist.blank?
       begin
@@ -879,39 +798,34 @@ SQL
         app_date_updated: ''
         )
      end
-  end 
-  update_last_update('Despensation', dispensation.last['updated_at'])
 end
 
 def populate_relationships
   last_updated = get_last_updated('Relationship')
 
-  relationship = ActiveRecord::Base.connection.select_all <<~SQL 
+  query = <<~SQL 
     SELECT * from #{@rds_db}.relationship 
            WHERE relationship_id IN #{load_error_records('relationships')} 
            OR updated_at >= '#{last_updated}' 
-           ORDER BY updated_at 
+           ORDER BY updated_at  
   SQL
 
-  return if relationship.blank?
-    
-  Parallel.each(relationship, progress: 'Processing Relationships') do |record|
-    ids_relationship(record)
-  end
-  update_last_update('Relationship', relationship.last['updated_at'])
+  fetch_data_P(query, 'ids_relationship', 'Relationship')
 end
 
 def populate_adherence
   last_updated = get_last_updated('MedicationAdherence')
   
-  adherence = ActiveRecord::Base.connection.select_all <<~SQL
+  query = <<~SQL
     SELECT * FROM medication_prescriptions
-          ORDER BY updated_at;
-SQL
+    WHERE updated_at >= '#{last_updated}'
+    ORDER BY updated_at 
+  SQL
 
-   return if adherence.blank?
+  fetch_data_P(query, 'ids_adherence', 'MedicationAdherence')
+end
 
-  Parallel.each(adherence, progress: 'Processing Adherence') do |ids_prescribed_drug|
+def ids_adherence (ids_prescribed_drug)
     drug_dispensed_id = ids_prescribed_drug['drug_id'].to_i # we need to include an order id which is a unique and we will need to compare in obs table
     prescription_drug_adherence = ActiveRecord::Base.connection.select_all <<~SQL
       SELECT oo.obs_id, oo.person_id,oo.value_text AS adherence_in_percentage, 
@@ -964,8 +878,6 @@ SQL
           )
       end
     end    
-  end
-  update_last_update('Adherence', adherence.last['updated_at'])
 end
 
 def populate_de_identifier
@@ -1061,4 +973,4 @@ def methods_init
    FileUtils.rm '/tmp/ids_builder.lock' if File.file?('/tmp/ids_builder.lock')
 end
 
-methods_init 
+methods_init
