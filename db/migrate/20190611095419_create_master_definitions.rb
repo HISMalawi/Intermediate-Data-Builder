@@ -14,5 +14,7 @@ class CreateMasterDefinitions < ActiveRecord::Migration[5.2]
 
       t.timestamps
     end
+    add_index :master_definitions, :openmrs_metadata_id
+    add_index :master_definitions, :openmrs_entity_name, type: :fulltext
   end
 end

@@ -143,9 +143,10 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
   end
 
   create_table "failed_record_types", primary_key: "failed_record_type_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.text "name", null: false
+    t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["name"], name: "name", type: :fulltext
   end
 
   create_table "failed_records", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -155,6 +156,7 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["failed_record_type_id"], name: "fk_rails_38cb80a616"
+    t.index ["record_id"], name: "record_id"
   end
 
   create_table "family_plannings", primary_key: "family_planning_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -165,11 +167,11 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.bigint "creator"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["encounter_id"], name: "fk_rails_b43e4283a3"
   end
 
   create_table "guardians", primary_key: "guardian_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -270,6 +272,9 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["openmrs_entity_name"], name: "openmrs_entity_name", type: :fulltext
+    t.index ["openmrs_metadata_id", "openmrs_entity_name"], name: "openmrs_metadata_id_2"
+    t.index ["openmrs_metadata_id"], name: "openmrs_metadata_id"
   end
 
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -686,7 +691,6 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
   add_foreign_key "encounters", "master_definitions", column: "program_id", primary_key: "master_definition_id"
   add_foreign_key "encounters", "people", primary_key: "person_id"
   add_foreign_key "failed_records", "failed_record_types", primary_key: "failed_record_type_id"
-  add_foreign_key "family_plannings", "encounters", primary_key: "encounter_id"
   add_foreign_key "guardians", "master_definitions", column: "relationship_type_id", primary_key: "master_definition_id"
   add_foreign_key "guardians", "people", primary_key: "person_id"
   add_foreign_key "hiv_staging_infos", "people", primary_key: "person_id"
