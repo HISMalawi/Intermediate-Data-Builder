@@ -1,3 +1,2 @@
 class MedicationAdherence < ApplicationRecord
-
 end

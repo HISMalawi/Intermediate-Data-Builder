@@ -778,13 +778,16 @@ def populate_prescription
   last_updated = get_last_updated('MedicationPrescription')
 
    query =  <<~SQL
-    SELECT * FROM #{@rds_db}.orders o
-            JOIN #{@rds_db}.drug_order d on o.order_id = d.order_id
-            WHERE (o.order_type_id = 1       
-            AND o.updated_at >= '#{last_updated}') OR 
-            o.order_id IN #{load_error_records('prescription')} 
-            ORDER BY o.updated_at
-SQL
+    SELECT o.order_id, o.encounter_id,d.drug_inventory_id,o.start_date,
+    o.auto_expire_date, o.instructions,o.voided, o.voided_by,
+    o.void_reason, o.date_voided, o.date_created, o.updated_at
+    FROM #{@rds_db}.orders o
+    JOIN #{@rds_db}.drug_order d on o.order_id = d.order_id
+    WHERE (o.order_type_id = 1   
+    AND o.updated_at >= '#{last_updated}')
+    OR o.order_id IN #{load_error_records('prescription')}
+    ORDER BY o.updated_at
+   SQL
 
     fetch_data_P(query, 'ids_prescription', 'MedicationPrescription')
 end
@@ -793,10 +796,10 @@ def populate_dispensation
   last_updated = get_last_updated('MedicationDispensation')
 
   query = <<~SQL
-    SELECT o.order_id, quantity,o.date_created,o.voided,
+    SELECT o.order_id, quantity, o.date_created, o.voided,
     o.voided_by,o.date_voided, o.void_reason,o.patient_id, do.updated_at
     FROM #{@rds_db}.orders o
-    INNER JOIN #{@rds_db}.drug_order do  ON o.order_id = do.order_id
+    INNER JOIN #{@rds_db}.drug_order do ON o.order_id = do.order_id
     WHERE (do.updated_at >= '#{last_updated}')
     OR do.order_id IN #{load_error_records('dispensation')} 
     ORDER BY o.updated_at 
@@ -829,7 +832,7 @@ def ids_dispensation (rds_dispensed_drug)
      elsif check_latest_record(rds_dispensed_drug, dispensation_exist)
        dispensation_exist.update(
         quantity: rds_dispensed_drug['quantity'],
-        medication_prescription_id: ids_prescribed_drug['medication_prescription_id'],
+        medication_prescription_id: ids_dispensed_drug['medication_prescription_id'],
         voided: rds_dispensed_drug['voided'],
         voided_by: rds_dispensed_drug['voided_by'],
         voided_date: rds_dispensed_drug['date_voided'],
@@ -857,67 +860,62 @@ def populate_adherence
   last_updated = get_last_updated('MedicationAdherence')
   
   query = <<~SQL
-    SELECT * FROM medication_prescriptions
-    WHERE updated_at >= '#{last_updated}'
-    ORDER BY updated_at 
+    SELECT * FROM #{@rds_db}.obs
+    WHERE (updated_at >= '#{last_updated}'
+    AND concept_id = 6987)
+    OR obs_id IN #{load_error_records('adherence')}
+    ORDER BY updated_at
   SQL
 
   fetch_data_P(query, 'ids_adherence', 'MedicationAdherence')
 end
 
-def ids_adherence (ids_prescribed_drug)
-    drug_dispensed_id = ids_prescribed_drug['drug_id'].to_i # we need to include an order id which is a unique and we will need to compare in obs table
-    prescription_drug_adherence = ActiveRecord::Base.connection.select_all <<~SQL
-      SELECT oo.obs_id, oo.person_id,oo.value_text AS adherence_in_percentage, 
-      date(oo.obs_datetime) as visit_date,dg.drug_id as rds_drug_id,
-      oo.date_created, oo.updated_at
-      , ob.updated_at FROM #{@rds_db}.obs oo
-      LEFT JOIN #{@rds_db}.orders o ON oo.order_id = o.order_id
-      LEFT JOIN #{@rds_db}.drug_order d ON o.order_id = d.order_id
-      LEFT JOIN #{@rds_db}.drug dg ON d.drug_inventory_id = dg.drug_id
-      WHERE (oo.concept_id = 6987 and dg.drug_id = #{drug_dispensed_id})
-      OR oo.obs_id IN #{load_error_records('adherence')};
-    SQL
-    # where clause should read WHERE oo.concept_id = 6987 and ids_prescribed_drug['order_id'] = oo.order_id;
-    (prescription_drug_adherence || []).each do |rds_drug_adherence|
+def ids_adherence (ids_dispensed_drug)
+    drug_dispensed_id = MedicationPrescription.find_by(
+      medication_prescription_id: ids_dispensed_drug['order_id'])
 
-      adherence_exists = MedicationAdherence.find_by_adherence_id(rds_drug_adherence['obs_id'].to_i)
+    return if drug_dispensed_id.blank?
+
+    adherence = (ids_dispensed_drug['value_numeric'] || ids_dispensed_drug['value_text'])
+
+      adherence_exists = MedicationAdherence.find_by_adherence_id(ids_dispensed_drug['obs_id'].to_i)
+
+      ids_dispensed_drug = handle_commons(ids_dispensed_drug)
 
       if adherence_exists.blank?
         begin
           MedicationAdherence.create(
-            adherence_id: rds_drug_adherence['obs_id'].to_i,
-            medication_dispensation_id: ids_prescribed_drug['medication_prescription_id'],
-            drug_id: ids_prescribed_drug['drug_id'],
-            adherence: rds_drug_adherence['adherence_in_percentage'],
-            voided: ids_prescribed_drug['voided'],
-            voided_by: ids_prescribed_drug['voided_by'], 
-            voided_date: ids_prescribed_drug['date_voided'],
-            void_reason: ids_prescribed_drug['void_reason'], 
-            app_date_created: rds_drug_adherence['date_created'],
-            app_date_updated: ids_prescribed_drug['date_changed']
+            adherence_id: ids_dispensed_drug['obs_id'].to_i,
+            medication_dispensation_id: ids_dispensed_drug['order_id'],
+            drug_id: drug_dispensed_id['drug_id'].to_i,
+            adherence: adherence.to_f,
+            voided: ids_dispensed_drug['voided'],
+            voided_by: ids_dispensed_drug['voided_by'], 
+            voided_date: ids_dispensed_drug['date_voided'],
+            void_reason: ids_dispensed_drug['void_reason'], 
+            app_date_created: ids_dispensed_drug['date_created'],
+            app_date_updated: ids_dispensed_drug['date_changed']
             )
 
-        remove_failed_record('adherence', rds_drug_adherence['obs_id'].to_i)
+        remove_failed_record('adherence', ids_dispensed_drug['obs_id'].to_i)
         
         rescue Exception => e
-          log_error_records('adherence', rds_drug_adherence['obs_id'].to_i, e)
+          log_error_records('adherence', ids_dispensed_drug['obs_id'].to_i, e)
         end
 
-      elsif check_latest_record(rds_drug_adherence, adherence_exists)
+      elsif check_latest_record(ids_dispensed_drug, adherence_exists)
         adherence_exists.update(
-          medication_dispensation_id: ids_prescribed_drug['medication_prescription_id'],
-          drug_id: ids_prescribed_drug['drug_id'],
-          adherence: rds_drug_adherence['adherence_in_percentage'],
-          voided: ids_prescribed_drug['voided'],
-          voided_by: ids_prescribed_drug['voided_by'], 
-          voided_date: ids_prescribed_drug['date_voided'],
-          void_reason: ids_prescribed_drug['void_reason'], 
-          app_date_created: rds_drug_adherence['date_created'],
-          app_date_updated: ids_prescribed_drug['date_changed']
+          medication_dispensation_id: ids_dispensed_drug['order_id'],
+          drug_id: drug_dispensed_id['drug_id'].to_i,
+          adherence: adherence.to_f,
+          voided: ids_dispensed_drug['voided'],
+          voided_by: ids_dispensed_drug['voided_by'], 
+          voided_date: ids_dispensed_drug['date_voided'],
+          void_reason: ids_dispensed_drug['void_reason'], 
+          app_date_created: ids_dispensed_drug['date_created'],
+          app_date_updated: ids_dispensed_drug['date_changed']
           )
       end
-    end    
 end
 
 def populate_de_identifier
