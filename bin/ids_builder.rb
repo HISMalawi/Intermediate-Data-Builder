@@ -778,10 +778,7 @@ def populate_prescription
   last_updated = get_last_updated('MedicationPrescription')
 
    query =  <<~SQL
-    SELECT ob.obs_id, ob.encounter_id,
-     ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
-     ob.void_reason, ob.date_voided, ob.creator,
-     ob.date_created, ob.value_datetime FROM #{@rds_db}.orders o
+    SELECT * FROM #{@rds_db}.orders o
             JOIN #{@rds_db}.drug_order d on o.order_id = d.order_id
             WHERE (o.order_type_id = 1       
             AND o.updated_at >= '#{last_updated}') OR 
@@ -983,24 +980,24 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_breastfeeding_status
-  populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
-  populate_tb_statuses
-  populate_outcomes
-  populate_family_planning
-  populate_appointment
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
+  # update_person_type
+  # populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_breastfeeding_status
+  # populate_vitals
+  # populate_patient_history
+  # populate_symptoms
+  # populate_side_effects
+  # populate_presenting_complaints
+  # populate_tb_statuses
+  # populate_outcomes
+  # populate_family_planning
+  # populate_appointment
   populate_prescription
   populate_lab_orders
   populate_occupation
