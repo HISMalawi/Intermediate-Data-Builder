@@ -8,5 +8,6 @@ class CreateFailedRecords < ActiveRecord::Migration[5.2]
       t.timestamps
     end
     add_foreign_key :failed_records, :failed_record_types, column: :failed_record_type_id, primary_key: :failed_record_type_id
+    add_index :failed_records, :record_id
   end
 end
