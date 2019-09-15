@@ -466,13 +466,17 @@ def populate_diagnosis
   last_updated = get_last_updated('Diagnosis')
  
 
-query = "SELECT * FROM #{@rds_db}.obs ob
-  INNER JOIN #{@rds_db}.encounter en
-  ON ob.encounter_id = en.encounter_id
-  WHERE ob.concept_id IN (6542,6543)
-  AND ob.updated_at >= '#{last_updated}' 
-  OR ob.obs_id IN #{load_error_records('diagnosis')}
-  ORDER BY ob.updated_at "
+query = "SELECT ob.obs_id, ob.encounter_id,
+        ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
+        ob.void_reason, ob.date_voided, ob.creator,
+        ob.date_created
+        , ob.updated_at FROM #{@rds_db}.obs ob
+        INNER JOIN #{@rds_db}.encounter en
+        ON ob.encounter_id = en.encounter_id
+        WHERE (ob.concept_id IN (6542,6543)
+        AND ob.updated_at >= '#{last_updated}')
+        OR ob.obs_id IN #{load_error_records('diagnosis')}
+        ORDER BY ob.updated_at "
 
   fetch_data_P(query, 'ids_diagnosis_person', 'Diagnosis')
 end
@@ -521,10 +525,14 @@ def populate_pregnant_status
   last_updated = get_last_updated('PregnantStatus')
 
   query = "
-   SELECT * FROM #{@rds_db}.obs 
+   SELECT ob.obs_id, ob.encounter_id,
+   ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
+   ob.void_reason, ob.date_voided, ob.creator,
+   ob.date_created, ob.updated_at
+   FROM #{@rds_db}.obs ob
    WHERE (concept_id in (1755,6131) 
    AND updated_at >= '#{last_updated}')
-   OR obs_id IN #{load_error_records('pregnant_status')} 
+   OR ob.obs_id IN #{load_error_records('pregnant_status')} 
    ORDER BY updated_at "
 
   fetch_data_P(query,  'ids_pregnant_status', 'PregnantStatus')
@@ -533,11 +541,14 @@ end
 def populate_breastfeeding_status
   last_updated = get_last_updated('BreastfeedingStatus')
 
-  query = " SELECT * FROM #{@rds_db}.obs WHERE (concept_id IN
-        (834,5253,5579,5632,8040,5632,9538)
-        AND updated_at >= '#{last_updated}')
-        OR obs_id IN #{load_error_records('breastfeeding_status')}
-        ORDER BY updated_at "
+  query = " SELECT ob.obs_id, ob.encounter_id,
+            ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
+            ob.void_reason, ob.date_voided, ob.creator,
+            ob.date_created, ob.updated_at FROM #{@rds_db}.obs ob WHERE (concept_id IN
+            (834,5253,5579,5632,8040,5632,9538)
+            AND updated_at >= '#{last_updated}')
+            OR ob.obs_id IN #{load_error_records('breastfeeding_status')}
+            ORDER BY updated_at "
 
   fetch_data_P(query, 'ids_breastfeeding_status', 'BreastfeedingStatus')
 end
@@ -547,7 +558,7 @@ def populate_person_address
   
   query = "SELECT * FROM #{@rds_db}.person_address WHERE
            person_address_id IN #{load_error_records('person_address')} OR
-           updated_at >= '#{last_updated}' 
+           updated_at >= '#{last_updated}'
            ORDER BY updated_at "
  
   fetch_data_P(query, 'grouped_address', 'PersonAddress')
@@ -557,16 +568,19 @@ def populate_patient_history
   last_updated = get_last_updated('PatientHistory')
 
   query = <<~SQL
-        SELECT ob.* FROM #{@rds_db}.obs ob
-         INNER JOIN #{@rds_db}.encounter en
-           ON ob.encounter_id = en.encounter_id 
-           INNER JOIN #{@rds_db}.encounter_type et
-           ON en.encounter_type = et.encounter_type_id
-           WHERE et.encounter_type_id 
-           IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%history%')
-           OR obs_id IN #{load_error_records('patient_history')} OR
-           ob.updated_at >= '#{last_updated}' 
-           ORDER BY ob.updated_at
+        SELECT ob.obs_id, ob.encounter_id,
+        ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
+        ob.void_reason, ob.date_voided, ob.creator,
+        ob.date_created, ob.updated_at FROM #{@rds_db}.obs ob
+        INNER JOIN #{@rds_db}.encounter en
+        ON ob.encounter_id = en.encounter_id 
+        INNER JOIN #{@rds_db}.encounter_type et
+        ON en.encounter_type = et.encounter_type_id
+        WHERE (et.encounter_type_id 
+        IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%history%')
+        AND ob.updated_at >= '#{last_updated}') 
+        OR obs_id IN #{load_error_records('patient_history')}
+        ORDER BY ob.updated_at
   SQL
 
    fetch_data_P(query, 'ids_patient_history', 'PatientHistory') 
@@ -576,15 +590,18 @@ def populate_symptoms
   last_updated = get_last_updated('Symptom')
 
  query = <<~SQL
-   SELECT ob.* FROM #{@rds_db}.obs ob
+   SELECT ob.obs_id, ob.encounter_id,
+   ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
+   ob.void_reason, ob.date_voided, ob.creator,
+   ob.date_created , ob.updated_at FROM #{@rds_db}.obs ob
    INNER JOIN #{@rds_db}.encounter en
    ON ob.encounter_id = en.encounter_id 
    INNER JOIN #{@rds_db}.encounter_type et
    ON en.encounter_type = et.encounter_type_id
-   WHERE et.encounter_type_id 
+   WHERE (et.encounter_type_id 
    IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%symptoms')
-   OR obs_id IN #{load_error_records('symptoms')} OR
-   ob.updated_at >= '#{last_updated}' 
+   AND ob.updated_at >= '#{last_updated}')
+   OR obs_id IN #{load_error_records('symptoms')}
    ORDER BY ob.updated_at
 SQL
   
@@ -595,12 +612,16 @@ def populate_side_effects
   last_updated = get_last_updated('SideEffects')
 
    query =  <<~SQL
-   SELECT ob.* FROM #{@rds_db}.obs ob
-            WHERE concept_id IN 
-            (SELECT concept_id FROM #{@rds_db}.concept_name WHERE name like '%side%')
-            OR obs_id IN #{load_error_records('side_effects')} 
-            OR ob.updated_at >= '#{last_updated}'
-SQL
+    SELECT ob.obs_id, ob.encounter_id,
+    ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
+    ob.void_reason, ob.date_voided, ob.creator,
+    ob.date_created , ob.updated_at FROM #{@rds_db}.obs ob
+    WHERE (concept_id IN 
+    (SELECT concept_id FROM #{@rds_db}.concept_name WHERE name like '%side%')
+    AND ob.updated_at >= '#{last_updated}')
+    OR obs_id IN #{load_error_records('side_effects')}
+    order by ob.updated_at
+  SQL
 
   fetch_data_P(query, 'ids_side_effects', 'SideEffects')
 end
@@ -609,14 +630,17 @@ def populate_presenting_complaints
   last_updated = get_last_updated('PresentingComplaints')
 
    query = <<~SQL
-      SELECT ob.* FROM #{@rds_db}.obs ob
+      SELECT ob.obs_id, ob.encounter_id,
+           ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
+           ob.void_reason, ob.date_voided, ob.creator,
+           ob.date_created FROM #{@rds_db}.obs ob
            INNER JOIN #{@rds_db}.encounter en
            ON ob.encounter_id = en.encounter_id
            INNER JOIN #{@rds_db}.encounter_type et
            ON en.encounter_type = et.encounter_type_id
-           WHERE et.encounter_type_id = 122
+           WHERE (et.encounter_type_id = 122
+           AND ob.updated_at >= '#{last_updated}')
            OR obs_id IN #{load_error_records('presenting_complaints')}
-           OR ob.updated_at >= '#{last_updated}' 
            ORDER BY ob.updated_at 
 SQL
     
@@ -627,11 +651,14 @@ def populate_tb_statuses
   last_updated = get_last_updated('TbStatus')
 
    query =  <<~SQL
-    SELECT ob.* FROM #{@rds_db}.obs ob
+    SELECT ob.obs_id, ob.encounter_id,
+           ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
+           ob.void_reason, ob.date_voided, ob.creator,
+           ob.date_created , ob.updated_at FROM #{@rds_db}.obs ob
            WHERE (concept_id = 7459 
-            OR ob.updated_at >= '#{last_updated}')
-            OR obs_id IN #{load_error_records('tb_status')}
-            ORDER BY ob.updated_at 
+           AND ob.updated_at >= '#{last_updated}')
+           OR obs_id IN #{load_error_records('tb_status')}
+           ORDER BY ob.updated_at 
 SQL
     fetch_data_P(query, 'ids_tb_statuses', 'TbStatus')
 end
@@ -640,7 +667,10 @@ def populate_family_planning
   last_updated = get_last_updated('FamilyPlanning')
 
    query = <<~SQL
-    SELECT * FROM #{@rds_db}.obs ob
+    SELECT ob.obs_id, ob.encounter_id,
+           ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
+           ob.void_reason, ob.date_voided, ob.creator,
+           ob.date_created FROM #{@rds_db}.obs ob
             WHERE (concept_id IN
             (SELECT concept_id FROM 
             #{@rds_db}.concept_name 
@@ -687,6 +717,9 @@ SQL
 end
     
   def ids_occupation(rds_occupation)
+
+    rds_occupation = handle_commons (rds_occupation)
+
     occupation_exists = Occupation.find_by(occupation_id: rds_occupation['person_attribute_id'])
     if occupation_exists.blank?
       begin
@@ -699,6 +732,7 @@ end
         person_occupation.voided_by = rds_occupation['voided_by']
         person_occupation.voided_date = rds_occupation['date_voided']
         person_occupation.void_reason = rds_occupation['void_reason']
+        person_occupation.creator     = rds_occupation['creator']
         person_occupation.app_date_created = rds_occupation['date_created']
         person_occupation.app_date_updated = rds_occupation['date_changed']
         person_occupation.save
@@ -710,9 +744,12 @@ end
     elsif check_latest_record(rds_occupation, occupation_exists)
       person_occupation.update(occupation: rds_occupation['value'],
                                creator: rds_occupation['creator'],
-                               person_id: rds_occupation['person_id'], voided: rds_occupation['voided'],
-                               voided_by: rds_occupation['voided_by'], voided_date: rds_occupation['date_voided'],
-                               void_reason: rds_occupation['void_reason'], 
+                               person_id: rds_occupation['person_id'], 
+                               voided: rds_occupation['voided'],
+                               voided_by: rds_occupation['voided_by'], 
+                               voided_date: rds_occupation['date_voided'],
+                               void_reason: rds_occupation['void_reason'],
+                               creator: rds_occupation['creator'], 
                                app_date_created: rds_occupation['date_created'],
                                app_date_updated: rds_occupation['date_changed']) 
     end
@@ -722,7 +759,10 @@ def populate_appointment
   last_updated = get_last_updated('Appointment')
 
    query = <<~SQL
-     SELECT ob.* FROM #{@rds_db}.obs ob 
+     SELECT ob.obs_id, ob.encounter_id,
+     ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
+     ob.void_reason, ob.date_voided, ob.creator,
+     ob.date_created, ob.value_datetime , ob.updated_at FROM #{@rds_db}.obs ob 
      JOIN #{@rds_db}.encounter en
      ON ob.encounter_id = en.encounter_id
      WHERE (en.encounter_type = 7
@@ -738,7 +778,10 @@ def populate_prescription
   last_updated = get_last_updated('MedicationPrescription')
 
    query =  <<~SQL
-    SELECT * FROM #{@rds_db}.orders o
+    SELECT ob.obs_id, ob.encounter_id,
+     ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
+     ob.void_reason, ob.date_voided, ob.creator,
+     ob.date_created, ob.value_datetime FROM #{@rds_db}.orders o
             JOIN #{@rds_db}.drug_order d on o.order_id = d.order_id
             WHERE (o.order_type_id = 1       
             AND o.updated_at >= '#{last_updated}') OR 
@@ -831,7 +874,7 @@ def ids_adherence (ids_prescribed_drug)
       SELECT oo.obs_id, oo.person_id,oo.value_text AS adherence_in_percentage, 
       date(oo.obs_datetime) as visit_date,dg.drug_id as rds_drug_id,
       oo.date_created, oo.updated_at
-      FROM #{@rds_db}.obs oo
+      , ob.updated_at FROM #{@rds_db}.obs oo
       LEFT JOIN #{@rds_db}.orders o ON oo.order_id = o.order_id
       LEFT JOIN #{@rds_db}.drug_order d ON o.order_id = d.order_id
       LEFT JOIN #{@rds_db}.drug dg ON d.drug_inventory_id = dg.drug_id

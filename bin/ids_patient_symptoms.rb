@@ -5,6 +5,8 @@ def ids_patient_symptoms(patient_symptom)
   concept_id = get_master_def_id(patient_symptom['concept_id'], 'concept_name')
   value_coded = get_master_def_id(patient_symptom['value_coded'], 'concept_name')
 
+  patient_symptom = handle_commons(patient_symptom)
+
   if ids_patient_symptoms && check_latest_record(patient_symptom, ids_patient_symptoms)
     ids_patient_symptoms.update(concept_id: concept_id,
                                 encounter_id: patient_symptom['encounter_id'],
@@ -13,6 +15,7 @@ def ids_patient_symptoms(patient_symptom)
                                 voided_by: patient_symptom['voided_by'],
                                 voided_date: patient_symptom['date_voided'],
                                 void_reason: patient_symptom['void_reason'],
+                                creator: pregnant['creator'],
                                 app_date_created: patient_symptom['date_created'],
                                 app_date_updated: patient_symptom['date_changed'])
     
@@ -27,6 +30,7 @@ def ids_patient_symptoms(patient_symptom)
       ids_patient_symptoms.voided_by         = patient_symptom['voided_by'],
       ids_patient_symptoms.voided_date       = patient_symptom['date_voided']
       ids_patient_symptoms.void_reason       = patient_symptom['void_reason']
+      ids_patient_symptoms.creator           = patient_symptom['creator']
       ids_patient_symptoms.app_date_created  = patient_symptom['date_created']
       ids_patient_symptoms.app_date_updated  = patient_symptom['date_changed']
 

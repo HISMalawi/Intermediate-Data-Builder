@@ -6,6 +6,8 @@ def ids_family_planning(family_planning)
   concept_id = get_master_def_id(family_planning['concept_id'], 'concept_name')
   value_coded = get_master_def_id(family_planning['value_coded'], 'concept_name')
 
+  family_planning = handle_commons(family_planning)
+
   if ids_family_planning && check_latest_record(family_planning, ids_family_planning)
     ids_family_planning.update(
       concept_id:  concept_id,
@@ -16,6 +18,7 @@ def ids_family_planning(family_planning)
       voided_by:  family_planning['voided_by'],
       voided_date:  family_planning['date_voided'],
       void_reason:  family_planning['void_reason'],
+      creator:      family_planning['creator'],
       app_date_created:  family_planning['date_created'],
       app_date_updated:  family_planning['date_changed']
       )
@@ -32,6 +35,7 @@ def ids_family_planning(family_planning)
       ids_family_planning.voided_by          = family_planning['voided_by']
       ids_family_planning.voided_date        = family_planning['date_voided']
       ids_family_planning.void_reason        = family_planning['void_reason']
+      ids_family_planning.creator            = family_planning['creator']
       ids_family_planning.app_date_created   = family_planning['date_created']
       ids_family_planning.app_date_updated   = family_planning['date_changed']
 

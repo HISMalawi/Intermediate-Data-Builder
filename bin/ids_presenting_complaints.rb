@@ -7,6 +7,8 @@ def ids_presenting_complaints(presenting_complaint)
   concept_id = get_master_def_id(presenting_complaint['concept_id'], 'concept_name')
   value_coded = get_master_def_id(presenting_complaint['value_coded'], 'concept_name')
 
+  presenting_complaint = handle_commons(presenting_complaint)
+
   if ids_presenting_complaints &&
      check_latest_record(presenting_complaint, ids_presenting_complaints)
     puts "Updating presenting complaints for
@@ -19,6 +21,7 @@ def ids_presenting_complaints(presenting_complaint)
       voided_by: presenting_complaint['voided_by'],
       voided_date: presenting_complaint['date_voided'],
       void_reason: presenting_complaint['void_reason'],
+      creator: presenting_complaint['creator'],
       app_date_created: presenting_complaint['date_created'],
       app_date_updated: presenting_complaint['date_changed'])
     
@@ -33,6 +36,7 @@ def ids_presenting_complaints(presenting_complaint)
       ids_presenting_complaints.voided_by        = presenting_complaint['voided_by']
       ids_presenting_complaints.voided_date      = presenting_complaint['date_voided']
       ids_presenting_complaints.void_reason      = presenting_complaint['void_reason']
+      ids_presenting_complaints.creator          = presenting_complaint['creator']
       ids_presenting_complaints.app_date_created = presenting_complaint['date_created']
       ids_presenting_complaints.app_date_updated = presenting_complaint['date_changed']
 

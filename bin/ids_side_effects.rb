@@ -4,6 +4,8 @@ def ids_side_effects(patient_side_effect)
 
   ids_side_effects = SideEffect.find_by_side_effect_id(patient_side_effect['obs_id'])
 
+  patient_side_effect = handle_commons(patient_side_effect)
+
   if ids_side_effects &&
      check_latest_record(patient_side_effect, ids_side_effects)
     puts "Updating patient side effects for #{patient_side_effect['person_id']}"
@@ -15,6 +17,7 @@ def ids_side_effects(patient_side_effect)
       voided_by: patient_side_effect['voided_by'],
       voided_date: patient_side_effect['date_voided'],
       void_reason: patient_side_effect['void_reason'],
+      creator: patient_side_effect['creator'],
       app_date_created: patient_side_effect['date_created'],
       app_date_updated: patient_side_effect['date_changed'])
     
@@ -29,6 +32,7 @@ def ids_side_effects(patient_side_effect)
       ids_side_effects.voided_by         = patient_side_effect['voided_by']
       ids_side_effects.voided_date       = patient_side_effect['date_voided']
       ids_side_effects.void_reason       = patient_side_effect['void_reason']
+      ids_side_effects.creator           = patient_side_effect['creator']
       ids_side_effects.app_date_created  = patient_side_effect['date_created']
       ids_side_effects.app_date_updated  = patient_side_effect['date_changed']
 

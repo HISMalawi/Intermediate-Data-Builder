@@ -41,6 +41,7 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.bigint "creator"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
@@ -385,6 +386,7 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.bigint "creator"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
@@ -500,6 +502,7 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.bigint "creator"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
@@ -516,6 +519,7 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.bigint "creator"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
@@ -563,6 +567,7 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.bigint "creator"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
@@ -625,6 +630,7 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.bigint "creator"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false

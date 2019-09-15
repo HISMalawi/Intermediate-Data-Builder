@@ -1,5 +1,8 @@
 def ids_appointment(rds_appointment)
 appointment = Appointment.find_by_appointment_id(rds_appointment['obs_id'])
+
+rds_appointment = handle_commons(rds_appointment)
+
     if appointment.blank?
       begin
 	      appointment 					= Appointment.new

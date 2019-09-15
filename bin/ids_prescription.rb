@@ -1,6 +1,8 @@
 def ids_prescription(rds_prescription)
     prescription = MedicationPrescription.find_by_medication_prescription_id(rds_prescription['order_id'])
 
+    rds_prescription = handle_commons(rds_prescription)
+
     if prescription.blank?
       begin
 	      MedicationPrescription.create(
@@ -13,7 +15,8 @@ def ids_prescription(rds_prescription)
 	        voided: rds_prescription['voided'],
 	        voided_by: rds_prescription['voided_by'], 
 	        voided_date: rds_prescription['date_voided'],
-	        void_reason: rds_prescription['void_reason'], 
+	        void_reason: rds_prescription['void_reason'],
+          creator: rds_prescription['creator'],
 	        app_date_created: rds_prescription['date_created'],
 	        app_date_updated: rds_prescription['date_changed'])
 
@@ -33,6 +36,7 @@ def ids_prescription(rds_prescription)
         voided_by: rds_prescription['voided_by'], 
         voided_date: rds_prescription['date_voided'],
         void_reason: rds_prescription['void_reason'], 
+        creator: rds_prescription['creator'],
         app_date_created: rds_prescription['date_created'],
         app_date_updated: rds_prescription['date_changed']
         )
