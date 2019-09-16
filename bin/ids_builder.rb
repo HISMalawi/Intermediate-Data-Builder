@@ -103,7 +103,7 @@ end
 
 def check_for_duplicate(demographics)
   # find matching text in de_duplicator table
-
+begin
   subject = ''
   subject += (demographics[:person_names][0]['given_name'] ||  '')
   subject << demographics[:person_names][0]['family_name'] rescue  ''
@@ -112,6 +112,9 @@ def check_for_duplicate(demographics)
   subject <<  demographics[:person_address][0]['address2'] rescue  ''
   subject <<  demographics[:person_address][0]['county_district'] rescue  ''
   subject <<  demographics[:person_address][0]['neighborhood_cell'] rescue  ''
+rescue Exception => e
+  `echo #{e} >> log/app_errors.log `
+end
 
 
   return if subject.blank?
