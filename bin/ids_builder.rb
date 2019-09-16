@@ -102,40 +102,51 @@ def process_duplicates(duplicates, duplicate_id)
 end
 
 def check_for_duplicate(demographics)
-  # find matching text in de_duplicator table
-begin
-  subject = ''
-  subject += (demographics[:person_names][0]['given_name'] ||  '')
-  subject << demographics[:person_names][0]['family_name'] rescue  ''
-  subject <<  demographics[:person]['gender'] rescue  nil
-  subject <<  demographics[:person]['birthdate'].strftime('%Y-%m-%d').gsub('-', '') rescue ''
-  subject <<  demographics[:person_address][0]['address2'] rescue  ''
-  subject <<  demographics[:person_address][0]['county_district'] rescue  ''
-  subject <<  demographics[:person_address][0]['neighborhood_cell'] rescue  ''
-rescue Exception => e
-  `echo #{e} >> log/app_errors.log `
+  duplicates = find_duplicates(demographics['person_de_duplicator'], demographics['person_id'])
+  process_duplicates(duplicates, demographics['person_id']) unless duplicates.blank?
 end
 
+def ids_populate_de_duplicators(person)
+  demographics = {}
+  demographics = { "person": person }
+  demographics.update("person_names": get_rds_person_name(person['person_id']))
+  demographics.update("person_address": get_rds_person_addresses(person['person_id']))
 
+  begin
+    subject = ''
+    subject += (demographics[:person_names][0]['given_name'] || '')
+    subject << demographics[:person_names][0]['family_name'] rescue  ''
+    subject <<  demographics[:person]['gender'] rescue  nil
+    subject <<  demographics[:person]['birthdate'].strftime('%Y-%m-%d').gsub('-', '') rescue ''
+    subject <<  demographics[:person_address][0]['address2'] rescue  ''
+    subject <<  demographics[:person_address][0]['county_district'] rescue  ''
+    subject <<  demographics[:person_address][0]['neighborhood_cell'] rescue  ''
+  rescue StandardError => e
+    File.write('log/app_errors.log', e,  mode: 'a')
+  end
+ 
   return if subject.blank?
 
-  subject.downcase!.gsub!(/[[:space:]]/, '') rescue return
-  
-  duplicates = find_duplicates(subject, demographics[:person]['person_id'])
-
-  person_present = DeDuplicator.find_by(person_id: demographics[:person]['person_id'])
-  if person_present
-    puts 'person_present'
-    person_present.update(person_de_duplicator: subject)
-  else
-    DeDuplicator.create(person_id: demographics[:person]['person_id'], person_de_duplicator: subject)
-    begin
-      puts duplicates.first['score'].to_f
-    rescue StandardError
-      nil
-    end
+  begin
+    subject.downcase!.gsub!(/[[:space:]]/, '')
+  rescue StandardError
+    return
   end
-  process_duplicates(duplicates, demographics[:person]['person_id']) unless duplicates.blank?
+
+  person_present = DeDuplicator.find_by(
+    person_id: demographics[:person]['person_id']
+  )
+
+  if person_present.blank?
+    begin
+      DeDuplicator.create(person_id: demographics[:person]['person_id'],
+                          person_de_duplicator: subject)
+    rescue StandardError => e
+      File.write('log/app_errors.log', e,  mode: 'a')
+    end
+  else
+    person_present.update(person_de_duplicator: subject)
+  end
 end
 
 def populate_people
@@ -165,20 +176,21 @@ def update_last_update(model, timestamp)
 end
 
 def initiate_de_duplication
-  last_updated = get_last_updated('Deduplication')
+  last_updated = get_last_updated('DeDuplicators')
 
-  query = "SELECT * FROM #{@rds_db}.person WHERE updated_at >= '#{last_updated}' ORDER BY updated_at "
+#Populate Duplicators
+  query = "SELECT * FROM #{@rds_db}.person
+           WHERE updated_at >= '#{last_updated}'
+           ORDER BY updated_at "
+  fetch_data_P(query, 'ids_populate_de_duplicators', 'DeDuplicators')
 
-  fetch_data(query) do |person|
-    demographics = {}
-    demographics = { "person": person }
-    demographics.update("person_names": get_rds_person_name(person['person_id']))
-    demographics.update("person_address": get_rds_person_addresses(person['person_id']))
+#Run Deduplication
+  last_updated = get_last_updated('DeDuplication')
+  query = <<~SQL
+    SELECT * FROM de_duplicators ORDER BY updated_at
+  SQL
 
-    check_for_duplicate(demographics)
-
-    update_last_update('Deduplicaton', person['updated_at'])
-  end
+  fetch_data_P(query, 'check_for_duplicate', 'DeDuplication')
 end
 
 def populate_person_names
