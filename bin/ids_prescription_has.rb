@@ -3,9 +3,9 @@ def populate_precription_has_regimen
 
   query = <<~SQL 
     SELECT encounter_id, group_concat(drug_id) drugs,updated_at 
-           FROM ids.medication_prescriptions
+           FROM medication_prescriptions
            WHERE updated_at >= '#{last_updated}'
-           AND drug_id IN (SELECT drug_id FROM ids.arv_drugs) group by encounter_id
+           AND drug_id IN (SELECT drug_id FROM arv_drugs) group by encounter_id
            ORDER BY updated_at 
   SQL
 
