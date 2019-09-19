@@ -24,6 +24,7 @@ require_relative 'ids_appointment'
 require_relative 'ids_tb_statuses'
 require_relative 'ids_prescription'
 require_relative 'ids_outcomes'
+require_relative 'ids_hts_results_given'
 
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
@@ -871,6 +872,21 @@ def populate_relationships
   fetch_data_P(query, 'ids_relationship', 'Relationship')
 end
 
+
+def populate_hts_results_given
+  last_updated = get_last_updated('HtsResultsGiven')
+  
+  query = <<~SQL
+    SELECT * FROM #{@rds_db}.obs
+    WHERE (updated_at >= '#{last_updated}'
+    AND concept_id = 8492)
+    OR obs_id IN #{load_error_records('adherence')}
+    ORDER BY updated_at
+  SQL
+
+  fetch_data_P(query, 'ids_hts_result_given', 'HtsResultsGiven')
+end
+
 def populate_adherence
   last_updated = get_last_updated('MedicationAdherence')
   
@@ -1020,6 +1036,7 @@ def methods_init
   populate_hiv_staging_info
   populate_precription_has_regimen
   populate_lab_test_results
+  populate_hts_results_given
   initiate_de_duplication
   populate_de_identifier
 
