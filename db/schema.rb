@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_19_092157) do
+ActiveRecord::Schema.define(version: 2019_09_19_105045) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -629,6 +629,7 @@ ActiveRecord::Schema.define(version: 2019_09_19_092157) do
     t.integer "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "site_code"
     t.index ["site_type_id"], name: "fk_rails_e9088cf59b"
   end
 
