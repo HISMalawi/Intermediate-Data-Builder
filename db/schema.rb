@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_17_093939) do
+ActiveRecord::Schema.define(version: 2019_09_19_092157) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -143,10 +143,9 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
   end
 
   create_table "failed_record_types", primary_key: "failed_record_type_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.string "name", null: false
+    t.text "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_failed_record_types_on_name", type: :fulltext
   end
 
   create_table "failed_records", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -213,6 +212,22 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
     t.index ["person_id"], name: "fk_rails_2ddeb472c8"
   end
 
+  create_table "hts_results_givens", primary_key: "htsrg_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "encounter_id"
+    t.bigint "concept_id"
+    t.bigint "value_coded"
+    t.boolean "voided", default: false, null: false
+    t.bigint "voided_by"
+    t.datetime "voided_date"
+    t.string "void_reason"
+    t.bigint "creator"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["encounter_id"], name: "fk_rails_5ee68dbcad"
+  end
+
   create_table "lab_orders", primary_key: "lab_order_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "tracking_number"
     t.datetime "order_date"
@@ -273,8 +288,6 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["openmrs_entity_name"], name: "index_master_definitions_on_openmrs_entity_name", type: :fulltext
-    t.index ["openmrs_metadata_id"], name: "index_master_definitions_on_openmrs_metadata_id"
   end
 
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -564,6 +577,12 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
     t.index ["relationship_type_id"], name: "fk_rails_d6679af8df"
   end
 
+  create_table "roles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "side_effects", primary_key: "side_effect_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id"
     t.bigint "concept_id"
@@ -645,16 +664,10 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
     t.index ["encounter_id"], name: "fk_rails_e6659727a6"
   end
 
-  create_table "users", primary_key: "user_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.string "username", null: false
-    t.string "password_digest", null: false
-    t.integer "user_role", null: false
-    t.boolean "voided", default: false, null: false
-    t.bigint "voided_by"
-    t.datetime "voided_date"
-    t.string "void_reason"
-    t.datetime "app_date_created", null: false
-    t.datetime "app_date_updated"
+  create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "name"
+    t.string "username"
+    t.string "password_digest"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -697,6 +710,7 @@ ActiveRecord::Schema.define(version: 2019_08_17_093939) do
   add_foreign_key "guardians", "master_definitions", column: "relationship_type_id", primary_key: "master_definition_id"
   add_foreign_key "guardians", "people", primary_key: "person_id"
   add_foreign_key "hiv_staging_infos", "people", primary_key: "person_id"
+  add_foreign_key "hts_results_givens", "encounters", primary_key: "encounter_id"
   add_foreign_key "lab_orders", "encounters", primary_key: "encounter_id"
   add_foreign_key "lab_test_results", "lab_orders", primary_key: "lab_order_id"
   add_foreign_key "medication_adherences", "master_definitions", column: "drug_id", primary_key: "master_definition_id"
