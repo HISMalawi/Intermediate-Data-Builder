@@ -485,10 +485,8 @@ def populate_diagnosis
 query = "SELECT ob.obs_id, ob.encounter_id,
         ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
         ob.void_reason, ob.date_voided, ob.creator,
-        ob.date_created
-        , ob.updated_at FROM #{@rds_db}.obs ob
-        INNER JOIN #{@rds_db}.encounter en
-        ON ob.encounter_id = en.encounter_id
+        ob.date_created,ob.updated_at 
+        FROM #{@rds_db}.obs ob
         WHERE (ob.concept_id IN (6542,6543)
         AND ob.updated_at >= '#{last_updated}')
         OR ob.obs_id IN #{load_error_records('diagnosis')}
@@ -546,9 +544,11 @@ def populate_pregnant_status
    ob.void_reason, ob.date_voided, ob.creator,
    ob.date_created, ob.updated_at
    FROM #{@rds_db}.obs ob
-   WHERE (concept_id in (1755,6131) 
+   WHERE (concept_id in (1755,6131,7972) 
    AND updated_at >= '#{last_updated}')
-   OR ob.obs_id IN #{load_error_records('pregnant_status')} 
+   OR ob.obs_id IN #{load_error_records('pregnant_status')}
+   OR (value_coded IN (1755,6131,7972)
+   AND concept_id = 7563) 
    ORDER BY updated_at "
 
   fetch_data_P(query,  'ids_pregnant_status', 'PregnantStatus')
@@ -561,9 +561,11 @@ def populate_breastfeeding_status
             ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
             ob.void_reason, ob.date_voided, ob.creator,
             ob.date_created, ob.updated_at FROM #{@rds_db}.obs ob WHERE (concept_id IN
-            (834,5253,5579,5632,8040,5632,9538)
+            (834,5253,5579,5632,8040,5632,9538,7965,7966,8039,8859,8881,9699)
             AND updated_at >= '#{last_updated}')
             OR ob.obs_id IN #{load_error_records('breastfeeding_status')}
+            OR (value_coded IN (834,5253,5579,5632,8040,5632,9538,7965,7966,8039,8859,8881,9699)
+            AND concept_id = 7563)  
             ORDER BY updated_at "
 
   fetch_data_P(query, 'ids_breastfeeding_status', 'BreastfeedingStatus')
@@ -609,13 +611,12 @@ def populate_symptoms
    SELECT ob.obs_id, ob.encounter_id,
    ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
    ob.void_reason, ob.date_voided, ob.creator,
-   ob.date_created , ob.updated_at FROM #{@rds_db}.obs ob
-   INNER JOIN #{@rds_db}.encounter en
-   ON ob.encounter_id = en.encounter_id 
-   INNER JOIN #{@rds_db}.encounter_type et
-   ON en.encounter_type = et.encounter_type_id
-   WHERE (et.encounter_type_id 
-   IN (SELECT encounter_type_id FROM #{@rds_db}.encounter_type WHERE name like '%symptoms')
+   ob.date_created , ob.updated_at 
+   FROM #{@rds_db}.obs ob
+   WHERE (ob.concept_id 
+   IN (SELECT concept_id 
+   FROM #{@rds_db}.concept_name 
+   WHERE name like '%symptoms%')
    AND ob.updated_at >= '#{last_updated}')
    OR obs_id IN #{load_error_records('symptoms')}
    ORDER BY ob.updated_at
@@ -690,7 +691,7 @@ def populate_family_planning
             WHERE (concept_id IN
             (SELECT concept_id FROM 
             #{@rds_db}.concept_name 
-            WHERE name like '%family%')
+            WHERE name like '%family planning%')
             AND ob.updated_at >= '#{last_updated}')
             OR obs_id IN #{load_error_records('famiy_planning')} 
             ORDER BY ob.updated_at 
@@ -864,9 +865,9 @@ def populate_relationships
 
   query = <<~SQL 
     SELECT * from #{@rds_db}.relationship 
-           WHERE relationship_id IN #{load_error_records('relationships')} 
-           OR updated_at >= '#{last_updated}' 
-           ORDER BY updated_at  
+    WHERE relationship_id IN #{load_error_records('relationships')} 
+    OR updated_at >= '#{last_updated}' 
+    ORDER BY updated_at  
   SQL
 
   fetch_data_P(query, 'ids_relationship', 'Relationship')
@@ -1009,30 +1010,31 @@ def methods_init
     FileUtils.touch '/tmp/ids_builder.lock'
   end
 
-  populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_breastfeeding_status
-  populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
-  populate_tb_statuses
-  populate_outcomes
-  populate_family_planning
-  populate_appointment
-  populate_prescription
-  populate_lab_orders
-  populate_occupation
-  populate_dispensation
-  populate_adherence
+  # populate_people
+  # populate_person_names
+  # populate_contact_details
+  # populate_person_address
+  # update_person_type
+  # populate_encounters
+  # populate_diagnosis
+  # populate_pregnant_status
+  # populate_breastfeeding_status
+  # populate_vitals
+  # populate_patient_history
+  # populate_symptoms
+  # populate_side_effects
+  # populate_presenting_complaints
+  # populate_tb_statuses
+  # populate_outcomes
+  # populate_family_planning
+  # populate_appointment
+  # populate_prescription
+  # populate_lab_orders
+  # populate_occupation
+  # populate_dispensation
+  # populate_adherence
   populate_relationships
+  exit
   populate_hiv_staging_info
   populate_precription_has_regimen
   populate_lab_test_results
