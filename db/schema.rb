@@ -641,12 +641,11 @@ ActiveRecord::Schema.define(version: 2019_09_19_105045) do
     t.bigint "voided_by"
     t.datetime "voided_date"
     t.string "void_reason"
+    t.bigint "creator"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["concept_id"], name: "fk_rails_e32867fc03"
-    t.index ["encounter_id"], name: "fk_rails_65be48c821"
   end
 
   create_table "tb_statuses", primary_key: "tb_status_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -754,8 +753,6 @@ ActiveRecord::Schema.define(version: 2019_09_19_105045) do
   add_foreign_key "side_effects_has_medication_prescriptions", "medication_prescriptions", primary_key: "medication_prescription_id"
   add_foreign_key "side_effects_has_medication_prescriptions", "side_effects", primary_key: "side_effect_id"
   add_foreign_key "sites", "site_types", primary_key: "site_type_id"
-  add_foreign_key "symptoms", "encounters", primary_key: "encounter_id"
-  add_foreign_key "symptoms", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "tb_statuses", "encounters", primary_key: "encounter_id"
   add_foreign_key "vitals", "encounters", primary_key: "encounter_id"
   add_foreign_key "vitals", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
