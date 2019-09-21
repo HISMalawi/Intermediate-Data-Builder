@@ -18,11 +18,13 @@ def ids_relationship(relation)
       relationship.voided_date = relation['date_voided']
       relationship.app_date_created = relation['date_created']
 
+      relationship.save
+
       remove_failed_record('relationships', relation['relationship_id'].to_i)
     rescue Exception => e
       log_error_records('relationships', relation['relationship_id'].to_i, e)
     end
-  elsif check_latest_record(relation, relationship)
+  elsif check_latest_record(relation, relationship_exits)
     relationship_exits.update(
       person_id_a: relation['person_a'],
       person_id_b: relation['person_b'],
