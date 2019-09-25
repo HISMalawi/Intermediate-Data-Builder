@@ -10,8 +10,10 @@ def ids_outcomes(rds_outcomes)
                    rescue StandardError
                     nil
                    end
-    if Outcome.find_by(person_id: rds_outcomes['patient_id'],
-                         concept_id: rds_outcomes['concept_id']).blank?
+                   
+    outcome_exists =  Outcome.find_by(person_id: rds_outcomes['patient_id'],
+                         concept_id: rds_outcomes['concept_id'])              
+    if outcome_exists.blank?
         #begin
           outcome = Outcome.new
           outcome.person_id         = rds_outcomes['patient_id']
@@ -30,10 +32,8 @@ def ids_outcomes(rds_outcomes)
         # rescue Exception => e
         #   log_error_records('outcomes', outcome['patient_program_id'].to_i, e)
         # end
-    else
-      outcome = Outcome.find_by(person_id: rds_outcomes['patient_id'],
-                                concept_id: rds_outcomes['concept_id'])
-      outcome.update(person_id: rds_outcomes['patient_id'],
+    elsif check_latest_record(rds_outcomes, outcome_exists)
+      outcome_exists.update(person_id: rds_outcomes['patient_id'],
                     concept_id: rds_outcomes['concept_id'],
                     outcome_reason: outcome_reason,
                     outcome_source: outcome_source,
