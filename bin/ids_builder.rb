@@ -711,8 +711,6 @@ def populate_outcomes
            ON pp.program_id = pw.program_id
            JOIN #{@rds_db}.program_workflow_state pws 
            ON pw.program_workflow_id = pws.program_workflow_id
-           JOIN #{@rds_db}.person p
-           ON pp.patient_id = p.person_id
            WHERE pp.updated_at >= '#{last_updated}' 
            ORDER BY pp.updated_at 
 SQL
