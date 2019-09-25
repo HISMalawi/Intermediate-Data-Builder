@@ -705,12 +705,14 @@ def populate_outcomes
 
    query = <<~SQL
    SELECT pp.patient_id, pp.updated_at, pws.* FROM #{@rds_db}.patient_program pp
-           INNER JOIN #{@rds_db}.patient_state ps 
+           JOIN #{@rds_db}.patient_state ps 
            ON pp.patient_program_id = ps.patient_program_id
-           INNER JOIN  #{@rds_db}.program_workflow pw 
+           JOIN  #{@rds_db}.program_workflow pw 
            ON pp.program_id = pw.program_id
-           INNER JOIN #{@rds_db}.program_workflow_state pws 
+           JOIN #{@rds_db}.program_workflow_state pws 
            ON pw.program_workflow_id = pws.program_workflow_id
+           JOIN #{@rds_db}.person p
+           ON pp.patient_id = p.person_id
            WHERE pp.updated_at >= '#{last_updated}' 
            ORDER BY pp.updated_at 
 SQL
