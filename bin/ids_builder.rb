@@ -672,7 +672,7 @@ def populate_tb_statuses
            ob.concept_id, ob.value_coded,ob.voided, ob.voided_by,
            ob.void_reason, ob.date_voided, ob.creator,
            ob.date_created , ob.updated_at FROM #{@rds_db}.obs ob
-           WHERE (concept_id = 7459 
+           WHERE (concept_id = 7459
            AND ob.updated_at >= '#{last_updated}')
            OR obs_id IN #{load_error_records('tb_status')}
            ORDER BY ob.updated_at 
@@ -689,8 +689,8 @@ def populate_family_planning
            ob.void_reason, ob.date_voided, ob.creator,
            ob.date_created FROM #{@rds_db}.obs ob
             WHERE (concept_id IN
-            (SELECT concept_id FROM 
-            #{@rds_db}.concept_name 
+            (SELECT concept_id FROM
+            #{@rds_db}.concept_name
             WHERE name like '%family planning%')
             AND ob.updated_at >= '#{last_updated}')
             OR obs_id IN #{load_error_records('famiy_planning')} 
