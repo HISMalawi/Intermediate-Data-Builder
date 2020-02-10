@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_19_105045) do
+ActiveRecord::Schema.define(version: 2020_02_04_125237) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -143,9 +143,10 @@ ActiveRecord::Schema.define(version: 2019_09_19_105045) do
   end
 
   create_table "failed_record_types", primary_key: "failed_record_type_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.text "name", null: false
+    t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_failed_record_types_on_name", type: :fulltext
   end
 
   create_table "failed_records", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -288,6 +289,8 @@ ActiveRecord::Schema.define(version: 2019_09_19_105045) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["openmrs_entity_name"], name: "index_master_definitions_on_openmrs_entity_name", type: :fulltext
+    t.index ["openmrs_metadata_id"], name: "index_master_definitions_on_openmrs_metadata_id"
   end
 
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -365,7 +368,7 @@ ActiveRecord::Schema.define(version: 2019_09_19_105045) do
 
   create_table "occupations", primary_key: "occupation_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "person_id", null: false
-    t.string "occupation", null: false
+    t.string "occupation"
     t.bigint "creator"
     t.boolean "voided", default: false, null: false
     t.integer "voided_by"
@@ -424,7 +427,7 @@ ActiveRecord::Schema.define(version: 2019_09_19_105045) do
     t.boolean "dead", default: false, null: false
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
-    t.integer "void_reason"
+    t.string "void_reason"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
@@ -433,13 +436,13 @@ ActiveRecord::Schema.define(version: 2019_09_19_105045) do
 
   create_table "person_addresses", primary_key: "person_address_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "person_id", null: false
-    t.integer "home_district_id", null: false
-    t.integer "home_traditional_authority_id", null: false
-    t.integer "home_village_id", null: false
-    t.integer "current_district_id", null: false
-    t.integer "current_traditional_authority_id", null: false
-    t.integer "current_village_id", null: false
-    t.integer "country_id", null: false
+    t.string "home_district_id"
+    t.string "home_traditional_authority_id"
+    t.string "home_village_id"
+    t.string "current_district_id"
+    t.string "current_traditional_authority_id"
+    t.string "current_village_id"
+    t.string "country_id"
     t.bigint "creator", null: false
     t.string "landmark"
     t.boolean "voided", default: false, null: false
@@ -450,13 +453,6 @@ ActiveRecord::Schema.define(version: 2019_09_19_105045) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["country_id"], name: "fk_rails_525c1ee58a"
-    t.index ["current_district_id"], name: "fk_rails_60b44a0ad8"
-    t.index ["current_traditional_authority_id"], name: "fk_rails_f3cd017b99"
-    t.index ["current_village_id"], name: "fk_rails_699ba28162"
-    t.index ["home_district_id"], name: "fk_rails_61172ae8e3"
-    t.index ["home_traditional_authority_id"], name: "fk_rails_08b0a4cf4b"
-    t.index ["home_village_id"], name: "fk_rails_879155a8df"
     t.index ["person_id"], name: "fk_rails_eb9d05724a"
   end
 
@@ -478,7 +474,7 @@ ActiveRecord::Schema.define(version: 2019_09_19_105045) do
     t.bigint "creator", null: false
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
-    t.integer "void_reason"
+    t.string "void_reason"
     t.datetime "app_date_created", null: false
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
@@ -577,12 +573,6 @@ ActiveRecord::Schema.define(version: 2019_09_19_105045) do
     t.index ["relationship_type_id"], name: "fk_rails_d6679af8df"
   end
 
-  create_table "roles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "side_effects", primary_key: "side_effect_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id"
     t.bigint "concept_id"
@@ -646,6 +636,8 @@ ActiveRecord::Schema.define(version: 2019_09_19_105045) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["concept_id"], name: "fk_rails_e32867fc03"
+    t.index ["encounter_id"], name: "fk_rails_65be48c821"
   end
 
   create_table "tb_statuses", primary_key: "tb_status_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -664,10 +656,16 @@ ActiveRecord::Schema.define(version: 2019_09_19_105045) do
     t.index ["encounter_id"], name: "fk_rails_e6659727a6"
   end
 
-  create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.string "name"
-    t.string "username"
-    t.string "password_digest"
+  create_table "users", primary_key: "user_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "username", null: false
+    t.string "password_digest", null: false
+    t.integer "user_role", null: false
+    t.boolean "voided", default: false, null: false
+    t.bigint "voided_by"
+    t.datetime "voided_date"
+    t.string "void_reason"
+    t.datetime "app_date_created", null: false
+    t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -725,13 +723,6 @@ ActiveRecord::Schema.define(version: 2019_09_19_105045) do
   add_foreign_key "outcomes", "people", primary_key: "person_id"
   add_foreign_key "patient_histories", "encounters", primary_key: "encounter_id"
   add_foreign_key "patient_histories", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
-  add_foreign_key "person_addresses", "countries", primary_key: "country_id"
-  add_foreign_key "person_addresses", "locations", column: "current_district_id", primary_key: "location_id"
-  add_foreign_key "person_addresses", "locations", column: "current_traditional_authority_id", primary_key: "location_id"
-  add_foreign_key "person_addresses", "locations", column: "current_village_id", primary_key: "location_id"
-  add_foreign_key "person_addresses", "locations", column: "home_district_id", primary_key: "location_id"
-  add_foreign_key "person_addresses", "locations", column: "home_traditional_authority_id", primary_key: "location_id"
-  add_foreign_key "person_addresses", "locations", column: "home_village_id", primary_key: "location_id"
   add_foreign_key "person_addresses", "people", primary_key: "person_id"
   add_foreign_key "person_has_types", "people", primary_key: "person_id"
   add_foreign_key "person_has_types", "person_types", primary_key: "person_type_id"
@@ -753,6 +744,8 @@ ActiveRecord::Schema.define(version: 2019_09_19_105045) do
   add_foreign_key "side_effects_has_medication_prescriptions", "medication_prescriptions", primary_key: "medication_prescription_id"
   add_foreign_key "side_effects_has_medication_prescriptions", "side_effects", primary_key: "side_effect_id"
   add_foreign_key "sites", "site_types", primary_key: "site_type_id"
+  add_foreign_key "symptoms", "encounters", primary_key: "encounter_id"
+  add_foreign_key "symptoms", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "tb_statuses", "encounters", primary_key: "encounter_id"
   add_foreign_key "vitals", "encounters", primary_key: "encounter_id"
   add_foreign_key "vitals", "master_definitions", column: "concept_id", primary_key: "master_definition_id"

@@ -155,6 +155,6 @@ puts ''
 puts '======== Application Set Up Done Successfully ======'
 puts '========================================================'
 
-# ending loading metadata into database
+#ending loading metadata into database
 
-# Creation of other records in Ruby below ...
+#Creation of other records in Ruby below ...
