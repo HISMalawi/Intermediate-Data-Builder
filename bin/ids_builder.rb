@@ -760,7 +760,6 @@ end
       end
     elsif check_latest_record(rds_occupation, occupation_exists)
       person_occupation.update(occupation: rds_occupation['value'],
-                               creator: rds_occupation['creator'],
                                person_id: rds_occupation['person_id'], 
                                voided: rds_occupation['voided'],
                                voided_by: rds_occupation['voided_by'], 
