@@ -264,7 +264,7 @@ def populate_contact_details
            FROM 
            #{@rds_db}.person_attribute
            WHERE updated_at >= '#{last_updated}'
-           group by person_id 
+           group by person_id
            ORDER BY updated_at "
 
   fetch_data_P(query, 'ids_contact_details', 'PersonAttribute')
@@ -1011,35 +1011,47 @@ def methods_init
   end
 
   populate_people
-  populate_person_names
-  populate_contact_details
-  populate_person_address
-  update_person_type
-  populate_encounters
-  populate_diagnosis
-  populate_pregnant_status
-  populate_breastfeeding_status
-  populate_vitals
-  populate_patient_history
-  populate_symptoms
-  populate_side_effects
-  populate_presenting_complaints
-  populate_tb_statuses
-  populate_outcomes
-  populate_family_planning
-  populate_appointment
-  populate_prescription
-  populate_lab_orders
-  populate_occupation
-  populate_dispensation
-  populate_adherence
-  populate_relationships
-  populate_hiv_staging_info
-  populate_precription_has_regimen
-  populate_lab_test_results
-  populate_hts_results_given
-  initiate_de_duplication
-  populate_de_identifier
+  tables = [
+  'populate_person_names',
+  'populate_contact_details',
+  'populate_person_address',
+  'update_person_type',
+  'populate_encounters'
+]
+ 
+ Parallel.each(tables) do | table|
+  send(table)
+ end
+  tables2 = [
+    'populate_diagnosis',
+  'populate_pregnant_status',
+  'populate_breastfeeding_status',
+  'populate_vitals',
+  'populate_patient_history',
+  'populate_symptoms',
+  'populate_side_effects',
+  'populate_presenting_complaints',
+  'populate_tb_statuses',
+  'populate_outcomes',
+  'populate_family_planning',
+  'populate_appointment',
+  'populate_prescription',
+  'populate_lab_orders',
+  'populate_occupation',
+  'populate_dispensation',
+  'populate_adherence',
+  'populate_relationships',
+  'populate_hiv_staging_info',
+  'populate_precription_has_regimen',
+  'populate_hts_results_given'
+]
+
+Parallel.each(tables2) do | table|
+  send(table)
+end
+    populate_lab_test_results
+    initiate_de_duplication
+    populate_de_identifier
 
    FileUtils.rm '/tmp/ids_builder.lock' if File.file?('/tmp/ids_builder.lock')
 end
