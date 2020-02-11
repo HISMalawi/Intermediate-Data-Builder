@@ -13,7 +13,6 @@ def ids_family_planning(family_planning)
       concept_id:  concept_id,
       encounter_id:  family_planning['encounter_id'],
       value_coded:  value_coded,
-      value_coded:  value_coded,
       voided:  family_planning['voided'],
       voided_by:  family_planning['voided_by'],
       voided_date:  family_planning['date_voided'],
