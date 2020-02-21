@@ -296,7 +296,7 @@ ActiveRecord::Schema.define(version: 2020_02_04_125237) do
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "medication_dispensation_id"
     t.bigint "drug_id"
-    t.float "adherence"
+    t.string "adherence"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -675,8 +675,8 @@ ActiveRecord::Schema.define(version: 2020_02_04_125237) do
     t.bigint "concept_id"
     t.bigint "value_coded"
     t.bigint "value_numeric"
-    t.bigint "value_text"
-    t.bigint "value_modifier"
+    t.string "value_text"
+    t.string "value_modifier"
     t.bigint "value_min"
     t.bigint "value_max"
     t.boolean "voided", default: false, null: false

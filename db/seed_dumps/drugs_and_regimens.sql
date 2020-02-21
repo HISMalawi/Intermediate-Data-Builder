@@ -66,7 +66,8 @@ VALUES('0A', '733,968', 0, NULL, NULL, NULL, now(), now()),
 ('12A', '976,977,982', 0, NULL, NULL, NULL, now(), now()),
 ('13A', '983', 0, NULL, NULL, NULL, now(), now()),
 ('14A', '982,984', 0, NULL, NULL, NULL, now(), now()),
-('15A', '969,982', 0, NULL, NULL, NULL, now(), now());
+('15A', '969,982', 0, NULL, NULL, NULL, now(), now()),
+('Unknown',NULL, 0, NULL, NULL, NULL, now(), now());
 
 /*!40000 ALTER TABLE `medication_regimen` ENABLE KEYS */;
 UNLOCK TABLES;

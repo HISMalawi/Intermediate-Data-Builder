@@ -475,7 +475,7 @@ SQL
   Parallel.each(providers, progress: 'Processing Providers') do |provider|
     person_has_type(person_type_id, provider)
   end
-  update_last_update('Provider', providers.last['updated_at'])
+  update_last_update('Provider', providers.last['updated_at']) unless providers.last.include('updated_at')
 end
 
 def populate_diagnosis
@@ -506,7 +506,7 @@ def populate_vitals
     SELECT ob.* FROM #{@rds_db}.obs ob
     INNER JOIN #{@rds_db}.encounter en
     ON ob.encounter_id = en.encounter_id
-    WHERE (encounter_type = 6
+    WHERE (ob.concept_id IN (5085,5086,5087,5088,5089,5090,5092,5242,1822,2137,6396,6397)
     AND ob.updated_at >= '#{last_updated}') 
     OR ob.obs_id IN #{load_error_records('vitals')} 
     ORDER BY ob.updated_at 
@@ -893,7 +893,7 @@ def populate_adherence
   query = <<~SQL
     SELECT * FROM #{@rds_db}.obs
     WHERE (updated_at >= '#{last_updated}'
-    AND concept_id = 6987)
+    AND concept_id =  )
     OR obs_id IN #{load_error_records('adherence')}
     ORDER BY updated_at
   SQL
