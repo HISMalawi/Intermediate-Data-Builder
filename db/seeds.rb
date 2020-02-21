@@ -11,9 +11,19 @@
 # Creation of other records in Ruby above ...
 
 # Load metadata into database
+ids_db = YAML.load_file("#{Rails.root}/config/database.yml")['development']
+
 puts '================ Loading SQL Metadata ====================='
 
-metadata_sql_files = %w[person_types master_definitions drugs_and_regimens failed_record_types]
+puts 'Loading Master Definitions'
+
+`pv #{Rails.root}/db/seed_dumps/master_definitions.sql.gz | gunzip | mysql -u#{ids_db['username']} -p#{ids_db['password']} #{ids_db['database']}`
+
+puts 'Loading MySQL Functions'
+
+`pv #{Rails.root}/db/seed_dumps/bart2_views_schema_additions.sql | mysql -u#{ids_db['username']} -p#{ids_db['password']} #{ids_db['database']}`
+
+metadata_sql_files = %w[person_types drugs_and_regimens failed_record_types]
 connection = ActiveRecord::Base.connection
 (metadata_sql_files || []).each do |metadata_sql_file|
   puts "Loading #{metadata_sql_file} metadata sql file"
