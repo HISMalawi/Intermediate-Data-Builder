@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_04_125237) do
+ActiveRecord::Schema.define(version: 2020_02_22_183414) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -143,10 +143,9 @@ ActiveRecord::Schema.define(version: 2020_02_04_125237) do
   end
 
   create_table "failed_record_types", primary_key: "failed_record_type_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.string "name", null: false
+    t.text "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_failed_record_types_on_name", type: :fulltext
   end
 
   create_table "failed_records", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -261,6 +260,7 @@ ActiveRecord::Schema.define(version: 2020_02_04_125237) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "sending_facility"
     t.index ["lab_order_id"], name: "fk_rails_c4c5f50f57"
   end
 
@@ -289,8 +289,6 @@ ActiveRecord::Schema.define(version: 2020_02_04_125237) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["openmrs_entity_name"], name: "index_master_definitions_on_openmrs_entity_name", type: :fulltext
-    t.index ["openmrs_metadata_id"], name: "index_master_definitions_on_openmrs_metadata_id"
   end
 
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
