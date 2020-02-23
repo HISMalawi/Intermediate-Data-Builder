@@ -144,9 +144,10 @@ ActiveRecord::Schema.define(version: 2020_02_22_234940) do
   end
 
   create_table "failed_record_types", primary_key: "failed_record_type_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.text "name", null: false
+    t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_failed_record_types_on_name", type: :fulltext
   end
 
   create_table "failed_records", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -290,6 +291,8 @@ ActiveRecord::Schema.define(version: 2020_02_22_234940) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["openmrs_entity_name"], name: "index_master_definitions_on_openmrs_entity_name", type: :fulltext
+    t.index ["openmrs_metadata_id"], name: "index_master_definitions_on_openmrs_metadata_id"
   end
 
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
