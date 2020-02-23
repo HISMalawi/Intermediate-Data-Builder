@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_22_183414) do
+ActiveRecord::Schema.define(version: 2020_02_22_234940) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -95,6 +95,7 @@ ActiveRecord::Schema.define(version: 2020_02_22_183414) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["identifier"], name: "index_de_identified_identifiers_on_identifier", unique: true
     t.index ["person_id"], name: "fk_rails_a018965096"
   end
 
