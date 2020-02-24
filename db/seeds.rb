@@ -27,7 +27,7 @@ puts 'Loading MySQL Functions'
 
 #`pv #{Rails.root}/db/seed_dumps/create_temp_earliest_start_date_procedure.sql | mysql -u#{dbs['rds']['username']} -p#{dbs['rds']['password']} #{dbs['rds']['database']} -f`
 
-metadata_sql_files = %w[person_types drugs_and_regimens failed_record_types]
+metadata_sql_files = %w[person_types drugs_and_regimens failed_record_types sites]
 connection = ActiveRecord::Base.connection
 (metadata_sql_files || []).each do |metadata_sql_file|
   puts "Loading #{metadata_sql_file} metadata sql file"
@@ -139,35 +139,35 @@ puts "======== All : #{DuplicateStatus.count} Duplicate Statuses Saved Successfu
 puts '========================================================'
 puts '======= Initializing Health Facilities  ======'
 puts '========================================================'
-CSV.foreach("#{Rails.root}/app/assets/data/health_facilities.csv", headers: true) do |row|
-  next if row[0].blank?
+# CSV.foreach("#{Rails.root}/app/assets/data/health_facilities.csv", headers: true) do |row|
+#   next if row[0].blank?
 
-  site = Site.new
-  site_type = ''
-  site_type = if row[5].downcase.include?('district')
-                'District Hospital'
-              elsif row[5] == 'Central'
-                'Central Hospital'
-              else
-                'Health Facility'
-              end
-  site.site_type_id = begin
-                        SiteType.find_by_site_type(site_type).site_type_id
-                      rescue StandardError
-                        nil
-                      end
-  site.site_name = row[3]
-  site.short_name = row[1]
-  site.site_description = row[6]
-  site.save!
-  puts "...#{site.site_name} Saved Successfully..."
-end
-puts '========================================================'
-puts "======== All : #{Site.count} Sites Saved Successfully ======"
-puts '========================================================'
-puts ''
-puts '======== Application Set Up Done Successfully ======'
-puts '========================================================'
+#   site = Site.new
+#   site_type = ''
+#   site_type = if row[5].downcase.include?('district')
+#                 'District Hospital'
+#               elsif row[5] == 'Central'
+#                 'Central Hospital'
+#               else
+#                 'Health Facility'
+#               end
+#   site.site_type_id = begin
+#                         SiteType.find_by_site_type(site_type).site_type_id
+#                       rescue StandardError
+#                         nil
+#                       end
+#   site.site_name = row[3]
+#   site.short_name = row[1]
+#   site.site_description = row[6]
+#   site.save!
+#   puts "...#{site.site_name} Saved Successfully..."
+# end
+# puts '========================================================'
+# puts "======== All : #{Site.count} Sites Saved Successfully ======"
+# puts '========================================================'
+# puts ''
+# puts '======== Application Set Up Done Successfully ======'
+# puts '========================================================'
 
 #ending loading metadata into database
 
