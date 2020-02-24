@@ -11,17 +11,21 @@
 # Creation of other records in Ruby above ...
 
 # Load metadata into database
-ids_db = YAML.load_file("#{Rails.root}/config/database.yml")['development']
+dbs = YAML.load_file("#{Rails.root}/config/database.yml")
 
 puts '================ Loading SQL Metadata ====================='
 
 puts 'Loading Master Definitions'
 
-`pv #{Rails.root}/db/seed_dumps/master_definitions.sql.gz | gunzip | mysql -u#{ids_db['username']} -p#{ids_db['password']} #{ids_db['database']}`
+`pv #{Rails.root}/db/seed_dumps/master_definitions.sql.gz | gunzip | mysql -u#{dbs['development']['username']} -p#{dbs['development']['password']} #{dbs['development']['database']}`
 
 puts 'Loading MySQL Functions'
 
-`pv #{Rails.root}/db/seed_dumps/bart2_views_schema_additions.sql | mysql -u#{ids_db['username']} -p#{ids_db['password']} #{ids_db['database']}`
+`pv #{Rails.root}/db/seed_dumps/bart2_views_schema_additions.sql | mysql -u#{dbs['rds']['username']} -p#{dbs['rds']['password']} #{dbs['rds']['database']}`
+
+#puts 'Creating Stored procedure in RDS databaese'
+
+#`pv #{Rails.root}/db/seed_dumps/create_temp_earliest_start_date_procedure.sql | mysql -u#{dbs['rds']['username']} -p#{dbs['rds']['password']} #{dbs['rds']['database']} -f`
 
 metadata_sql_files = %w[person_types drugs_and_regimens failed_record_types]
 connection = ActiveRecord::Base.connection
