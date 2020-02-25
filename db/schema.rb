@@ -397,8 +397,8 @@ ActiveRecord::Schema.define(version: 2020_02_25_070251) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.datetime "start_date"
-    t.datetime "end_date"
+    t.date "start_date"
+    t.date "end_date"
     t.index ["concept_id"], name: "fk_rails_b0b07ac345"
     t.index ["person_id"], name: "fk_rails_fe9ce0813a"
   end
