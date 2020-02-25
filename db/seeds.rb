@@ -17,15 +17,51 @@ puts '================ Loading SQL Metadata ====================='
 
 puts 'Loading Master Definitions'
 
-`pv #{Rails.root}/db/seed_dumps/master_definitions.sql.gz | gunzip | mysql -u#{dbs['development']['username']} -p#{dbs['development']['password']} #{dbs['development']['database']}`
+`mysql -u#{dbs['development']['username']} -p#{dbs['development']['password']} #{dbs['development']['database']} < #{Rails.root}/db/seed_dumps/master_definitions.sql -v`
 
 puts 'Loading MySQL Functions'
 
-`pv #{Rails.root}/db/seed_dumps/bart2_views_schema_additions.sql | mysql -u#{dbs['rds']['username']} -p#{dbs['rds']['password']} #{dbs['rds']['database']}`
+`mysql -u#{dbs['rds']['username']} -p#{dbs['rds']['password']} #{dbs['rds']['database']} < #{Rails.root}/db/seed_dumps/bart2_views_schema_additions.sql -v`
 
 #puts 'Creating Stored procedure in RDS databaese'
 
 #`pv #{Rails.root}/db/seed_dumps/create_temp_earliest_start_date_procedure.sql | mysql -u#{dbs['rds']['username']} -p#{dbs['rds']['password']} #{dbs['rds']['database']} -f`
+
+
+# ActiveRecord::Base.connection.execute <<~SQL
+# CREATE TABLE `audit_etl_parameter` (
+#   `id` int(11) NOT NULL,
+#   `name` varchar(150) DEFAULT NULL,
+#   `value` varchar(500) DEFAULT NULL,
+#   `datatype` varchar(10) DEFAULT NULL,
+#   `description` text,
+#   `createdate` datetime DEFAULT NULL,
+#   `lastupdatedate` datetime DEFAULT NULL
+# ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+# CREATE TABLE `audit_pentaho_job_log` (
+#   `ID_JOB` int(11) DEFAULT NULL,
+#   `CHANNEL_ID` varchar(255) DEFAULT NULL,
+#   `JOBNAME` varchar(255) DEFAULT NULL,
+#   `STATUS` varchar(15) DEFAULT NULL,
+#   `LINES_READ` bigint(20) DEFAULT NULL,
+#   `LINES_WRITTEN` bigint(20) DEFAULT NULL,
+#   `LINES_UPDATED` bigint(20) DEFAULT NULL,
+#   `LINES_INPUT` bigint(20) DEFAULT NULL,
+#   `LINES_OUTPUT` bigint(20) DEFAULT NULL,
+#   `LINES_REJECTED` bigint(20) DEFAULT NULL,
+#   `ERRORS` bigint(20) DEFAULT NULL,
+#   `STARTDATE` datetime DEFAULT NULL,
+#   `ENDDATE` datetime DEFAULT NULL,
+#   `LOGDATE` datetime DEFAULT NULL,
+#   `DEPDATE` datetime DEFAULT NULL,
+#   `REPLAYDATE` datetime DEFAULT NULL,
+#   `LOG_FIELD` longtext,
+#   KEY `IDX_pentaho_job_log_1` (`ID_JOB`),
+#   KEY `IDX_pentaho_job_log_2` (`ERRORS`,`STATUS`,`JOBNAME`)
+# ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+# SQL
 
 metadata_sql_files = %w[person_types drugs_and_regimens failed_record_types sites]
 connection = ActiveRecord::Base.connection

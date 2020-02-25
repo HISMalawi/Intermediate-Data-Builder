@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_22_234940) do
+ActiveRecord::Schema.define(version: 2020_02_25_070251) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -397,6 +397,8 @@ ActiveRecord::Schema.define(version: 2020_02_22_234940) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "start_date"
+    t.datetime "end_date"
     t.index ["concept_id"], name: "fk_rails_b0b07ac345"
     t.index ["person_id"], name: "fk_rails_fe9ce0813a"
   end
