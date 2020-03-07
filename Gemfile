@@ -13,6 +13,7 @@ gem 'parallel'
 gem 'ruby-progressbar'
 
 gem 'redis-mutex'
+gem 'pg'
 
 #matching algorithm
 gem 'damerau-levenshtein'
