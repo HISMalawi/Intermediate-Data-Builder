@@ -17,7 +17,7 @@ puts '================ Loading SQL Metadata ====================='
 
 puts 'Loading Master Definitions'
 
-`mysql -u#{dbs['development']['username']} -p#{dbs['development']['password']} #{dbs['development']['database']} < #{Rails.root}/db/seed_dumps/master_definitions.sql -v`
+`mysql -u #{dbs['development']['username']} -p#{dbs['development']['password']} #{dbs['development']['database']} < #{Rails.root}/db/seed_dumps/master_definitions.sql`
 
 puts 'Loading MySQL Functions'
 

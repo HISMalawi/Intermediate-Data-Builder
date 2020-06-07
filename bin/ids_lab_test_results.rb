@@ -1,5 +1,5 @@
 require 'json'
-@lims_url = 'localhost:3010'
+@lims_url = 'localhost:3000'
 @lims_user = 'lab_test'
 @lims_pwd = 'lab_test'
 
