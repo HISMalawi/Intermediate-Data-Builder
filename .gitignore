@@ -29,7 +29,7 @@
 # Ignore only DB config file
 config/database.yml
 # Ignore Schema.rb
-  db/schema.rb
+/db/schema.rb
 # install intellij .idea files
 .idea/
 .generators
