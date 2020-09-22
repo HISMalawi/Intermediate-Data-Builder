@@ -87,9 +87,11 @@ QUERY
 end
 
 def find_duplicates(subject, subject_person_id)
+  $processed << subject_person_id
   ActiveRecord::Base.connection.select_all <<QUERY
-			SELECT person_id, ROUND(CAST((((length("#{subject}") - damlev(person_de_duplicator,"#{subject}"))/ length("#{subject}")) * 100) AS DECIMAL),2)
- as score FROM de_duplicators WHERE person_id != #{subject_person_id} HAVING score >= #{@threshold};
+			SELECT person_id, ROUND(CAST((((length("#{subject}") - 
+      damlev(person_de_duplicator,"#{subject}"))/ length("#{subject}")) * 100) AS DECIMAL),2)
+ as score FROM de_duplicators WHERE person_id NOT IN (#{$processed.join(',')}) HAVING score >= #{@threshold};
 QUERY
 end
 
@@ -187,11 +189,18 @@ def initiate_de_duplication
 
 #Run Deduplication
   last_updated = get_last_updated('DeDuplication')
-  query = <<~SQL
-    SELECT * FROM de_duplicators ORDER BY updated_at
-  SQL
+  # query = <<~SQL
+  #   SELECT * FROM de_duplicators ORDER BY updated_at
+  # SQL
 
-  fetch_data_P(query, 'check_for_duplicate', 'DeDuplication')
+  # fetch_data_P(query, 'check_for_duplicate', 'DeDuplication')
+  count = DeDuplicator.where("updated_at >= '#{last_updated}'").count
+  $processed = []
+  DeDuplicator.where("updated_at >= '#{last_updated}'").order(:updated_at).each.with_index do |person,i|
+    print "processing #{i+1} / #{count} \r"
+    check_for_duplicate(person)
+    update_last_update('DeDuplication', person['updated_at'])
+  end
 end
 
 def populate_person_names
@@ -1050,7 +1059,7 @@ Parallel.each(tables2) do | table|
 end
     populate_lab_test_results
     initiate_de_duplication
-    populate_de_identifier
+   populate_de_identifier
 
    FileUtils.rm '/tmp/ids_builder.lock' if File.file?('/tmp/ids_builder.lock')
 end
