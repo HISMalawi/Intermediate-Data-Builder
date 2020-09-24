@@ -29,7 +29,7 @@ require_relative 'ids_hts_results_given'
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 File.open("#{Rails.root}/log/last_update.yml", 'w') unless File.exist?("#{Rails.root}/log/last_update.yml") # Create a tracking file if it does not exist
 @last_updated = YAML.load_file("#{Rails.root}/log/last_update.yml")
-@batch_size = 1_000_000
+@batch_size = 1_000
 @threshold = 85
 
 def get_all_rds_peoples
@@ -86,13 +86,12 @@ def get_rds_users
 QUERY
 end
 
-def find_duplicates(subject, subject_person_id)
-  $processed << subject_person_id
-  ActiveRecord::Base.connection.select_all <<QUERY
-			SELECT person_id, ROUND(CAST((((length("#{subject}") - 
-      damlev(person_de_duplicator,"#{subject}"))/ length("#{subject}")) * 100) AS DECIMAL),2)
- as score FROM de_duplicators WHERE person_id NOT IN (#{$processed.join(',')}) HAVING score >= #{@threshold};
-QUERY
+def find_duplicates(deduplicator_id,subject, subject_person_id)
+    ActiveRecord::Base.connection.select_all <<~SQL
+    			SELECT person_id, ROUND(CAST((((length("#{subject}") - 
+          damlev(person_de_duplicator,"#{subject}"))/ length("#{subject}")) * 100) AS DECIMAL),2)
+     as score FROM de_duplicators WHERE de_duplicator_id > #{deduplicator_id.to_i} HAVING score >= #{@threshold};
+    SQL
 end
 
 def process_duplicates(duplicates, duplicate_id)
@@ -105,7 +104,7 @@ def process_duplicates(duplicates, duplicate_id)
 end
 
 def check_for_duplicate(demographics)
-  duplicates = find_duplicates(demographics['person_de_duplicator'], demographics['person_id'])
+  duplicates = find_duplicates(demographics['de_duplicator_id'],demographics['person_de_duplicator'], demographics['person_id'])
   process_duplicates(duplicates, demographics['person_id']) unless duplicates.blank?
 end
 
@@ -195,8 +194,8 @@ def initiate_de_duplication
 
   # fetch_data_P(query, 'check_for_duplicate', 'DeDuplication')
   count = DeDuplicator.where("updated_at >= '#{last_updated}'").count
-  $processed = []
-  DeDuplicator.where("updated_at >= '#{last_updated}'").order(:updated_at).each.with_index do |person,i|
+  #$processed = []
+  DeDuplicator.where("updated_at >= '#{last_updated}'").order(:de_duplicator_id).each.with_index do |person,i|
     print "processing #{i+1} / #{count} \r"
     check_for_duplicate(person)
     update_last_update('DeDuplication', person['updated_at'])
@@ -1059,7 +1058,7 @@ Parallel.each(tables2) do | table|
 end
     populate_lab_test_results
     initiate_de_duplication
-   populate_de_identifier
+    populate_de_identifier
 
    FileUtils.rm '/tmp/ids_builder.lock' if File.file?('/tmp/ids_builder.lock')
 end
