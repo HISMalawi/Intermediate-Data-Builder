@@ -3,6 +3,7 @@ require_relative 'bantu_soundex'
 count = PersonName.count
 PersonName.find_each.with_index do |person,i|
 	print "Processing #{i+1} / #{count} \r"
+	next if (person.given_name.blank? || person.given_name.blank?)
 	unless Soundex.exists?(:person_id => person.person_id)
 		Soundex.create(person_id: person.person_id,
 					   first_name: person.given_name.soundex,
