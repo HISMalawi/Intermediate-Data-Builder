@@ -12,6 +12,8 @@ gem 'rest-client'
 gem 'parallel'
 gem 'ruby-progressbar'
 
+gem 'elasticsearch'
+
 gem 'redis-mutex'
 
 #matching algorithm

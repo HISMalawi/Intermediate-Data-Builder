@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_08_13_152438) do
+ActiveRecord::Schema.define(version: 2020_09_24_090816) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -81,7 +81,7 @@ ActiveRecord::Schema.define(version: 2020_08_13_152438) do
     t.string "person_de_duplicator", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["person_de_duplicator"], name: "index_de_duplicators_on_person_de_duplicator", type: :fulltext
+    t.index ["person_de_duplicator"], name: "person_de_duplicator", type: :fulltext
     t.index ["person_id"], name: "fk_rails_9a0d823cf4"
   end
 
@@ -268,6 +268,13 @@ ActiveRecord::Schema.define(version: 2020_08_13_152438) do
     t.index ["lab_order_id"], name: "fk_rails_c4c5f50f57"
   end
 
+  create_table "latest_en", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "person_id"
+    t.datetime "latest_visit_date"
+    t.index ["latest_visit_date"], name: "latest_visit_date"
+    t.index ["person_id"], name: "person_id"
+  end
+
   create_table "locations", primary_key: "location_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", null: false
     t.string "code", null: false
@@ -403,6 +410,12 @@ ActiveRecord::Schema.define(version: 2020_08_13_152438) do
     t.index ["person_id"], name: "fk_rails_fe9ce0813a"
   end
 
+  create_table "outo", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "person_id"
+    t.bigint "concept_id"
+    t.index ["person_id"], name: "person_id"
+  end
+
   create_table "patient_histories", primary_key: "history_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id"
     t.bigint "concept_id"
@@ -436,6 +449,8 @@ ActiveRecord::Schema.define(version: 2020_08_13_152438) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["death_date"], name: "death_date"
+    t.index ["person_id"], name: "person_id"
   end
 
   create_table "person_addresses", primary_key: "person_address_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -629,6 +644,13 @@ ActiveRecord::Schema.define(version: 2020_08_13_152438) do
     t.index ["voided"], name: "voided"
   end
 
+  create_table "soundexes", primary_key: "person_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "first_name"
+    t.string "last_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "symptoms", primary_key: "symptom_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id"
     t.bigint "concept_id"
@@ -697,6 +719,12 @@ ActiveRecord::Schema.define(version: 2020_08_13_152438) do
     t.index ["encounter_id"], name: "fk_rails_27601f1758"
   end
 
+  create_table "weight", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "encounter_id"
+    t.string "WEIGHT"
+    t.index ["encounter_id"], name: "encounter_id"
+  end
+
   add_foreign_key "appointments", "encounters", primary_key: "encounter_id"
   add_foreign_key "breastfeeding_statuses", "encounters", primary_key: "encounter_id"
   add_foreign_key "breastfeeding_statuses", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
@@ -750,6 +778,7 @@ ActiveRecord::Schema.define(version: 2020_08_13_152438) do
   add_foreign_key "side_effects_has_medication_prescriptions", "medication_prescriptions", primary_key: "medication_prescription_id"
   add_foreign_key "side_effects_has_medication_prescriptions", "side_effects", primary_key: "side_effect_id"
   add_foreign_key "sites", "site_types", primary_key: "site_type_id"
+  add_foreign_key "soundexes", "people", primary_key: "person_id"
   add_foreign_key "symptoms", "encounters", primary_key: "encounter_id"
   add_foreign_key "symptoms", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "tb_statuses", "encounters", primary_key: "encounter_id"
