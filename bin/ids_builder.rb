@@ -41,36 +41,7 @@ QUERY
   rds_people
 end
 
-def get_rds_person_name(person_id)
-  last_updated = get_last_updated('PersonName')
-  person_name = []
-  rds_person_name = ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.person_name where person_id = #{person_id} ORDER BY updated_at ;
-QUERY
-  rds_person_name.each { |name| person_name << name }
-end
 
-def get_rds_person_addresses(person_id)
-  last_updated = get_last_updated('PersonAddress')
-  person_address = []
-  rds_address = ActiveRecord::Base.connection.select_all <<QUERY
-	SELECT * FROM #{@rds_db}.person_address where person_id = #{person_id} ORDER BY updated_at;
-QUERY
-
-  rds_address.each { |address| person_address << address }
-end
-
-def get_rds_person_attributes
-  last_updated = get_last_updated('PersonAttribute')
-  person_attribute = []
-  rds_attribute = ActiveRecord::Base.connection.select_all <<~SQL
-  	SELECT * FROM #{@rds_db}.person_attribute WHERE (person_attribute_type_id IN (12,14,15)
-  	AND updated_at >= '#{last_updated}' AND voided = 0)
-    OR person_id IN #{load_error_records('person_attribute')} ORDER by updated_at;
-  SQL
-
-  rds_attribute.each { |attribute| person_attribute << attribute }
-end
 
 def get_rds_users
   if @last_updated.include?('Users')
@@ -84,71 +55,6 @@ def get_rds_users
 	order by updated_at;
 
 QUERY
-end
-
-def find_duplicates(deduplicator_id,subject, subject_person_id)
-    ActiveRecord::Base.connection.select_all <<~SQL
-    			SELECT person_id, ROUND(CAST((((length("#{subject}") - 
-          damlev(person_de_duplicator,"#{subject}"))/ length("#{subject}")) * 100) AS DECIMAL),2)
-     as score FROM de_duplicators WHERE de_duplicator_id > #{deduplicator_id.to_i} HAVING score >= #{@threshold};
-    SQL
-end
-
-def process_duplicates(duplicates, duplicate_id)
-
-  duplicates.each do |duplicate|
-      next if PotentialDuplicate.find_by(person_id_a: duplicate_id, person_id_b: duplicate['person_id']).present?       
-      # save to duplicate_statuses
-      PotentialDuplicate.create(person_id_a: duplicate_id, person_id_b: duplicate['person_id'], score: duplicate['score'].to_f)
-  end
-end
-
-def check_for_duplicate(demographics)
-  duplicates = find_duplicates(demographics['de_duplicator_id'],demographics['person_de_duplicator'], demographics['person_id'])
-  process_duplicates(duplicates, demographics['person_id']) unless duplicates.blank?
-end
-
-def ids_populate_de_duplicators(person)
-  demographics = {}
-  demographics = { "person": person }
-  demographics.update("person_names": get_rds_person_name(person['person_id']))
-  demographics.update("person_address": get_rds_person_addresses(person['person_id']))
-
-  begin
-    subject = ''
-    subject += (demographics[:person_names][0]['given_name'] || '')
-    subject << demographics[:person_names][0]['family_name'] rescue  ''
-    subject <<  demographics[:person]['gender'] rescue  nil
-    subject <<  demographics[:person]['birthdate'].strftime('%Y-%m-%d').gsub('-', '') rescue ''
-    subject <<  demographics[:person_address][0]['address2'] rescue  ''
-    subject <<  demographics[:person_address][0]['county_district'] rescue  ''
-    subject <<  demographics[:person_address][0]['neighborhood_cell'] rescue  ''
-  rescue StandardError => e
-    File.write('log/app_errors.log', e,  mode: 'a')
-  end
- 
-  return if subject.blank?
-
-  begin
-    subject.downcase!.gsub!(/[[:space:]]/, '')
-  rescue StandardError
-    return
-  end
-
-  person_present = DeDuplicator.find_by(
-    person_id: demographics[:person]['person_id']
-  )
-
-  if person_present.blank?
-    begin
-      DeDuplicator.create(person_id: demographics[:person]['person_id'],
-                          person_de_duplicator: subject)
-    rescue StandardError => e
-      File.write('log/app_errors.log', e,  mode: 'a')
-    end
-  else
-    person_present.update(person_de_duplicator: subject)
-  end
 end
 
 def populate_people
@@ -174,31 +80,6 @@ def update_last_update(model, timestamp)
     end
   rescue RedisMutex::LockError
     retry
-  end
-end
-
-def initiate_de_duplication
-  last_updated = get_last_updated('DeDuplicators')
-
-#Populate Duplicators
-  query = "SELECT * FROM #{@rds_db}.person
-           WHERE updated_at >= '#{last_updated}'
-           ORDER BY updated_at "
-  fetch_data_P(query, 'ids_populate_de_duplicators', 'DeDuplicators')
-
-#Run Deduplication
-  last_updated = get_last_updated('DeDuplication')
-  # query = <<~SQL
-  #   SELECT * FROM de_duplicators ORDER BY updated_at
-  # SQL
-
-  # fetch_data_P(query, 'check_for_duplicate', 'DeDuplication')
-  count = DeDuplicator.where("updated_at >= '#{last_updated}'").count
-  #$processed = []
-  DeDuplicator.where("updated_at >= '#{last_updated}'").order(:de_duplicator_id).each.with_index do |person,i|
-    print "processing #{i+1} / #{count} \r"
-    check_for_duplicate(person)
-    update_last_update('DeDuplication', person['updated_at'])
   end
 end
 
@@ -1056,8 +937,7 @@ def methods_init
 Parallel.each(tables2) do | table|
   send(table)
 end
-    populate_lab_test_results
-    initiate_de_duplication
+    populate_lab_test_results    
     populate_de_identifier
 
    FileUtils.rm '/tmp/ids_builder.lock' if File.file?('/tmp/ids_builder.lock')

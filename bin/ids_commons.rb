@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "damerau-levenshtein"
+
 def person_has_type(type_id, person)
   case type_id
   when 1
@@ -138,4 +140,21 @@ def update_record(concept_id, value_coded, record, update)
       void_reason: update['void_reason'],
       app_date_created: update['date_created'],
       app_date_updated: update['date_changed'])
+end
+
+def calculate_similarity_score(string_A,string_B)
+    #Calulating % Similarity using the formula %RSD = (SD/max_ed)%
+    #Where SD = Max(length(A),Length(B)) - Edit Distance
+
+    ed = DamerauLevenshtein.distance(string_A,string_B)
+
+    if string_A.size >= string_B.size
+      max_ed = string_A.size
+    else 
+      max_ed = string_B.size
+    end
+
+    sd = max_ed - ed
+
+    score = (sd/max_ed.to_f) * 100
 end
