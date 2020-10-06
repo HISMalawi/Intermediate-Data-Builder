@@ -3,23 +3,16 @@ require_relative 'ids_commons'
 require_relative 'populate_soundex'
 
 @threshold = 85
+@batch_size = 1_000
 @rds_db = YAML.load_file("#{Rails.root}/config/database.yml")['rds']['database']
 
 
 def initiate_de_duplication
 #last_updated = get_last_updated('DeDuplicators')
 #Populate Duplicators
-  # query = "SELECT * FROM #{@rds_db}.person
-  #          ORDER BY updated_at "
-  # fetch_data_P(query, 'ids_populate_de_duplicators', 'DeDuplicators')
-
-  records = ActiveRecord::Base.connection.select_all <<~SQL 
-            SELECT * FROM #{@rds_db}.person
-            ORDER BY updated_at
-          SQL
-  Parallel.each(records, progress: "Loading DeDuplicators") do |duplicator|
-    ids_populate_de_duplicators(duplicator)
-  end
+  query = "SELECT * FROM #{@rds_db}.person
+           ORDER BY updated_at "
+  fetch_data_P(query, 'ids_populate_de_duplicators', 'DeDuplicators')
 
  #Populate soundex
  puts 'Populating soundex values'

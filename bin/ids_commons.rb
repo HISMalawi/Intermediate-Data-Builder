@@ -37,6 +37,25 @@ def person_has_type(type_id, person)
   end
 end
 
+def update_last_update(model, timestamp)
+  begin
+    RedisClassy.redis = Redis.new
+    RedisMutex.with_lock(:update_lastest_timestamp) do
+      current_update_date = YAML.load_file("#{Rails.root}/log/last_update.yml") || {}
+      current_update_date[model] = begin
+        timestamp.strftime('%Y-%m-%d %H:%M:%S')
+                                   rescue StandardError
+                                     nil
+      end
+      File.open('log/last_update.yml', 'w') do |file|
+        file.write current_update_date.to_yaml
+      end
+    end
+  rescue RedisMutex::LockError
+    retry
+  end
+end
+
 def fetch_data_P(query, method, model)
   offset = 0
   begin
