@@ -37,6 +37,18 @@ def person_has_type(type_id, person)
   end
 end
 
+def get_last_updated(model)
+  if @last_updated
+    if @last_updated.include?(model)
+      @last_updated[model].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated[model]
+    else
+      last_updated = '1900-01-01 00:00:00'
+    end
+  else
+    last_updated = '1900-01-01 00:00:00'
+  end
+end
+
 def update_last_update(model, timestamp)
   begin
     RedisClassy.redis = Redis.new
