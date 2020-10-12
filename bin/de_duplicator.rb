@@ -32,9 +32,6 @@ end
 
 def check_for_duplicate(demographics)
   soundex_codes = Soundex.where(person_id: demographics['person_id'])
-  puts demographics.inspect
-  puts soundex_codes.empty?
-  puts soundex_codes.inspect
 
   unless soundex_codes.empty?
     potential_duplicates = DeDuplicator.joins(:soundex).where(soundexes: {first_name: soundex_codes.first['first_name'],
