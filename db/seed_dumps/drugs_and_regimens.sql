@@ -15,7 +15,7 @@
 -- Dumping data for table `arv_drugs`
 --
 
-LOCK TABLES `arv_drugs` WRITE;
+#LOCK TABLES `arv_drugs` WRITE;
 /*!40000 ALTER TABLE `arv_drugs` DISABLE KEYS */;
 
 INSERT INTO arv_drugs(drug_id)
