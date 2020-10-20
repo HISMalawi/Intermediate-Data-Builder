@@ -8,7 +8,7 @@ elsif Time.now.end_of_quarter == Time.now
 end
 
 ActiveRecord::Base.connection.execute <<~SQL
-  DROP TABLE IF EXISTS pdi_regimen;
+  DROP TABLE IF EXISTS pbi_regimen;
 SQL
 
 ActiveRecord::Base.connection.execute <<~SQL
