@@ -166,8 +166,8 @@ while start_date.to_date != end_date.to_date do
 			3107,
 			20805,
 			2895)
-		group by
-			e.person_id;
+		GROUP BY
+			e.person_id LOCK IN SHARE MODE;
     SQL
     start_date = (start_date.to_date + 3.months).strftime('%Y-%m-%d')
 end
