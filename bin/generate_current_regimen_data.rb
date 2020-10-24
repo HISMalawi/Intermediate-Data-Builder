@@ -161,7 +161,7 @@ ActiveRecord::Base.connection.execute <<~SQL
 SQL
 
 sql = "CREATE TABLE pbi_regimen (
-		id bigint unsigned auto_increment,
+		id bigint unsigned auto_increment primary key,
 		person_id bigint,
 		gender CHAR(1),
 		birthdate date,
@@ -170,16 +170,16 @@ sql = "CREATE TABLE pbi_regimen (
 		site_name varchar(255),
 		district varchar(255), 
 		region varchar(50),
-		created_at datetime,
-		PRIMARY KEY (id,last_visit))
-		PARTITION BY RANGE (YEAR(last_visit))( \n"
+		created_at datetime)"
+		# PRIMARY KEY (id,last_visit))
+		# PARTITION BY RANGE (YEAR(last_visit))( \n"
 
-puts 'Create Dynamic Table Partitions'
-for i in 2000..Time.now.year do
-	sql << "PARTITION p#{i} VALUES LESS THAN (#{i}), \n"
-	i += 1
-end
-  sql << 'PARTITION pMax VALUES LESS THAN MAXVALUE);'
+# puts 'Create Dynamic Table Partitions'
+# for i in 2000..Time.now.year do
+# 	sql << "PARTITION p#{i} VALUES LESS THAN (#{i}), \n"
+# 	i += 1
+# end
+#   sql << 'PARTITION pMax VALUES LESS THAN MAXVALUE);'
 
 ActiveRecord::Base.connection.execute <<~SQL
   #{sql}
