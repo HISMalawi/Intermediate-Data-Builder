@@ -1,6 +1,6 @@
 class CreateIdentifiers < ActiveRecord::Migration[5.2]
   def change
-    create_table :identifiers, primary_key: :patient_identifier_id do |t|
+    create_table :identifiers, primary_key: :patient_identifier_id, id: false do |t|
      t.bigint :patient_identifier_id, null: false
      t.bigint :person_id, null: false
      t.string :identifier, null: false
