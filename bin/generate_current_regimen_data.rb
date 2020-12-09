@@ -16,7 +16,7 @@ def create_mp3_tmp_table
     SQL
 
     ActiveRecord::Base.connection.execute <<~SQL
-      ALTER TEMPORARY TABLE mp3 add index(medication_prescription_id);
+      ALTER TABLE mp3 add index(medication_prescription_id);
     SQL
 end
 
@@ -37,7 +37,7 @@ def create_tmp_drug_table
 	SQL
 
 	ActiveRecord::Base.connection.execute <<~SQL
-	  ALTER TEMPORARY TABLE drug add index(master_definition_id);
+	  ALTER TABLE drug add index(master_definition_id);
 	SQL
 
 end
@@ -71,7 +71,7 @@ def create_tmp_mp4_table(start_date)
     SQL
   
     ActiveRecord::Base.connection.execute <<~SQL
-       ALTER TEMPORARY TABLE mp4 add index(med_presc_id);
+       ALTER TABLE mp4 add index(med_presc_id);
     SQL
 end
 
@@ -95,7 +95,7 @@ def create_tmp_o6_table(start_date)
     SQL
 
     ActiveRecord::Base.connection.execute <<~SQL
-       ALTER TEMPORARY TABLE o6 add index(max_start_date,person_id);
+       ALTER TABLE o6 add index(max_start_date,person_id);
     SQL
 end
 
@@ -122,7 +122,7 @@ def create_tmp_o3_table(start_date)
     SQL
 
     ActiveRecord::Base.connection.execute <<~SQL
-       ALTER TEMPORARY TABLE o3 add index(max_outcome_id);
+       ALTER TABLE o3 add index(max_outcome_id);
     SQL
 end
 
@@ -148,7 +148,7 @@ def create_tmp_o4_table(start_date)
     SQL
 
     ActiveRecord::Base.connection.execute <<~SQL
-       ALTER TEMPORARY TABLE o4 add index(person_id,concept_id,outcome_source);
+       ALTER TABLE o4 add index(person_id,concept_id,outcome_source);
     SQL
 end
 
@@ -181,7 +181,7 @@ def create_tmp_mp_table(start_date)
 	 end
 
     ActiveRecord::Base.connection.execute <<~SQL
-       ALTER TEMPORARY TABLE mp add index(encounter_id);
+       ALTER TABLE mp add index(encounter_id);
     SQL
     
     unless ActiveRecord::Base.connection.execute("SHOW index FROM master_definitions WHERE Key_name = 'openmrs_metadata_id';")
@@ -246,11 +246,11 @@ def populate_regimen(start_date)
 			JOIN master_definitions mad ON
 				e.program_id = mad.master_definition_id
 				AND mad.openmrs_entity_name = 'program'
-			-- JOIN locations l on
-			--	s.parent_district = l.location_id
-			-- JOIN master_definitions mdf on
-			--	l.parent_location = mdf.openmrs_metadata_id
-			--	AND mdf.openmrs_entity_name = 'district_region_mapping'
+			JOIN locations l on
+				s.parent_district = l.location_id
+			JOIN master_definitions mdf on
+				l.parent_location = mdf.openmrs_metadata_id
+			AND mdf.openmrs_entity_name = 'district_region_mapping'
 			WHERE
 				mad.master_definition_id = 1
 				AND DATE(mp.start_date) BETWEEN '#{start_date.to_date.beginning_of_quarter}' 
