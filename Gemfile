@@ -8,6 +8,8 @@ gem 'rails', '~> 5.2.3'
 
 gem 'rest-client'
 
+gem 'pg'
+
 #Parallelism
 gem 'parallel'
 gem 'ruby-progressbar'

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_24_090816) do
+ActiveRecord::Schema.define(version: 2020_11_04_065211) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -81,7 +81,7 @@ ActiveRecord::Schema.define(version: 2020_09_24_090816) do
     t.string "person_de_duplicator", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["person_de_duplicator"], name: "person_de_duplicator", type: :fulltext
+    t.index ["person_de_duplicator"], name: "index_de_duplicators_on_person_de_duplicator", type: :fulltext
     t.index ["person_id"], name: "fk_rails_9a0d823cf4"
   end
 
@@ -96,7 +96,6 @@ ActiveRecord::Schema.define(version: 2020_09_24_090816) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["identifier"], name: "index_de_identified_identifiers_on_identifier", unique: true
     t.index ["person_id"], name: "fk_rails_a018965096"
   end
 
@@ -125,7 +124,7 @@ ActiveRecord::Schema.define(version: 2020_09_24_090816) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "encounters", primary_key: "encounter_id", id: :bigint, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "encounters", primary_key: "encounter_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_type_id", null: false
     t.bigint "program_id"
     t.bigint "person_id"
@@ -139,17 +138,16 @@ ActiveRecord::Schema.define(version: 2020_09_24_090816) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["encounter_id"], name: "encounter_id", unique: true
     t.index ["encounter_type_id"], name: "fk_rails_cf33a2decd"
-    t.index ["person_id"], name: "person_id"
+    t.index ["person_id"], name: "fk_rails_8f2e31923b"
     t.index ["program_id"], name: "fk_rails_a13406b5c0"
-    t.index ["voided"], name: "voided"
   end
 
   create_table "failed_record_types", primary_key: "failed_record_type_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.text "name", null: false
+    t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_failed_record_types_on_name", type: :fulltext
   end
 
   create_table "failed_records", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -232,6 +230,22 @@ ActiveRecord::Schema.define(version: 2020_09_24_090816) do
     t.index ["encounter_id"], name: "fk_rails_5ee68dbcad"
   end
 
+  create_table "identifiers", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "patient_identifier_id", null: false
+    t.bigint "person_id", null: false
+    t.string "identifier", null: false
+    t.integer "identifier_type", null: false
+    t.bigint "creator", null: false
+    t.boolean "voided", default: false, null: false
+    t.bigint "voided_by"
+    t.datetime "voided_date"
+    t.string "void_reason"
+    t.datetime "app_date_created"
+    t.datetime "app_date_updated"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "lab_orders", primary_key: "lab_order_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "tracking_number"
     t.datetime "order_date"
@@ -251,6 +265,7 @@ ActiveRecord::Schema.define(version: 2020_09_24_090816) do
   create_table "lab_test_results", primary_key: "test_result_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "lab_order_id", null: false
     t.string "results_test_facility", null: false
+    t.string "sending_facility"
     t.string "test_type", null: false
     t.string "sample_type"
     t.string "test_measure"
@@ -264,15 +279,7 @@ ActiveRecord::Schema.define(version: 2020_09_24_090816) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "sending_facility"
     t.index ["lab_order_id"], name: "fk_rails_c4c5f50f57"
-  end
-
-  create_table "latest_en", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.bigint "person_id"
-    t.datetime "latest_visit_date"
-    t.index ["latest_visit_date"], name: "latest_visit_date"
-    t.index ["person_id"], name: "person_id"
   end
 
   create_table "locations", primary_key: "location_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -300,6 +307,8 @@ ActiveRecord::Schema.define(version: 2020_09_24_090816) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["openmrs_entity_name"], name: "index_master_definitions_on_openmrs_entity_name", type: :fulltext
+    t.index ["openmrs_metadata_id"], name: "index_master_definitions_on_openmrs_metadata_id"
   end
 
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -410,12 +419,6 @@ ActiveRecord::Schema.define(version: 2020_09_24_090816) do
     t.index ["person_id"], name: "fk_rails_fe9ce0813a"
   end
 
-  create_table "outo", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.bigint "person_id"
-    t.bigint "concept_id"
-    t.index ["person_id"], name: "person_id"
-  end
-
   create_table "patient_histories", primary_key: "history_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id"
     t.bigint "concept_id"
@@ -449,8 +452,6 @@ ActiveRecord::Schema.define(version: 2020_09_24_090816) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["death_date"], name: "death_date"
-    t.index ["person_id"], name: "person_id"
   end
 
   create_table "person_addresses", primary_key: "person_address_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -480,8 +481,8 @@ ActiveRecord::Schema.define(version: 2020_09_24_090816) do
     t.bigint "person_type_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["person_id"], name: "person_id"
-    t.index ["person_type_id"], name: "person_type_id"
+    t.index ["person_id"], name: "fk_rails_282ec6b71b"
+    t.index ["person_type_id"], name: "fk_rails_7858ca9698"
   end
 
   create_table "person_names", primary_key: "person_name_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -639,9 +640,7 @@ ActiveRecord::Schema.define(version: 2020_09_24_090816) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "site_code"
-    t.integer "parent_district"
     t.index ["site_type_id"], name: "fk_rails_e9088cf59b"
-    t.index ["voided"], name: "voided"
   end
 
   create_table "soundexes", primary_key: "person_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -717,12 +716,6 @@ ActiveRecord::Schema.define(version: 2020_09_24_090816) do
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_49a56b35f0"
     t.index ["encounter_id"], name: "fk_rails_27601f1758"
-  end
-
-  create_table "weight", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.bigint "encounter_id"
-    t.string "WEIGHT"
-    t.index ["encounter_id"], name: "encounter_id"
   end
 
   add_foreign_key "appointments", "encounters", primary_key: "encounter_id"
