@@ -223,8 +223,8 @@ def populate_regimen(start_date)
 				max(e.visit_date) as last_visit,
 				mr.regimen,
 				s.site_name,
-				NULL, -- l.name AS district, 
-				NULL, -- mdf.definition AS region,
+				l.name AS district, 
+				mdf.definition AS region,
 				now()
 			FROM
 				mp 
@@ -256,7 +256,7 @@ def populate_regimen(start_date)
 				AND DATE(mp.start_date) BETWEEN '#{start_date.to_date.beginning_of_quarter}' 
 				AND '#{start_date.to_date.end_of_quarter}'
 				AND md.voided = '0'
-				-- and mp.voided = '0'
+				AND mp.voided = '0'
 				AND e.voided = '0'
 				AND mphr.voided = '0'
 				AND mr.voided = '0'
