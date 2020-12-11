@@ -256,7 +256,7 @@ def populate_regimen(start_date)
 				AND DATE(mp.start_date) BETWEEN '#{start_date.to_date.beginning_of_quarter}' 
 				AND '#{start_date.to_date.end_of_quarter}'
 				AND md.voided = '0'
-				AND mp.voided = '0'
+				 -- AND mp.voided = '0'
 				AND e.voided = '0'
 				AND mphr.voided = '0'
 				AND mr.voided = '0'
