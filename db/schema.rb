@@ -28,6 +28,19 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
     t.index ["encounter_id"], name: "fk_rails_20191c09ff"
   end
 
+  create_table "art_op_sep_20", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "site_name"
+    t.bigint "7A", default: 0, null: false
+    t.bigint "8A", default: 0, null: false
+    t.bigint "9A", default: 0, null: false
+    t.bigint "10A", default: 0, null: false
+    t.bigint "11A", default: 0, null: false
+    t.bigint "12A", default: 0, null: false
+    t.bigint "13A", default: 0, null: false
+    t.bigint "14A", default: 0, null: false
+    t.bigint "15A", default: 0, null: false
+  end
+
   create_table "arv_drugs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "drug_id"
     t.datetime "created_at", null: false
@@ -101,7 +114,7 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
 
   create_table "diagnosis", primary_key: "diagnosis_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id"
-    t.bigint "primary_diagnosis"
+    t.bigint "diagnosis"
     t.bigint "secondary_diagnosis"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
@@ -112,8 +125,8 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["diagnosis"], name: "fk_rails_0a7dc9fd37"
     t.index ["encounter_id"], name: "fk_rails_8d8afe9ece"
-    t.index ["primary_diagnosis"], name: "fk_rails_0a7dc9fd37"
     t.index ["secondary_diagnosis"], name: "fk_rails_2ae6eb8b86"
   end
 
@@ -144,10 +157,9 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
   end
 
   create_table "failed_record_types", primary_key: "failed_record_type_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.string "name", null: false
+    t.text "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_failed_record_types_on_name", type: :fulltext
   end
 
   create_table "failed_records", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -307,8 +319,6 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["openmrs_entity_name"], name: "index_master_definitions_on_openmrs_entity_name", type: :fulltext
-    t.index ["openmrs_metadata_id"], name: "index_master_definitions_on_openmrs_metadata_id"
   end
 
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -338,7 +348,50 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["medication_prescription_id"], name: "fk_rails_51fd85fc50"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_2"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_21"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_22"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_23"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_24"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_25"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_26"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_28"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_29"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_3"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_30"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_31"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_32"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_33"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_34"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_35"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_36"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_37"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_38"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_39"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_40"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_41"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_42"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_43"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_44"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_45"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_46"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_47"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_48"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_49"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_50"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_51"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_52"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_53"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_54"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_55"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_56"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_57"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_58"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_59"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_60"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_61"
+    t.index ["medication_prescription_id"], name: "medication_prescription_id_62"
   end
 
   create_table "medication_prescription_has_medication_regimen", primary_key: "medication_prescription_has_medication_regimen_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -382,6 +435,58 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "nnrti_2020_q3", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "Deidentified identifier"
+    t.string "Patient District"
+    t.string "Gender", limit: 1, default: "", null: false
+    t.date "DOB"
+    t.boolean "Estimated DOB"
+    t.date "Date of Death"
+    t.bigint "Encounter ID", default: 0, null: false
+    t.bigint "Type of encounter", null: false
+    t.string "Type of encounter definition"
+    t.text "Type of encounter description"
+    t.datetime "Date of encounter"
+    t.bigint "Drug prescribed ID"
+    t.string "Drug prescribed description"
+    t.datetime "Drug start date"
+    t.datetime "Drug end date"
+    t.string "Drug Instructions"
+    t.bigint "Regimen prescribed ID"
+    t.string "Regimen prescribed description"
+    t.float "Drug quantity dispensed"
+    t.string "Outcome"
+    t.string "Site"
+    t.string "is_patient_pregnant"
+    t.string "weight"
+  end
+
+  create_table "nnrti_q3", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "Deidentified identifier"
+    t.string "Patient District"
+    t.string "Gender", limit: 1, default: "", null: false
+    t.date "DOB"
+    t.boolean "Estimated DOB"
+    t.date "Date of Death"
+    t.bigint "Encounter ID", default: 0, null: false
+    t.bigint "Type of encounter", null: false
+    t.string "Type of encounter definition"
+    t.text "Type of encounter description"
+    t.datetime "Date of encounter"
+    t.bigint "Drug prescribed ID"
+    t.string "Drug prescribed description"
+    t.datetime "Drug start date"
+    t.datetime "Drug end date"
+    t.string "Drug Instructions"
+    t.bigint "Regimen prescribed ID"
+    t.string "Regimen prescribed description"
+    t.float "Drug quantity dispensed"
+    t.string "Outcome"
+    t.string "Site"
+    t.string "is_patient_pregnant"
+    t.string "weight"
   end
 
   create_table "occupations", primary_key: "occupation_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -434,6 +539,18 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
     t.datetime "updated_at", null: false
     t.index ["concept_id"], name: "fk_rails_b9e7ab44d4"
     t.index ["encounter_id"], name: "fk_rails_67120a30d2"
+  end
+
+  create_table "pbi_regimen", id: :bigint, unsigned: true, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "person_id"
+    t.string "gender", limit: 1
+    t.date "birthdate"
+    t.datetime "last_visit"
+    t.string "regimen", limit: 50
+    t.string "site_name"
+    t.string "district"
+    t.string "region", limit: 50
+    t.datetime "created_at"
   end
 
   create_table "people", primary_key: "person_id", id: :bigint, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -640,7 +757,9 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "site_code"
+    t.integer "parent_district"
     t.index ["site_type_id"], name: "fk_rails_e9088cf59b"
+    t.index ["voided"], name: "voided"
   end
 
   create_table "soundexes", primary_key: "person_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -681,6 +800,114 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["encounter_id"], name: "fk_rails_e6659727a6"
+  end
+
+  create_table "temp_earliest_start_date", primary_key: ["patient_id", "date_enrolled"], options: "ENGINE=InnoDB DEFAULT CHARSET=utf8\n/*!50100 PARTITION BY HASH (YEAR(date_enrolled))\nPARTITIONS 12 */", force: :cascade do |t|
+    t.bigint "patient_id", null: false
+    t.date "date_enrolled", null: false
+    t.datetime "earliest_start_date"
+    t.date "birthdate"
+    t.boolean "birthdate_estimated"
+    t.date "death_date"
+    t.string "gender", limit: 32
+    t.integer "age_at_initiation"
+    t.integer "age_in_days"
+  end
+
+  create_table "tmp_2nd_line_art_op_dec_20", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "site_name"
+    t.bigint "7A", default: 0, null: false
+    t.bigint "8A", default: 0, null: false
+    t.bigint "9A", default: 0, null: false
+    t.bigint "10A", default: 0, null: false
+    t.bigint "11A", default: 0, null: false
+    t.bigint "12A", default: 0, null: false
+    t.bigint "13A", default: 0, null: false
+    t.bigint "14A", default: 0, null: false
+    t.bigint "15A", default: 0, null: false
+    t.index ["site_name"], name: "site_name"
+  end
+
+  create_table "tmp_2nd_line_art_op_nov_20", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "site_name"
+    t.bigint "7A", default: 0, null: false
+    t.bigint "8A", default: 0, null: false
+    t.bigint "9A", default: 0, null: false
+    t.bigint "10A", default: 0, null: false
+    t.bigint "11A", default: 0, null: false
+    t.bigint "12A", default: 0, null: false
+    t.bigint "13A", default: 0, null: false
+    t.bigint "14A", default: 0, null: false
+    t.bigint "15A", default: 0, null: false
+    t.index ["site_name"], name: "site_name"
+  end
+
+  create_table "tmp_2nd_line_art_op_oct_20", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "site_name"
+    t.bigint "7A", default: 0, null: false
+    t.bigint "8A", default: 0, null: false
+    t.bigint "9A", default: 0, null: false
+    t.bigint "10A", default: 0, null: false
+    t.bigint "11A", default: 0, null: false
+    t.bigint "12A", default: 0, null: false
+    t.bigint "13A", default: 0, null: false
+    t.bigint "14A", default: 0, null: false
+    t.bigint "15A", default: 0, null: false
+    t.index ["site_name"], name: "site_name"
+  end
+
+  create_table "tmp_2nd_line_art_op_sep_20", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "site_name"
+    t.bigint "7A", default: 0, null: false
+    t.bigint "8A", default: 0, null: false
+    t.bigint "9A", default: 0, null: false
+    t.bigint "10A", default: 0, null: false
+    t.bigint "11A", default: 0, null: false
+    t.bigint "12A", default: 0, null: false
+    t.bigint "13A", default: 0, null: false
+    t.bigint "14A", default: 0, null: false
+    t.bigint "15A", default: 0, null: false
+    t.index ["site_name"], name: "site_name"
+  end
+
+  create_table "tmp_art_2ndline_optimisation", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "site_name"
+    t.bigint "sep_7A", default: 0, null: false
+    t.bigint "sep_8A", default: 0, null: false
+    t.bigint "sep_9A", default: 0, null: false
+    t.bigint "sep_10A", default: 0, null: false
+    t.bigint "sep_11A", default: 0, null: false
+    t.bigint "sep_12A", default: 0, null: false
+    t.bigint "sep_13A", default: 0, null: false
+    t.bigint "sep_14A", default: 0, null: false
+    t.bigint "sep_15A", default: 0, null: false
+    t.bigint "oct_7A", default: 0, null: false
+    t.bigint "oct_8A", default: 0, null: false
+    t.bigint "oct_9A", default: 0, null: false
+    t.bigint "oct_10A", default: 0, null: false
+    t.bigint "oct_11A", default: 0, null: false
+    t.bigint "oct_12A", default: 0, null: false
+    t.bigint "oct_13A", default: 0, null: false
+    t.bigint "oct_14A", default: 0, null: false
+    t.bigint "oct_15A", default: 0, null: false
+    t.bigint "nov_7A", default: 0, null: false
+    t.bigint "nov_8A", default: 0, null: false
+    t.bigint "nov_9A", default: 0, null: false
+    t.bigint "nov_10A", default: 0, null: false
+    t.bigint "nov_11A", default: 0, null: false
+    t.bigint "nov_12A", default: 0, null: false
+    t.bigint "nov_13A", default: 0, null: false
+    t.bigint "nov_14A", default: 0, null: false
+    t.bigint "nov_15A", default: 0, null: false
+    t.bigint "dec_7A", default: 0, null: false
+    t.bigint "dec_8A", default: 0, null: false
+    t.bigint "dec_9A", default: 0, null: false
+    t.bigint "dec_10A", default: 0, null: false
+    t.bigint "dec_11A", default: 0, null: false
+    t.bigint "dec_12A", default: 0, null: false
+    t.bigint "dec_13A", default: 0, null: false
+    t.bigint "dec_14A", default: 0, null: false
+    t.bigint "dec_15A", default: 0, null: false
   end
 
   create_table "users", primary_key: "user_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -725,7 +952,7 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
   add_foreign_key "de_duplicators", "people", primary_key: "person_id"
   add_foreign_key "de_identified_identifiers", "people", primary_key: "person_id"
   add_foreign_key "diagnosis", "encounters", primary_key: "encounter_id"
-  add_foreign_key "diagnosis", "master_definitions", column: "primary_diagnosis", primary_key: "master_definition_id"
+  add_foreign_key "diagnosis", "master_definitions", column: "diagnosis", primary_key: "master_definition_id"
   add_foreign_key "diagnosis", "master_definitions", column: "secondary_diagnosis", primary_key: "master_definition_id"
   add_foreign_key "encounters", "master_definitions", column: "encounter_type_id", primary_key: "master_definition_id"
   add_foreign_key "encounters", "master_definitions", column: "program_id", primary_key: "master_definition_id"

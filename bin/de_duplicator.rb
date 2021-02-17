@@ -10,7 +10,8 @@ require_relative 'populate_soundex'
 def initiate_de_duplication
 last_updated = get_last_updated('DeDuplicators')
 #Populate Duplicators
-  query = "SELECT * FROM #{@rds_db}.person
+  query = "SELECT * FROM people WHERE 
+           (created_at >= #{last_updated} OR updated_at >= #{last_updated})
            ORDER BY updated_at"
   fetch_data_P(query, 'ids_populate_de_duplicators', 'DeDuplicators')
 

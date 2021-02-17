@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TbStatusTest < ActiveSupport::TestCase
+class IdentifierTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end
