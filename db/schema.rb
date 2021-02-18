@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_04_065211) do
+ActiveRecord::Schema.define(version: 2021_02_18_135734) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -115,7 +115,7 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
   create_table "diagnosis", primary_key: "diagnosis_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id"
     t.bigint "diagnosis"
-    t.bigint "secondary_diagnosis"
+    t.bigint "diag_type"
     t.boolean "voided", default: false, null: false
     t.bigint "voided_by"
     t.datetime "voided_date"
@@ -125,9 +125,9 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["diag_type"], name: "fk_rails_2ae6eb8b86"
     t.index ["diagnosis"], name: "fk_rails_0a7dc9fd37"
     t.index ["encounter_id"], name: "fk_rails_8d8afe9ece"
-    t.index ["secondary_diagnosis"], name: "fk_rails_2ae6eb8b86"
   end
 
   create_table "duplicate_statuses", primary_key: "duplicate_status_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -767,6 +767,7 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
     t.string "last_name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["last_name", "first_name"], name: "soundex"
   end
 
   create_table "symptoms", primary_key: "symptom_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -952,8 +953,8 @@ ActiveRecord::Schema.define(version: 2020_11_04_065211) do
   add_foreign_key "de_duplicators", "people", primary_key: "person_id"
   add_foreign_key "de_identified_identifiers", "people", primary_key: "person_id"
   add_foreign_key "diagnosis", "encounters", primary_key: "encounter_id"
+  add_foreign_key "diagnosis", "master_definitions", column: "diag_type", primary_key: "master_definition_id"
   add_foreign_key "diagnosis", "master_definitions", column: "diagnosis", primary_key: "master_definition_id"
-  add_foreign_key "diagnosis", "master_definitions", column: "secondary_diagnosis", primary_key: "master_definition_id"
   add_foreign_key "encounters", "master_definitions", column: "encounter_type_id", primary_key: "master_definition_id"
   add_foreign_key "encounters", "master_definitions", column: "program_id", primary_key: "master_definition_id"
   add_foreign_key "encounters", "people", primary_key: "person_id"

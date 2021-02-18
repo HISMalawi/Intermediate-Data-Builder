@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "damerau-levenshtein"
+@last_updated = YAML.load_file('log/last_update.yml')
 
 def person_has_type(type_id, person)
   case type_id
