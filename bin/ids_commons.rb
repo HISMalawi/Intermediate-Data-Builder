@@ -177,6 +177,10 @@ end
 def calculate_similarity_score(string_A,string_B)
     #Calulating % Similarity using the formula %RSD = (SD/max_ed)%
     #Where SD = Max(length(A),Length(B)) - Edit Distance
+    #SD = Similartiy Distance
+    #ed = edit Distance
+    #max_ed = maximum edit distance
+    #RSD  
 
     ed = DamerauLevenshtein.distance(string_A,string_B)
 

@@ -23,8 +23,10 @@ time = Time.now.strftime('%Y-%m-%d %H:%M')
 
 #Run Deduplication
  puts 'Identifiying Potential Duplicates'
-  count = DeDuplicator.where('updated_at >= ? AND updated_at <= ?', last_updated, time).count
   last_updated = get_last_updated('DeDuplication')
+  
+  count = DeDuplicator.where('updated_at >= ? AND updated_at <= ?', last_updated, time).count
+  
   DeDuplicator.where('updated_at >= ? AND updated_at <= ?', last_updated, time).order(:updated_at).find_each.with_index do |person,i|
     print "processing #{i+1} / #{count} \r"
     check_for_duplicate(person)
