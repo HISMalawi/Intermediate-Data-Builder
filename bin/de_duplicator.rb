@@ -16,7 +16,7 @@ time = Time.now.strftime('%Y-%m-%d %H:%M')
            ORDER BY updated_at"
  #Person.all.each { |person| ids_populate_de_duplicators person}
  fetch_data_P(query, 'ids_populate_de_duplicators', 'DeDuplicators')
-
+ 
  #Populate soundex
  puts 'Populating soundex values'
  populate_soundex(get_last_updated('Soundex'),time)
@@ -25,13 +25,22 @@ time = Time.now.strftime('%Y-%m-%d %H:%M')
  puts 'Identifiying Potential Duplicates'
   last_updated = get_last_updated('DeDuplication')
   
-  count = DeDuplicator.where('updated_at >= ? AND updated_at <= ?', last_updated, time).count
-  
-  DeDuplicator.where('updated_at >= ? AND updated_at <= ?', last_updated, time).order(:updated_at).find_each.with_index do |person,i|
-    print "processing #{i+1} / #{count} \r"
+  last_update = DeDuplicator.where('updated_at >= ? AND updated_at <= ?', last_updated, Time.now).maximum(:updated_at)
+
+  Parallel.map(DeDuplicator.where('updated_at >= ? AND updated_at <= ?', last_updated, time).order(:updated_at), 
+    progress: 'Identifiying Potential Duplicates') do |person|
     check_for_duplicate(person)
-    update_last_update('DeDuplication', person['updated_at']) #Update the updated timestamp
   end
+  update_last_update('DeDuplication', last_update) #Update the updated timestamp
+  
+  puts "Cleaning duplicates in potential_duplicates"
+  ActiveRecord::Base.connection.execute <<~SQL
+    DELETE pd FROM potential_duplicates pd
+    JOIN (SELECT * FROM potential_duplicates) pd2 
+    WHERE pd.potential_duplicate_id > pd2.potential_duplicate_id 
+    AND pd.person_id_a = pd2.person_id_b
+    AND pd.person_id_b = pd2.person_id_a;
+  SQL
 end
 
 
@@ -60,7 +69,7 @@ def process_duplicates(duplicates, demographics)
       score = calculate_similarity_score(demographics['person_de_duplicator'],duplicate['person_de_duplicator'])
       if score >= @threshold.to_i
         #Save to duplicate_statuses
-        PotentialDuplicate.create(person_id_a: demographics['person_id'], person_id_b: duplicate['person_id'], score: score)
+        PotentialDuplicate.create!(person_id_a: demographics['person_id'], person_id_b: duplicate['person_id'], score: score)
       end
   end
 end
