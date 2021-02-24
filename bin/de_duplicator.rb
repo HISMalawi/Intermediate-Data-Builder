@@ -6,9 +6,21 @@ require_relative 'populate_soundex'
 @batch_size = 1_000_000
 
 
+def log_stats(process,start_time,records)  
+  DeduplicationStat.create!(process: process,
+                          start_time: start_time,
+                          end_time: Time.now.strftime('%Y-%m-%d %H:%M'),
+                          number_of_records: records)
+end
+
+
 def initiate_de_duplication
 last_updated = get_last_updated('DeDuplicators')
 time = Time.now.strftime('%Y-%m-%d %H:%M')
+
+count = Person.where("updated_at >= '#{last_updated}'
+           AND updated_at <= '#{time}'").count.to_i
+
 #Populate Duplicators
   query = "SELECT * FROM people WHERE 
            (created_at >= '#{last_updated}' OR updated_at >= '#{last_updated}')
@@ -16,15 +28,27 @@ time = Time.now.strftime('%Y-%m-%d %H:%M')
            ORDER BY updated_at"
  #Person.all.each { |person| ids_populate_de_duplicators person}
  fetch_data_P(query, 'ids_populate_de_duplicators', 'DeDuplicators')
- 
+
+  log_stats('populate_duplicators',time,count)
+
+
  #Populate soundex
+  start_time = Time.now.strftime('%Y-%m-%d %H:%M')
+ count = PersonName.where('updated_at >= ? AND updated_at <= ?', last_updated, time).count
+
  puts 'Populating soundex values'
- populate_soundex(get_last_updated('Soundex'),time)
+ populate_soundex(get_last_updated('Soundex'),time,count)
+
+ log_stats('populate_soundex',start_time,count)
+
 
 #Run Deduplication
+ start_time = Time.now.strftime('%Y-%m-%d %H:%M')
  puts 'Identifiying Potential Duplicates'
   last_updated = get_last_updated('DeDuplication')
-  
+
+  count = DeDuplicator.where('updated_at >= ? AND updated_at <= ?', last_updated, Time.now).count
+
   last_update = DeDuplicator.where('updated_at >= ? AND updated_at <= ?', last_updated, Time.now).maximum(:updated_at)
 
   Parallel.map(DeDuplicator.where('updated_at >= ? AND updated_at <= ?', last_updated, time).order(:updated_at), 
@@ -41,6 +65,8 @@ time = Time.now.strftime('%Y-%m-%d %H:%M')
     AND pd.person_id_a = pd2.person_id_b
     AND pd.person_id_b = pd2.person_id_a;
   SQL
+
+  log_stats('deduplication',start_time,count)
 end
 
 

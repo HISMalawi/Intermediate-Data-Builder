@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_18_135734) do
+ActiveRecord::Schema.define(version: 2021_02_22_135506) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -26,19 +26,6 @@ ActiveRecord::Schema.define(version: 2021_02_18_135734) do
     t.datetime "updated_at", null: false
     t.integer "concept_id"
     t.index ["encounter_id"], name: "fk_rails_20191c09ff"
-  end
-
-  create_table "art_op_sep_20", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.string "site_name"
-    t.bigint "7A", default: 0, null: false
-    t.bigint "8A", default: 0, null: false
-    t.bigint "9A", default: 0, null: false
-    t.bigint "10A", default: 0, null: false
-    t.bigint "11A", default: 0, null: false
-    t.bigint "12A", default: 0, null: false
-    t.bigint "13A", default: 0, null: false
-    t.bigint "14A", default: 0, null: false
-    t.bigint "15A", default: 0, null: false
   end
 
   create_table "arv_drugs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -112,6 +99,15 @@ ActiveRecord::Schema.define(version: 2021_02_18_135734) do
     t.index ["person_id"], name: "fk_rails_a018965096"
   end
 
+  create_table "deduplication_stats", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "process"
+    t.datetime "start_time"
+    t.datetime "end_time"
+    t.bigint "number_of_records", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "diagnosis", primary_key: "diagnosis_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id"
     t.bigint "diagnosis"
@@ -154,6 +150,8 @@ ActiveRecord::Schema.define(version: 2021_02_18_135734) do
     t.index ["encounter_type_id"], name: "fk_rails_cf33a2decd"
     t.index ["person_id"], name: "fk_rails_8f2e31923b"
     t.index ["program_id"], name: "fk_rails_a13406b5c0"
+    t.index ["visit_date", "person_id"], name: "visit_date_2"
+    t.index ["visit_date"], name: "visit_date"
   end
 
   create_table "failed_record_types", primary_key: "failed_record_type_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -348,50 +346,7 @@ ActiveRecord::Schema.define(version: 2021_02_18_135734) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["medication_prescription_id"], name: "medication_prescription_id"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_2"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_21"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_22"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_23"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_24"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_25"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_26"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_28"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_29"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_3"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_30"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_31"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_32"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_33"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_34"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_35"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_36"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_37"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_38"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_39"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_40"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_41"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_42"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_43"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_44"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_45"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_46"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_47"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_48"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_49"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_50"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_51"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_52"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_53"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_54"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_55"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_56"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_57"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_58"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_59"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_60"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_61"
-    t.index ["medication_prescription_id"], name: "medication_prescription_id_62"
+    t.index ["medication_prescription_id"], name: "fk_rails_51fd85fc50"
   end
 
   create_table "medication_prescription_has_medication_regimen", primary_key: "medication_prescription_has_medication_regimen_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -435,58 +390,6 @@ ActiveRecord::Schema.define(version: 2021_02_18_135734) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "nnrti_2020_q3", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.string "Deidentified identifier"
-    t.string "Patient District"
-    t.string "Gender", limit: 1, default: "", null: false
-    t.date "DOB"
-    t.boolean "Estimated DOB"
-    t.date "Date of Death"
-    t.bigint "Encounter ID", default: 0, null: false
-    t.bigint "Type of encounter", null: false
-    t.string "Type of encounter definition"
-    t.text "Type of encounter description"
-    t.datetime "Date of encounter"
-    t.bigint "Drug prescribed ID"
-    t.string "Drug prescribed description"
-    t.datetime "Drug start date"
-    t.datetime "Drug end date"
-    t.string "Drug Instructions"
-    t.bigint "Regimen prescribed ID"
-    t.string "Regimen prescribed description"
-    t.float "Drug quantity dispensed"
-    t.string "Outcome"
-    t.string "Site"
-    t.string "is_patient_pregnant"
-    t.string "weight"
-  end
-
-  create_table "nnrti_q3", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.string "Deidentified identifier"
-    t.string "Patient District"
-    t.string "Gender", limit: 1, default: "", null: false
-    t.date "DOB"
-    t.boolean "Estimated DOB"
-    t.date "Date of Death"
-    t.bigint "Encounter ID", default: 0, null: false
-    t.bigint "Type of encounter", null: false
-    t.string "Type of encounter definition"
-    t.text "Type of encounter description"
-    t.datetime "Date of encounter"
-    t.bigint "Drug prescribed ID"
-    t.string "Drug prescribed description"
-    t.datetime "Drug start date"
-    t.datetime "Drug end date"
-    t.string "Drug Instructions"
-    t.bigint "Regimen prescribed ID"
-    t.string "Regimen prescribed description"
-    t.float "Drug quantity dispensed"
-    t.string "Outcome"
-    t.string "Site"
-    t.string "is_patient_pregnant"
-    t.string "weight"
   end
 
   create_table "occupations", primary_key: "occupation_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -692,6 +595,17 @@ ActiveRecord::Schema.define(version: 2021_02_18_135734) do
     t.index ["person_type_id"], name: "fk_rails_b180705c7f"
   end
 
+  create_table "regimen_data", id: :bigint, unsigned: true, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "person_id"
+    t.string "gender", limit: 1
+    t.date "birthdate"
+    t.datetime "last_visit"
+    t.string "regimen", limit: 50
+    t.string "site_name"
+    t.string "district"
+    t.string "region", limit: 50
+  end
+
   create_table "relationships", primary_key: "relationship_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "person_id_a", null: false
     t.bigint "person_id_b", null: false
@@ -803,18 +717,6 @@ ActiveRecord::Schema.define(version: 2021_02_18_135734) do
     t.index ["encounter_id"], name: "fk_rails_e6659727a6"
   end
 
-  create_table "temp_earliest_start_date", primary_key: ["patient_id", "date_enrolled"], options: "ENGINE=InnoDB DEFAULT CHARSET=utf8\n/*!50100 PARTITION BY HASH (YEAR(date_enrolled))\nPARTITIONS 12 */", force: :cascade do |t|
-    t.bigint "patient_id", null: false
-    t.date "date_enrolled", null: false
-    t.datetime "earliest_start_date"
-    t.date "birthdate"
-    t.boolean "birthdate_estimated"
-    t.date "death_date"
-    t.string "gender", limit: 32
-    t.integer "age_at_initiation"
-    t.integer "age_in_days"
-  end
-
   create_table "tmp_2nd_line_art_op_dec_20", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "site_name"
     t.bigint "7A", default: 0, null: false
@@ -871,7 +773,7 @@ ActiveRecord::Schema.define(version: 2021_02_18_135734) do
     t.index ["site_name"], name: "site_name"
   end
 
-  create_table "tmp_art_2ndline_optimisation", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "tmp_art_2ndline_optimisation1", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "site_name"
     t.bigint "sep_7A", default: 0, null: false
     t.bigint "sep_8A", default: 0, null: false
@@ -909,6 +811,38 @@ ActiveRecord::Schema.define(version: 2021_02_18_135734) do
     t.bigint "dec_13A", default: 0, null: false
     t.bigint "dec_14A", default: 0, null: false
     t.bigint "dec_15A", default: 0, null: false
+  end
+
+  create_table "tmp_dis_pple_reg_month", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "site_name"
+    t.bigint "person_id"
+    t.string "regimen"
+    t.index ["regimen", "site_name"], name: "regimen"
+  end
+
+  create_table "tmp_drug", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "master_definition_id", default: 0, null: false
+  end
+
+  create_table "tmp_mp3", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "medication_prescription_id", default: 0, null: false
+    t.bigint "person_id"
+    t.datetime "start_date"
+    t.datetime "end_date"
+    t.bigint "encounter_id"
+    t.index ["person_id", "medication_prescription_id", "end_date"], name: "person_id"
+  end
+
+  create_table "tmp_mp4", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "med_presc_id"
+    t.index ["med_presc_id"], name: "med_presc_id"
+  end
+
+  create_table "tmp_reg", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "site_name"
+    t.string "regimen"
+    t.bigint "count", default: 0, null: false
+    t.index ["regimen", "site_name"], name: "regimen"
   end
 
   create_table "users", primary_key: "user_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
