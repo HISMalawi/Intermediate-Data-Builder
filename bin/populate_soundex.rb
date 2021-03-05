@@ -6,6 +6,8 @@ def populate_soundex(last_updated,current_datetime,count)
 	PersonName.where('updated_at >= ? AND updated_at <= ?', last_updated, current_datetime).each_with_index do |person,i|
 		print "Processing #{i+1} / #{count} \r"
 		next unless DeDuplicator.exists?(person_id: person.person_id) #skip if corresponding duplicator does not exist.
+		debugger
+		next if person.given_name.blank? || person.family_name.blank?
 
 		Soundex.create_with(first_name: person.given_name.soundex,
 							last_name:  person.family_name.soundex).find_or_create_by(person_id: person.person_id)
