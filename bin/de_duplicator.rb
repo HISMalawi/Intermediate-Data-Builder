@@ -6,11 +6,12 @@ require_relative 'populate_soundex'
 @batch_size = 1_000_000
 
 
-def log_stats(process,start_time,records)  
+def log_stats(process,start_time,records,from_update)  
   DeduplicationStat.create!(process: process,
                           start_time: start_time,
                           end_time: Time.now.strftime('%Y-%m-%d %H:%M'),
-                          number_of_records: records)
+                          number_of_records: records,
+                          from_update: from_update)
 end
 
 
@@ -29,7 +30,7 @@ count = Person.where("updated_at >= '#{last_updated}'
  #Person.all.each { |person| ids_populate_de_duplicators person}
  fetch_data_P(query, 'ids_populate_de_duplicators', 'DeDuplicators')
 
-  log_stats('populate_duplicators',time,count)
+  log_stats('populate_duplicators',time,count,last_updated)
 
 
  #Populate soundex
@@ -39,9 +40,9 @@ count = Person.where("updated_at >= '#{last_updated}'
  count = PersonName.where('updated_at >= ? AND updated_at <= ?', last_updated, time).count
 
  puts 'Populating soundex values'
- populate_soundex(get_last_updated('Soundex'),time,count)
+ populate_soundex(last_updated,time,count)
 
- log_stats('populate_soundex',start_time,count)
+ log_stats('populate_soundex',start_time,count,last_updated)
 
 
 #Run Deduplication
@@ -68,7 +69,7 @@ count = Person.where("updated_at >= '#{last_updated}'
     AND pd.person_id_b = pd2.person_id_a;
   SQL
 
-  log_stats('deduplication',start_time,count)
+  log_stats('deduplication',start_time,count,last_updated)
 end
 
 
