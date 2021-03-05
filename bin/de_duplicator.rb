@@ -33,7 +33,9 @@ count = Person.where("updated_at >= '#{last_updated}'
 
 
  #Populate soundex
-  start_time = Time.now.strftime('%Y-%m-%d %H:%M')
+ last_updated = get_last_updated('Soundex')
+ 
+ start_time = Time.now.strftime('%Y-%m-%d %H:%M')
  count = PersonName.where('updated_at >= ? AND updated_at <= ?', last_updated, time).count
 
  puts 'Populating soundex values'
