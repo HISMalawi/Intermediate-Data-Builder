@@ -53,11 +53,15 @@ count = Person.where("updated_at >= '#{last_updated}'
   count = DeDuplicator.where('updated_at >= ? AND updated_at <= ?', last_updated, Time.now).count
 
   last_update = DeDuplicator.where('updated_at >= ? AND updated_at <= ?', last_updated, Time.now).maximum(:updated_at)
-
-  Parallel.map(DeDuplicator.where('updated_at >= ? AND updated_at <= ?', last_updated, time).order(:updated_at), 
-    progress: 'Identifiying Potential Duplicates') do |person|
-    check_for_duplicate(person)
+  
+  DeDuplicator.where('updated_at >= ? AND updated_at <= ?', last_updated, time).order(:updated_at).find_in_batches(
+    batch_size: @batch_size) do | batch |
+    Parallel.map(batch, 
+      progress: 'Identifiying Potential Duplicates') do |person|
+      check_for_duplicate(person)
+    end
   end
+
   update_last_update('DeDuplication', last_update) #Update the updated timestamp
   
   puts "Cleaning duplicates in potential_duplicates"
