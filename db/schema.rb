@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_05_084148) do
+ActiveRecord::Schema.define(version: 2021_03_09_082642) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -255,6 +255,7 @@ ActiveRecord::Schema.define(version: 2021_03_05_084148) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["patient_identifier_id"], name: "patient_identifier_index"
   end
 
   create_table "lab_orders", primary_key: "lab_order_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -318,6 +319,7 @@ ActiveRecord::Schema.define(version: 2021_03_05_084148) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["openmrs_entity_name", "openmrs_metadata_id"], name: "patient_identifiers"
   end
 
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
