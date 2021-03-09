@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_09_082642) do
+ActiveRecord::Schema.define(version: 2021_03_09_093610) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -244,7 +244,7 @@ ActiveRecord::Schema.define(version: 2021_03_09_082642) do
   create_table "identifiers", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "patient_identifier_id", null: false
     t.bigint "person_id", null: false
-    t.string "identifier", null: false
+    t.string "identifier"
     t.integer "identifier_type", null: false
     t.bigint "creator", null: false
     t.boolean "voided", default: false, null: false
