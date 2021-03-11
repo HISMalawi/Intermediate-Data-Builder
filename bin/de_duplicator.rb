@@ -56,7 +56,7 @@ count = Person.where("updated_at >= '#{last_updated}'
     batch_size: @batch_size) do | batch |
     last_update = batch.last.updated_at
     Parallel.map(batch, 
-      progress: "Identifiying Potential Duplicates from #{offset} to #{offset + @batch_size}") do |person|
+      progress: "Identifiying Potential Duplicates from #{offset} to #{offset + @batch_size} of #{count}") do |person|
       check_for_duplicate(person)
     end
     offset += @batch_size
