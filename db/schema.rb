@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_21_135855) do
+ActiveRecord::Schema.define(version: 2021_04_22_115253) do
 
   create_table "appointments", primary_key: "appointment_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "encounter_id", null: false
@@ -27,6 +27,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.integer "concept_id"
     t.binary "uuid", limit: 36, null: false
     t.index ["encounter_id"], name: "fk_rails_20191c09ff"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "arv_drugs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -51,6 +52,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.binary "uuid", limit: 36, null: false
     t.index ["concept_id"], name: "fk_rails_45a3b8051f"
     t.index ["encounter_id"], name: "fk_rails_5ac9413d58"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "contact_details", primary_key: "contact_details_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -128,6 +130,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.index ["diag_type"], name: "fk_rails_2ae6eb8b86"
     t.index ["diagnosis"], name: "fk_rails_0a7dc9fd37"
     t.index ["encounter_id"], name: "fk_rails_8d8afe9ece"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "duplicate_statuses", primary_key: "duplicate_status_id", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -188,6 +191,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.datetime "updated_at", null: false
     t.binary "uuid", limit: 36, null: false
     t.index ["encounter_id"], name: "fk_rails_b43e4283a3"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "guardians", primary_key: "guardian_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -243,6 +247,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.datetime "updated_at", null: false
     t.binary "uuid", limit: 36, null: false
     t.index ["encounter_id"], name: "fk_rails_5ee68dbcad"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "identifiers", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -261,6 +266,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.datetime "updated_at", null: false
     t.binary "uuid", limit: 36, null: false
     t.index ["patient_identifier_id"], name: "patient_identifier_index"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "lab_orders", primary_key: "lab_order_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -278,6 +284,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.datetime "updated_at", null: false
     t.binary "uuid", limit: 36, null: false
     t.index ["encounter_id"], name: "fk_rails_88083b6bd1"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "lab_test_results", primary_key: "test_result_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -342,6 +349,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.binary "uuid", limit: 36, null: false
     t.index ["drug_id"], name: "fk_rails_0ca1abbeae"
     t.index ["medication_dispensation_id"], name: "fk_rails_f171ad14d2"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "medication_dispensations", primary_key: "medication_dispensation_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -357,6 +365,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.datetime "updated_at", null: false
     t.binary "uuid", limit: 36, null: false
     t.index ["medication_prescription_id"], name: "fk_rails_51fd85fc50"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "medication_prescription_has_medication_regimen", primary_key: "medication_prescription_has_medication_regimen_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -390,6 +399,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.binary "uuid", limit: 36, null: false
     t.index ["drug_id"], name: "fk_rails_2ae6a3ad59"
     t.index ["encounter_id"], name: "fk_rails_458448a9a4"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "medication_regimen", primary_key: "medication_regimen_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -417,6 +427,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.datetime "updated_at", null: false
     t.binary "uuid", limit: 36, null: false
     t.index ["person_id"], name: "fk_rails_c323a82e8d"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "outcomes", primary_key: "outcome_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -438,6 +449,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.binary "uuid", limit: 36, null: false
     t.index ["concept_id"], name: "fk_rails_b0b07ac345"
     t.index ["person_id"], name: "fk_rails_fe9ce0813a"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "patient_histories", primary_key: "history_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -456,6 +468,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.binary "uuid", limit: 36, null: false
     t.index ["concept_id"], name: "fk_rails_b9e7ab44d4"
     t.index ["encounter_id"], name: "fk_rails_67120a30d2"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "people", primary_key: "person_id", id: :bigint, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -475,6 +488,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.binary "uuid", limit: 36, null: false
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "person_addresses", primary_key: "person_address_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -498,6 +512,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.datetime "updated_at", null: false
     t.binary "uuid", limit: 36, null: false
     t.index ["person_id"], name: "fk_rails_eb9d05724a"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "person_has_types", primary_key: "person_has_type_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -525,6 +540,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.datetime "updated_at", null: false
     t.binary "uuid", limit: 36, null: false
     t.index ["person_id"], name: "fk_rails_546377d8eb"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "person_types", primary_key: "person_type_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -569,6 +585,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.binary "uuid", limit: 36, null: false
     t.index ["concept_id"], name: "fk_rails_1f3f5dcd65"
     t.index ["encounter_id"], name: "fk_rails_02b4eb37ba"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "presenting_complaints", primary_key: "presenting_complaint_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -587,6 +604,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.binary "uuid", limit: 36, null: false
     t.index ["concept_id"], name: "fk_rails_ab3111fcf9"
     t.index ["encounter_id"], name: "fk_rails_47d1923fb4"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "providers", primary_key: "provider_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -619,6 +637,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.index ["person_id_a"], name: "fk_rails_4a655159ef"
     t.index ["person_id_b"], name: "fk_rails_e559688f3c"
     t.index ["relationship_type_id"], name: "fk_rails_d6679af8df"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "side_effects", primary_key: "side_effect_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -637,6 +656,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.binary "uuid", limit: 36, null: false
     t.index ["concept_id"], name: "fk_rails_2ecd253a4e"
     t.index ["encounter_id"], name: "fk_rails_c5abe278dc"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "side_effects_has_medication_prescriptions", primary_key: "side_effects_has_medication_prescription_id", id: :integer, default: nil, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -698,6 +718,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.binary "uuid", limit: 36, null: false
     t.index ["concept_id"], name: "fk_rails_e32867fc03"
     t.index ["encounter_id"], name: "fk_rails_65be48c821"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "tb_statuses", primary_key: "tb_status_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -715,6 +736,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.datetime "updated_at", null: false
     t.binary "uuid", limit: 36, null: false
     t.index ["encounter_id"], name: "fk_rails_e6659727a6"
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "users", primary_key: "user_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -730,6 +752,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.binary "uuid", limit: 36, null: false
+    t.index ["uuid"], name: "uuid"
   end
 
   create_table "vitals", primary_key: "vitals_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -752,6 +775,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.binary "uuid", limit: 36, null: false
     t.index ["concept_id"], name: "fk_rails_49a56b35f0"
     t.index ["encounter_id"], name: "fk_rails_27601f1758"
+    t.index ["uuid"], name: "uuid"
   end
 
   add_foreign_key "appointments", "encounters", primary_key: "encounter_id"
