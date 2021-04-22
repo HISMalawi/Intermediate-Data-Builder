@@ -23,5 +23,6 @@ class AddUuids < ActiveRecord::Migration[5.2]
   	add_column :medication_dispensations, :uuid, :binary, :limit => 36, null: false, uniq: true
   	add_column :medication_adherences, :uuid, :binary, :limit => 36, null: false, uniq: true
   	add_column :side_effects, :uuid, :binary, :limit => 36, null: false, uniq: true
+  	add_column :occupations, :uuid, :binary, :limit => 36, null: false, uniq: true
   end
 end

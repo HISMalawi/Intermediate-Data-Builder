@@ -283,6 +283,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
   create_table "lab_test_results", primary_key: "test_result_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "lab_order_id", null: false
     t.string "results_test_facility", null: false
+    t.string "sending_facility"
     t.string "test_type", null: false
     t.string "sample_type"
     t.string "test_measure"
@@ -324,7 +325,6 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.string "void_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["openmrs_entity_name", "openmrs_metadata_id"], name: "patient_identifiers"
   end
 
   create_table "medication_adherences", primary_key: "adherence_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -415,12 +415,13 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.datetime "app_date_updated"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.binary "uuid", limit: 36, null: false
     t.index ["person_id"], name: "fk_rails_c323a82e8d"
   end
 
   create_table "outcomes", primary_key: "outcome_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "person_id"
-    t.bigint "state"
+    t.bigint "concept_id"
     t.string "outcome_reason"
     t.string "outcome_source"
     t.bigint "value_coded"
@@ -435,8 +436,8 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.date "start_date"
     t.date "end_date"
     t.binary "uuid", limit: 36, null: false
+    t.index ["concept_id"], name: "fk_rails_b0b07ac345"
     t.index ["person_id"], name: "fk_rails_fe9ce0813a"
-    t.index ["state"], name: "fk_rails_b0b07ac345"
   end
 
   create_table "patient_histories", primary_key: "history_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -668,7 +669,9 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "site_code"
+    t.integer "parent_district"
     t.index ["site_type_id"], name: "fk_rails_e9088cf59b"
+    t.index ["voided"], name: "voided"
   end
 
   create_table "soundexes", primary_key: "person_id", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -734,8 +737,8 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
     t.bigint "concept_id"
     t.bigint "value_coded"
     t.bigint "value_numeric"
-    t.bigint "value_text"
-    t.bigint "value_modifier"
+    t.string "value_text"
+    t.string "value_modifier"
     t.bigint "value_min"
     t.bigint "value_max"
     t.boolean "voided", default: false, null: false
@@ -779,7 +782,7 @@ ActiveRecord::Schema.define(version: 2021_04_21_135855) do
   add_foreign_key "medication_prescriptions", "encounters", primary_key: "encounter_id"
   add_foreign_key "medication_prescriptions", "master_definitions", column: "drug_id", primary_key: "master_definition_id"
   add_foreign_key "occupations", "people", primary_key: "person_id"
-  add_foreign_key "outcomes", "master_definitions", column: "state", primary_key: "master_definition_id"
+  add_foreign_key "outcomes", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
   add_foreign_key "outcomes", "people", primary_key: "person_id"
   add_foreign_key "patient_histories", "encounters", primary_key: "encounter_id"
   add_foreign_key "patient_histories", "master_definitions", column: "concept_id", primary_key: "master_definition_id"
