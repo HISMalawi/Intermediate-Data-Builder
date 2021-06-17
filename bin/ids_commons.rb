@@ -56,7 +56,7 @@ def update_last_update(model, timestamp)
     RedisMutex.with_lock(:update_lastest_timestamp) do
       current_update_date = YAML.load_file("#{Rails.root}/log/last_update.yml") || {}
       current_update_date[model] = begin
-        timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        timestamp.to_datetime.strftime('%Y-%m-%d %H:%M:%S')
                                    rescue StandardError
                                      nil
       end

@@ -67,11 +67,24 @@ count = Person.where("updated_at >= '#{last_updated}'
   
   puts "Cleaning duplicates in potential_duplicates"
   ActiveRecord::Base.connection.execute <<~SQL
-    DELETE pd FROM potential_duplicates pd
-    JOIN (SELECT * FROM potential_duplicates) pd2 
-    WHERE pd.potential_duplicate_id > pd2.potential_duplicate_id 
-    AND pd.person_id_a = pd2.person_id_b
-    AND pd.person_id_b = pd2.person_id_a;
+        delete
+    from
+      potential_duplicates
+    where
+      potential_duplicate_id in (
+      select
+        pd.potential_duplicate_id
+      from
+        potential_duplicates pd,
+        (
+        select
+          *
+        from
+          potential_duplicates) pd2
+      where
+        pd.potential_duplicate_id > pd2.potential_duplicate_id
+        and pd.person_id_a = pd2.person_id_b
+        and pd.person_id_b = pd2.person_id_a);
   SQL
 
   log_stats('deduplication',start_time,count,last_updated)
@@ -133,7 +146,7 @@ def ids_populate_de_duplicators(person)
     #Return if firstname or last name has special Characters assumption is its not a valid name
     return unless  demographics[:person_name]['given_name'].match? /\A[a-zA-Z']*\z/ 
     return unless  demographics[:person_name]['family_name'].match? /\A[a-zA-Z']*\z/
-    
+
     (get_person_addresses(person['person_id']) || []).each do | address |
       demographics.update("person_address": address )
       begin
@@ -141,7 +154,7 @@ def ids_populate_de_duplicators(person)
         subject += (demographics[:person_name]['given_name'] || return)
         subject << demographics[:person_name]['family_name'] rescue  return
         subject <<  (demographics[:person]['gender'] == 1 ? 'M' : 'F') rescue  return
-        subject <<  demographics[:person]['birthdate'].strftime('%Y-%m-%d').gsub('-', '') rescue return
+        subject <<  demographics[:person]['birthdate'].to_date.strftime('%Y-%m-%d').gsub('-', '') rescue return
         subject <<  demographics[:person_address]['home_district_id'] rescue  return #home district
         subject <<  demographics[:person_address]['home_traditional_authority_id'] rescue  return #home TA
         subject <<  demographics[:person_address]['home_village_id'] rescue  return #Home village
