@@ -113,7 +113,7 @@ def process_duplicates(duplicates, demographics)
       next if (PotentialDuplicate.find_by(person_id_a: demographics['person_id'], person_id_b: duplicate['person_id']).present? || 
               PotentialDuplicate.find_by(person_id_a: duplicate['person_id'], person_id_b: demographics['person_id']).present?)
 
-      score = calculate_similarity_score(demographics['person_de_duplicator'],duplicate['person_de_duplicator'])
+      score = WhiteSimilarity.similarity(demographics['person_de_duplicator'],duplicate['person_de_duplicator'])
       if score >= @threshold.to_i
         #Save to duplicate_statuses
         PotentialDuplicate.create!(person_id_a: demographics['person_id'], person_id_b: duplicate['person_id'], score: score)
@@ -176,4 +176,17 @@ def ids_populate_de_duplicators(person)
   end  
 end
 
-initiate_de_duplication 
+if File.exists?("/tmp/deduplicator.lock")
+      puts 'Another instance of deduplicator running!'
+      exit
+  else
+      FileUtils.touch "/tmp/deduplicator.lock"
+  end
+    begin
+      initiate_de_duplication
+    ensure
+      if File.exists?("/tmp/deduplicator.lock")
+        FileUtils.rm "/tmp/deduplicator.lock"
+      end
+    end
+

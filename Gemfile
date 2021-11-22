@@ -20,6 +20,8 @@ gem 'redis-mutex'
 
 #matching algorithm
 gem 'damerau-levenshtein'
+
+gem 'whitesimilarity'
 # Use mysql as the database for Active Record
 gem 'mysql2', '>= 0.4.4', '< 0.6.0'
 # Use Puma as the app server
