@@ -7,6 +7,6 @@ class CreateDeDuplicators < ActiveRecord::Migration[5.2]
       t.timestamps
     end
     add_foreign_key :de_duplicators, :people, column: :person_id, primary_key: :person_id
-    add_index :de_duplicators, :person_de_duplicator, type: :fulltext
+    add_index :de_duplicators, :person_de_duplicator
   end
 end
