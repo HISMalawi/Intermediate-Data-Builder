@@ -93,4 +93,12 @@ To build the IDS, you get data from RDS by running the ids_builder service with 
  
 ...
 
-## Deployment instructions    
+Running itech data deduplication:
+
+    Load data into table itech_deduplications
+
+    Truncate table itech_potential_duplicates
+
+    Then run `rails r bin/itech_deduplicator.rb`
+
+## Deployment instructions
