@@ -80,9 +80,6 @@ end
 def deduplication(primary_demographics,potential_duplicate,type)
   score = WhiteSimilarity.similarity(primary_demographics[:person],
                                      potential_duplicate[:person])
-  puts score
-  puts 'primary:' + ' ' + primary_demographics[:person]
-  puts 'potential:' + ' ' + potential_duplicate[:person]
       if score >= @threshold
         #Save to duplicate_statuses
         ItechPotentialDuplicate.create!(person_a_id: primary_demographics[:person_id],
