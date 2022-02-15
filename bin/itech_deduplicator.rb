@@ -1,5 +1,5 @@
 require_relative 'bantu_soundex'
-@threshold = 0.70
+@threshold = 0.85
 MATCH_TYPES = ['m_sname','f_sname','f_fname']
 
 

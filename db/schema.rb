@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_10_071327) do
+ActiveRecord::Schema.define(version: 2022_02_15_105230) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -736,6 +736,8 @@ ActiveRecord::Schema.define(version: 2022_02_10_071327) do
     t.string "duplicate_type", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["duplicate_type", "person_a_id", "person_b_id"], name: "idx_itech_potential_duplicates"
+    t.index ["duplicate_type", "person_a_id", "person_b_id"], name: "idx_potential_duplicate"
   end
 
   create_table "lab_orders", primary_key: "lab_order_id", force: :cascade do |t|
