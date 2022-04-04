@@ -1,0 +1,2 @@
+class HtsResultsGiven < ApplicationRecord
+end

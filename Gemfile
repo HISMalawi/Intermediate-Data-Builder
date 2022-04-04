@@ -8,8 +8,20 @@ gem 'rails', '~> 5.2.3'
 
 gem 'rest-client'
 
+gem 'pg'
+
+#Parallelism
+gem 'parallel'
+gem 'ruby-progressbar'
+
+gem 'elasticsearch'
+
+gem 'redis-mutex'
+
 #matching algorithm
 gem 'damerau-levenshtein'
+
+gem 'whitesimilarity'
 # Use mysql as the database for Active Record
 gem 'mysql2', '>= 0.4.4', '< 0.6.0'
 # Use Puma as the app server

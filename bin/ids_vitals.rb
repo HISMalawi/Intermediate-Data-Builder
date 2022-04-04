@@ -3,9 +3,8 @@
 # Process IDS vitals functions
 
 def vital_value_coded(vital)
-  puts "processing vitals for person ID #{vital['person_id']}"
 
-  vital_exist = Vital.find_by_vitals_id(vital['obs_id'])
+  vital_exist = Vital.find_by_vitals_id(vital['obs_id'].to_i)
 
   concept_id = get_master_def_id(vital['concept_id'], 'concept_name')
   value_coded = get_master_def_id(vital['value_coded'], 'concept_name')
@@ -61,7 +60,6 @@ def vital_value_coded(vital)
 
       remove_failed_record('vitals', vital['obs_id'].to_i)
 
-      puts "Loaded vitals...for person ID #{vital['person_id']}"
     rescue Exception => e
       log_error_records('vitals', vital['obs_id'].to_i, e)
     end
@@ -72,7 +70,5 @@ def vital_value_coded(vital)
                        voided_date: vital['date_voided'],
                        void_reason: vital['void_reason'])
 
-    puts "Updated vitals record for person ID #{vital['person_id']}"
   end
-  update_last_update('Vital', vital['updated_at'])
 end

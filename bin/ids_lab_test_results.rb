@@ -1,25 +1,31 @@
 require 'json'
-@lims_url = '192.168.12.71:3010'
+@lims_url = 'localhost:3010'
 @lims_user = 'lab_test'
 @lims_pwd = 'lab_test'
 
 def populate_lab_test_results
-  LabOrder.find_each do |lab_order|
+
+  last_updated = get_last_updated('LabTestResults')   
+
+  token_key = authenticate
+  @header = {token: token_key}
+
+  query = "SELECT * FROM lab_orders 
+           WHERE updated_at >= '#{last_updated}' "
+
+  fetch_data_P(query, 'ids_labOrder', 'LabTestResults') 
+end
+
+def ids_labOrder(lab_order)
     if lab_order['tracking_number'].blank?
        puts 'Skipping Record'
-       next
+       return
     end
-    
-    last_updated = get_last_updated('LabTestResults')
-
-    token_key = authenticate
-    header = {token: token_key}
-    puts "processing #{lab_order['tracking_number']}"
-
+  
     get_lab_order_details = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_order_by_tracking_number/#{lab_order['tracking_number']}",
-                                           header))
+                                           @header))
     get_lab_order_results = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_results_by_tracking_number/#{lab_order['tracking_number']}",
-                                                      header))
+                                                      @header))
     if get_lab_order_results['status'] == 200
        get_lab_order_results['data']['results'].each do |measure, value|
          value.each do  | test, v|
@@ -54,8 +60,6 @@ def populate_lab_test_results
             end
           end
     end
-    update_last_update('LabTestResults', lab_order['updated_at'])
-      end
 end
 
 def authenticate

@@ -12,4 +12,5 @@ class Encounter < ApplicationRecord
   has_many :medication_regimen
   has_many :breastfeeding_status
   has_many :pregnant_status
+  has_many :family_planning
 end

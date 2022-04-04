@@ -1,3 +1,3 @@
 class Person < ApplicationRecord
-  has_many :relationships
+  has_many :relationship
 end

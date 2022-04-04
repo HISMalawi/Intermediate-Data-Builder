@@ -13,7 +13,7 @@ class CreatePeople < ActiveRecord::Migration[5.2]
       t.boolean :dead, null: false, default: 0
       t.boolean :voided, null: false, default: 0
       t.bigint  :voided_by
-      t.integer :void_reason
+      t.string :void_reason
       t.datetime  :app_date_created, null: false
       t.datetime  :app_date_updated
 

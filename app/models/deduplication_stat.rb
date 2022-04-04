@@ -1,0 +1,2 @@
+class DeduplicationStat < ApplicationRecord
+end

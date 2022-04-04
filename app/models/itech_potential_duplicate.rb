@@ -1,0 +1,2 @@
+class ItechPotentialDuplicate < ApplicationRecord
+end
