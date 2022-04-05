@@ -3,13 +3,12 @@ Rails.application.routes.draw do
  namespace :api do
   namespace :v1 do
     #Reporting end points
-    get 'cohort', to: 'reports#cohort'
-    get 'moh_desegregated', to: 'reports#moh_desegregated'
-    get 'pepfar_desegregated', to: 'reports#pepfar_desegregated'
+    get 'generate_report', to: 'reports#generate_report'
     get 'available_sites', to: 'reports#available_sites'
     get 'available_quarters', to: 'reports#available_quarters'
     get 'available_districts', to: 'reports#available_districts'
     get 'available_regions', to: 'reports#available_regions'
+    get 'available_emr_type', to: 'reports#available_emr_type'
   end
  end
 end

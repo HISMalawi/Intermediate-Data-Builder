@@ -15,11 +15,11 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  database: ids_small_site
-  pool: 5
-  username: postgres
-  password: test
-
+  pool: 1_000_000
+  username: test
+  password: tst
+  host: localhost
+  schema_search_path: 'quarterly_reporting,public'
 
 development:
   <<: *default
