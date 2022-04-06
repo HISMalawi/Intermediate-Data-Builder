@@ -1,0 +1,15 @@
+current directory: /home/egpaf/Documents/EGPAF/DATALAKE/Intermediate-Data-Builder/vendor/bundle/ruby/2.5.0/gems/damerau-levenshtein-1.3.1/ext/damerau_levenshtein
+/usr/share/rvm/rubies/ruby-2.5.3/bin/ruby -I /usr/share/rvm/rubies/ruby-2.5.3/lib/ruby/site_ruby/2.5.0 -r ./siteconf20220405-131867-1adgnbw.rb extconf.rb
+creating Makefile
+
+current directory: /home/egpaf/Documents/EGPAF/DATALAKE/Intermediate-Data-Builder/vendor/bundle/ruby/2.5.0/gems/damerau-levenshtein-1.3.1/ext/damerau_levenshtein
+make "DESTDIR=" clean
+
+current directory: /home/egpaf/Documents/EGPAF/DATALAKE/Intermediate-Data-Builder/vendor/bundle/ruby/2.5.0/gems/damerau-levenshtein-1.3.1/ext/damerau_levenshtein
+make "DESTDIR="
+compiling damerau_levenshtein.c
+linking shared-object damerau-levenshtein/damerau_levenshtein.so
+
+current directory: /home/egpaf/Documents/EGPAF/DATALAKE/Intermediate-Data-Builder/vendor/bundle/ruby/2.5.0/gems/damerau-levenshtein-1.3.1/ext/damerau_levenshtein
+make "DESTDIR=" install
+/usr/bin/install -m 0755 damerau_levenshtein.so ./.gem.20220405-131867-yvwqx/damerau-levenshtein
