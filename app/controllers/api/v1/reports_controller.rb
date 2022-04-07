@@ -4,16 +4,160 @@ class Api::V1::ReportsController < ApplicationController
 
   end
 
-  def moh_desegregated(quarter,emr_type, region = 'ALL', district = 'ALL')
-    if region == 'ALL' && district = 'ALL'
-      report = MohDisagg.where('quarter = ? AND emr_type = ?', quarter,emr_type)
+  def moh_desegregated(quarter, emr_type, region = report_params[:region], district = report_params[:district], site_id = report_params[:site_id])
+    if region.blank? && district.blank? && site_id.blank?
+      report = MohDisagg.find_by_sql("select
+                     \"Age group\",
+                    gender,
+                    SUM(\"Tx new (new on ART)\") AS Tx_new_new_on_ART,
+                    SUM(\"TX curr (receiving ART)\") AS TX_curr_receiving_ART,
+                    SUM(\"TX curr (received IPT)\") AS TX_curr_received_IPT,
+                    SUM(\"TX curr (screened for TB)\") AS TX_curr_screened_for_TB,
+                    SUM(\"0A\") AS \"0A\",
+                    SUM(\"2A\") AS \"2A\",
+                    SUM(\"4A\") AS \"4A\",
+                    SUM(\"5A\") AS \"5A\",
+                    SUM(\"6A\") AS \"6A\",
+                    SUM(\"7A\") AS \"7A\",
+                    SUM(\"8A\") as \"8A\",
+                    SUM(\"9A\") as \"9A\",
+                    SUM(\"10A\") as \"10A\",
+                    SUM(\"11A\") as \"11A\",
+                    SUM(\"12A\") as \"12A\",
+                    SUM(\"13A\") as \"13A\",
+                    SUM(\"14A\") as \"14A\",
+                    SUM(\"15A\") as \"15A\",
+                    SUM(\"16A\") as \"16A\",
+                    SUM(\"17A\") as \"17A\",
+                    SUM(\"0P\") as \"0P\",
+                    SUM(\"2P\") as \"2P\",
+                    SUM(\"4P\") as \"4P\",
+                    SUM(\"9P\") as \"9P\",
+                    SUM(\"11P\") as \"11P\",
+                    SUM(\"14P\") as \"14P\",
+                    SUM(\"15P\") as \"15P\",
+                    SUM(\"16P\") as \"16P\",
+                    SUM(\"17P\") as \"17P\",
+                    SUM(\"Unknown\") as \"Unknown\" ,
+                    SUM(\"Total (regimen)\") as Total_regimen
+                  from
+                    quarterly_reporting.cohort_disaggregated_moh
+                  where
+                    quarter = '#{quarter}'
+                  AND
+                    emr_type = '#{emr_type}'
+                  group by
+                    \"Age group\",
+                    gender,
+                    \"Tx new (new on ART)\",
+                    \"TX curr (receiving ART)\",
+                    \"TX curr (received IPT)\",
+                    \"TX curr (screened for TB)\",
+                    \"0A\",
+                    \"2A\",
+                    \"4A\",
+                    \"5A\",
+                    \"6A\",
+                    \"7A\",
+                    \"8A\",
+                    \"9A\",
+                    \"10A\",
+                    \"11A\",
+                    \"12A\",
+                    \"13A\",
+                    \"14A\",
+                    \"15A\",
+                    \"16A\",
+                    \"17A\",
+                    \"0P\",
+                    \"2P\",
+                    \"4P\",
+                    \"9P\",
+                    \"11P\",
+                    \"14P\",
+                    \"15P\",
+                    \"16P\",
+                    \"17P\",
+                    \"Unknown\",
+                    \"Total (regimen)\";")
     else
       condition = ''
       condition += " AND region = '#{region}' " unless region.blank?
       condition += " AND district = '#{district}' " unless district.blank?
-      #condition += " AND site_id = #{site_id} " unless site_id.blank?
+      condition += " AND site_id = #{site_id} " unless site_id.blank?
+      condition['AND'] = 'WHERE ' unless condition.blank?
 
-      report = MohDisagg.where("quarter = '#{quarter}' AND emr_type = '#{emr_type}' #{condition}")
+      report = MohDisagg.find_by_sql("select
+                     \"Age group\",
+                    gender,
+                    SUM(\"Tx new (new on ART)\") AS Tx_new_new_on_ART,
+                    SUM(\"TX curr (receiving ART)\") AS TX_curr_receiving_ART,
+                    SUM(\"TX curr (received IPT)\") AS TX_curr_received_IPT,
+                    SUM(\"TX curr (screened for TB)\") AS TX_curr_screened_for_TB,
+                    SUM(\"0A\") AS \"0A\",
+                    SUM(\"2A\") AS \"2A\",
+                    SUM(\"4A\") AS \"4A\",
+                    SUM(\"5A\") AS \"5A\",
+                    SUM(\"6A\") AS \"6A\",
+                    SUM(\"7A\") AS \"7A\",
+                    SUM(\"8A\") as \"8A\",
+                    SUM(\"9A\") as \"9A\",
+                    SUM(\"10A\") as \"10A\",
+                    SUM(\"11A\") as \"11A\",
+                    SUM(\"12A\") as \"12A\",
+                    SUM(\"13A\") as \"13A\",
+                    SUM(\"14A\") as \"14A\",
+                    SUM(\"15A\") as \"15A\",
+                    SUM(\"16A\") as \"16A\",
+                    SUM(\"17A\") as \"17A\",
+                    SUM(\"0P\") as \"0P\",
+                    SUM(\"2P\") as \"2P\",
+                    SUM(\"4P\") as \"4P\",
+                    SUM(\"9P\") as \"9P\",
+                    SUM(\"11P\") as \"11P\",
+                    SUM(\"14P\") as \"14P\",
+                    SUM(\"15P\") as \"15P\",
+                    SUM(\"16P\") as \"16P\",
+                    SUM(\"17P\") as \"17P\",
+                    SUM(\"Unknown\") as \"Unknown\" ,
+                    SUM(\"Total (regimen)\") as Total_regimen
+                  FROM
+                    quarterly_reporting.cohort_disaggregated_moh
+                  #{condition}
+                  group by
+                    \"Age group\",
+                    gender,
+                    \"Tx new (new on ART)\",
+                    \"TX curr (receiving ART)\",
+                    \"TX curr (received IPT)\",
+                    \"TX curr (screened for TB)\",
+                    \"0A\",
+                    \"2A\",
+                    \"4A\",
+                    \"5A\",
+                    \"6A\",
+                    \"7A\",
+                    \"8A\",
+                    \"9A\",
+                    \"10A\",
+                    \"11A\",
+                    \"12A\",
+                    \"13A\",
+                    \"14A\",
+                    \"15A\",
+                    \"16A\",
+                    \"17A\",
+                    \"0P\",
+                    \"2P\",
+                    \"4P\",
+                    \"9P\",
+                    \"11P\",
+                    \"14P\",
+                    \"15P\",
+                    \"16P\",
+                    \"17P\",
+                    \"Unknown\",
+                    \"Total (regimen)\";")
     end
     render json: report
   end
@@ -22,9 +166,8 @@ class Api::V1::ReportsController < ApplicationController
     case report_params[:report_type]
     when 'moh_disagg'
       moh_desegregated(report_params[:quarter],
-                       report_params[:emr_type],
-                       report_params[:region],
-                       report_params[:district])
+                       report_params[:emr_type]
+                       )
     end
   end
 
@@ -55,6 +198,6 @@ class Api::V1::ReportsController < ApplicationController
   private
     def report_params
       params.require([:quarter,:report_type, :emr_type])
-      params.permit(:quarter,:emr_type, :report_type, :region, :district)
+      params.permit(:quarter,:emr_type, :report_type, :region, :district, :site_id)
     end
 end
