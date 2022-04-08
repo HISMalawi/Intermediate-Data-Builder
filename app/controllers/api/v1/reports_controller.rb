@@ -1,5 +1,9 @@
 class Api::V1::ReportsController < ApplicationController
 
+  AGE_GROUP_ORDERING = ['<1 year','1-4 years','5-9 years','10-14 years','15-19 years','20-24 years','25-29 years','30-34 years','35-39 years',
+                                               '40-44 years','45-49 years', '50-54 years', '55-59 years', '60-64 years', '65-69 years', '70-74 years', '75-79 years',
+                                               '80-84 years', '85-89 years', '90 plus years', 'All']
+
   def cohort
 
   end
@@ -48,38 +52,8 @@ class Api::V1::ReportsController < ApplicationController
                     emr_type = '#{emr_type}'
                   group by
                     \"Age group\",
-                    gender,
-                    \"Tx new (new on ART)\",
-                    \"TX curr (receiving ART)\",
-                    \"TX curr (received IPT)\",
-                    \"TX curr (screened for TB)\",
-                    \"0A\",
-                    \"2A\",
-                    \"4A\",
-                    \"5A\",
-                    \"6A\",
-                    \"7A\",
-                    \"8A\",
-                    \"9A\",
-                    \"10A\",
-                    \"11A\",
-                    \"12A\",
-                    \"13A\",
-                    \"14A\",
-                    \"15A\",
-                    \"16A\",
-                    \"17A\",
-                    \"0P\",
-                    \"2P\",
-                    \"4P\",
-                    \"9P\",
-                    \"11P\",
-                    \"14P\",
-                    \"15P\",
-                    \"16P\",
-                    \"17P\",
-                    \"Unknown\",
-                    \"Total (regimen)\";")
+                    gender
+                  ORDER BY gender;")
     else
       condition = ''
       condition += " AND region = '#{region}' " unless region.blank?
@@ -126,40 +100,23 @@ class Api::V1::ReportsController < ApplicationController
                   #{condition}
                   group by
                     \"Age group\",
-                    gender,
-                    \"Tx new (new on ART)\",
-                    \"TX curr (receiving ART)\",
-                    \"TX curr (received IPT)\",
-                    \"TX curr (screened for TB)\",
-                    \"0A\",
-                    \"2A\",
-                    \"4A\",
-                    \"5A\",
-                    \"6A\",
-                    \"7A\",
-                    \"8A\",
-                    \"9A\",
-                    \"10A\",
-                    \"11A\",
-                    \"12A\",
-                    \"13A\",
-                    \"14A\",
-                    \"15A\",
-                    \"16A\",
-                    \"17A\",
-                    \"0P\",
-                    \"2P\",
-                    \"4P\",
-                    \"9P\",
-                    \"11P\",
-                    \"14P\",
-                    \"15P\",
-                    \"16P\",
-                    \"17P\",
-                    \"Unknown\",
-                    \"Total (regimen)\";")
+                    gender
+                  ORDER BY gender;")
     end
-    render json: report
+    render json: format_response(report)
+  end
+
+  def format_response(records)
+    data = []
+    gender_ordering = ['Female', 'Male', 'FP', 'FNP', 'FBf']
+     gender_ordering.each do |gender|
+      AGE_GROUP_ORDERING.each do |group|
+        records.each do |row|
+          data << row if row['Age group'] == group && row['gender'] == gender
+        end
+      end
+     end
+    return data
   end
 
   def generate_report
