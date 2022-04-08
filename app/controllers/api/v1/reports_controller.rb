@@ -3,6 +3,7 @@ class Api::V1::ReportsController < ApplicationController
   AGE_GROUP_ORDERING = ['<1 year','1-4 years','5-9 years','10-14 years','15-19 years','20-24 years','25-29 years','30-34 years','35-39 years',
                                                '40-44 years','45-49 years', '50-54 years', '55-59 years', '60-64 years', '65-69 years', '70-74 years', '75-79 years',
                                                '80-84 years', '85-89 years', '90 plus years', 'All']
+  COLUMN_ORDER = MohDisagg.column_names[7..40]
 
   def cohort
 
@@ -13,10 +14,10 @@ class Api::V1::ReportsController < ApplicationController
       report = MohDisagg.find_by_sql("select
                      \"Age group\",
                     gender,
-                    SUM(\"Tx new (new on ART)\") AS Tx_new_new_on_ART,
-                    SUM(\"TX curr (receiving ART)\") AS TX_curr_receiving_ART,
-                    SUM(\"TX curr (received IPT)\") AS TX_curr_received_IPT,
-                    SUM(\"TX curr (screened for TB)\") AS TX_curr_screened_for_TB,
+                    SUM(\"Tx new (new on ART)\") AS \"Tx new (new on ART)\",
+                    SUM(\"TX curr (receiving ART)\") AS \"TX curr (receiving ART)\",
+                    SUM(\"TX curr (received IPT)\") AS \"TX curr (received IPT)\",
+                    SUM(\"TX curr (screened for TB)\") AS \"TX curr (screened for TB)\",
                     SUM(\"0A\") AS \"0A\",
                     SUM(\"2A\") AS \"2A\",
                     SUM(\"4A\") AS \"4A\",
@@ -43,7 +44,7 @@ class Api::V1::ReportsController < ApplicationController
                     SUM(\"16P\") as \"16P\",
                     SUM(\"17P\") as \"17P\",
                     SUM(\"Unknown\") as \"Unknown\" ,
-                    SUM(\"Total (regimen)\") as Total_regimen
+                    SUM(\"Total (regimen)\") as \"Total (regimen)\"
                   from
                     quarterly_reporting.cohort_disaggregated_moh
                   where
@@ -64,10 +65,10 @@ class Api::V1::ReportsController < ApplicationController
       report = MohDisagg.find_by_sql("select
                      \"Age group\",
                     gender,
-                    SUM(\"Tx new (new on ART)\") AS Tx_new_new_on_ART,
-                    SUM(\"TX curr (receiving ART)\") AS TX_curr_receiving_ART,
-                    SUM(\"TX curr (received IPT)\") AS TX_curr_received_IPT,
-                    SUM(\"TX curr (screened for TB)\") AS TX_curr_screened_for_TB,
+                    SUM(\"Tx new (new on ART)\") AS \"Tx new (new on ART)\",
+                    SUM(\"TX curr (receiving ART)\") AS \"TX curr (receiving ART)\",
+                    SUM(\"TX curr (received IPT)\") AS \"TX curr (received IPT)\",
+                    SUM(\"TX curr (screened for TB)\") AS \"TX curr (screened for TB)\",
                     SUM(\"0A\") AS \"0A\",
                     SUM(\"2A\") AS \"2A\",
                     SUM(\"4A\") AS \"4A\",
@@ -94,7 +95,7 @@ class Api::V1::ReportsController < ApplicationController
                     SUM(\"16P\") as \"16P\",
                     SUM(\"17P\") as \"17P\",
                     SUM(\"Unknown\") as \"Unknown\" ,
-                    SUM(\"Total (regimen)\") as Total_regimen
+                    SUM(\"Total (regimen)\") as \"Total (regimen)\"
                   FROM
                     quarterly_reporting.cohort_disaggregated_moh
                   #{condition}
@@ -112,7 +113,11 @@ class Api::V1::ReportsController < ApplicationController
      gender_ordering.each do |gender|
       AGE_GROUP_ORDERING.each do |group|
         records.each do |row|
-          data << row if row['Age group'] == group && row['gender'] == gender
+          reordered = {}
+          COLUMN_ORDER.each do |column|
+           reordered[column] = row[column]
+          end
+           data << reordered if row['Age group'] == group && row['gender'] == gender
         end
       end
      end
