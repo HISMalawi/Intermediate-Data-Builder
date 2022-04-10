@@ -138,11 +138,11 @@ class Api::V1::ReportsController < ApplicationController
   end
 
   def available_sites
-    render json: MohDisagg.distinct.select(:site_id, :site_name), status: :ok
+    render json: MohDisagg.where(district: site_params[:district]).distinct.select(:site_id, :site_name), status: :ok
   end
 
   def available_districts
-    render json: MohDisagg.distinct.select(:district), status: :ok
+    render json: MohDisagg.where(region: district_params[:region]).distinct.select(:district), status: :ok
   end
 
   def available_quarters
@@ -161,5 +161,15 @@ class Api::V1::ReportsController < ApplicationController
     def report_params
       params.require([:quarter,:report_type, :emr_type])
       params.permit(:quarter,:emr_type, :report_type, :region, :district, :site_id)
+    end
+
+    def district_params
+      params.require(:region)
+      params.permit(:region)
+    end
+
+    def site_params
+      params.require(:district)
+      params.permit(:district)
     end
 end
