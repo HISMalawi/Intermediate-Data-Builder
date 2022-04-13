@@ -52,7 +52,7 @@ class Api::V1::ReportsController < ApplicationController
                     gender
                   ORDER BY gender;")
     end
-    render json: report
+    render json: format_pepfar_response(report)
   end
 
   def moh_desegregated(quarter, emr_type, region = report_params[:region], district = report_params[:district], site_id = report_params[:site_id])
@@ -151,6 +151,19 @@ class Api::V1::ReportsController < ApplicationController
                   ORDER BY gender;")
     end
     render json: format_response(report)
+  end
+
+  def format_pepfar_response(records)
+    data = []
+    gender_ordering = ['Female', 'Male', 'FP', 'FNP', 'FBf']
+     gender_ordering.each do |gender|
+      AGE_GROUP_ORDERING.each do |group|
+        records.each do |row|
+           data << row if row['age_group'] == group && row['gender'] == gender
+        end
+      end
+     end
+    return data
   end
 
   def format_response(records)
