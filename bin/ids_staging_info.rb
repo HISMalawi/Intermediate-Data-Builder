@@ -3,17 +3,32 @@
 def populate_hiv_staging_info
   last_updated = get_last_updated('StagingInfo')
 
+<<<<<<< HEAD
   query = "SELECT distinct p.patient_id, p.updated_at 
+=======
+  query = <<~SQL
+    SELECT distinct p.patient_id, p.updated_at 
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
            FROM #{@rds_db}.patient p join 
            #{@rds_db}.patient_program pp on p.patient_id = pp.patient_id
            JOIN #{@rds_db}.patient_state ps ON pp.patient_program_id = ps.patient_program_id 
            WHERE (pp.program_id = 1 AND p.voided = 0 AND pp.voided = 0  
            AND ps.state = 7 AND ps.voided = 0 AND p.updated_at >= '#{last_updated}')
+<<<<<<< HEAD
            OR p.patient_id IN #{load_error_records('hiv_staging_info')} "
 
 fetch_data(query) do |patient|
     puts "processing HIV info for person_id #{patient['patient_id']}"
 
+=======
+           OR p.patient_id IN #{load_error_records('hiv_staging_info')} 
+  SQL
+
+fetch_data_P(query, 'ids_hiv_staging', 'StagingInfo') 
+end
+
+def ids_hiv_staging(patient)
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
     staging_exist = HivStagingInfo.find_by(person_id: patient['patient_id'])
     age_at_initiation = patient_age_at_initiation(patient['patient_id'])['age_at_initiation'] rescue nil
     age_in_days = patient_age_at_initiation(patient['patient_id'])['age_in_days'] rescue nil
@@ -52,8 +67,11 @@ fetch_data(query) do |patient|
         log_error_records('hiv_staging_info', patient['patient_id'].to_i, e)
       end
     end
+<<<<<<< HEAD
     update_last_update('StagingInfo', patient['updated_at'])
   end
+=======
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
 end
 
 def get_start_date(patient_id)

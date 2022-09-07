@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+<<<<<<< HEAD
+=======
+require "damerau-levenshtein"
+@last_updated = YAML.load_file('log/last_update.yml')
+
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
 def person_has_type(type_id, person)
   case type_id
   when 1
@@ -35,6 +41,57 @@ def person_has_type(type_id, person)
   end
 end
 
+<<<<<<< HEAD
+=======
+def get_last_updated(model)
+  if @last_updated
+    if @last_updated.include?(model)
+      @last_updated[model].blank? ? last_updated = '1900-01-01 00:00:00' : last_updated = @last_updated[model]
+    else
+      last_updated = '1900-01-01 00:00:00'
+    end
+  else
+    last_updated = '1900-01-01 00:00:00'
+  end
+end
+
+def update_last_update(model, timestamp)
+  begin
+    RedisClassy.redis = Redis.new
+    RedisMutex.with_lock(:update_lastest_timestamp) do
+      current_update_date = YAML.load_file("#{Rails.root}/log/last_update.yml") || {}
+      current_update_date[model] = begin
+        timestamp.to_datetime.strftime('%Y-%m-%d %H:%M:%S')
+                                   rescue StandardError
+                                     nil
+      end
+      File.open('log/last_update.yml', 'w') do |file|
+        file.write current_update_date.to_yaml
+      end
+    end
+  rescue RedisMutex::LockError
+    retry
+  end
+end
+
+def fetch_data_P(query, method, model)
+  offset = 0
+  begin
+    batch = ActiveRecord::Base.connection.select_all <<-SQL
+      #{query}
+      LIMIT #{@batch_size}
+      OFFSET #{offset}
+    SQL
+    Parallel.each(batch, progress: "Processing #{model} From #{offset} to #{offset + @batch_size}") do |row|
+      send(method, row)
+    end
+    update_last_update(model, batch.last['updated_at']) unless batch.empty?
+
+    offset += @batch_size
+  end until batch.empty?
+end
+
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
 def fetch_data(query)
   offset = 0
   begin
@@ -45,7 +102,11 @@ def fetch_data(query)
     SQL
     batch.each do |row|
       yield row
+<<<<<<< HEAD
     end
+=======
+    end   
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
     offset += @batch_size
   end until batch.empty?
 end
@@ -74,7 +135,15 @@ def log_error_records(model, record_id, msg)
                              record_id: record_id.to_i,
                              errr_message: msg) 
    else
+<<<<<<< HEAD
     record_present.update(updated_at: Time.now)
+=======
+    record_present.update(failed_record_type_id:
+        FailedRecordType.find_by(name: model.to_s).failed_record_type_id.to_i,
+                             record_id: record_id.to_i,
+                             errr_message: msg,
+                             updated_at: Time.now)
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
    end
 end
 
@@ -119,6 +188,7 @@ def update_record(concept_id, value_coded, record, update)
       app_date_updated: update['date_changed'])
 end
 
+<<<<<<< HEAD
 # def create_record(concept_id, value_coded, record, new_record, failed_index)
 #   begin
 #       puts "Creating patient tb status for #{new_record['person_id']}"
@@ -145,3 +215,25 @@ end
 #       log_error_records('tb_status', tb_status['obs_id'].to_i, e)
 #     end
 #  end
+=======
+def calculate_similarity_score(string_A,string_B)
+    #Calulating % Similarity using the formula %RSD = (SD/max_ed)%
+    #Where SD = Max(length(A),Length(B)) - Edit Distance
+    #SD = Similartiy Distance
+    #ed = edit Distance
+    #max_ed = maximum edit distance
+    #RSD  
+
+    ed = DamerauLevenshtein.distance(string_A,string_B)
+
+    if string_A.size >= string_B.size
+      max_ed = string_A.size
+    else 
+      max_ed = string_B.size
+    end
+
+    sd = max_ed - ed
+
+    score = (sd/max_ed.to_f) * 100
+end
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d

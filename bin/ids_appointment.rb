@@ -1,6 +1,13 @@
 def ids_appointment(rds_appointment)
+<<<<<<< HEAD
 puts "processing Appointment for person_id #{rds_appointment['person_id']}"
 appointment = Appointment.find_by_appointment_id(rds_appointment['obs_id'])
+=======
+appointment = Appointment.find_by_appointment_id(rds_appointment['obs_id'])
+
+rds_appointment = handle_commons(rds_appointment)
+
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
     if appointment.blank?
       begin
 	      appointment 					= Appointment.new
@@ -16,8 +23,11 @@ appointment = Appointment.find_by_appointment_id(rds_appointment['obs_id'])
 	      appointment.app_date_updated 	= rds_appointment['date_changed']
 	      appointment.save
 
+<<<<<<< HEAD
 	      puts "Successfully populated appointment with record for person #{rds_appointment['person_id']}"
 
+=======
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
         remove_failed_record('appointment', rds_appointment['obs_id'].to_i)
 
     rescue Exception => e
@@ -35,7 +45,11 @@ appointment = Appointment.find_by_appointment_id(rds_appointment['obs_id'])
       app_date_created: rds_appointment['date_created'],
       app_date_updated: rds_appointment['date_changed'])
 
+<<<<<<< HEAD
       puts "Successfully updated appointment details with record for person #{rds_appointment['person_id']}"
     end
   update_last_update('Appointment', rds_appointment['updated_at'])
+=======
+    end
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
 end

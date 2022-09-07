@@ -2,13 +2,21 @@
 
 def ids_tb_statuses(tb_status)
 
+<<<<<<< HEAD
   puts "processing TB Status for person ID #{tb_status['person_id']}"
 
+=======
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
   concept_id = get_master_def_id(tb_status['concept_id'], 'concept_name')
   value_coded = get_master_def_id(tb_status['value_coded'], 'concept_name')
 
   ids_tb_statuses = TbStatus.find_by_tb_status_id(tb_status['obs_id'])
 
+<<<<<<< HEAD
+=======
+  tb_status = handle_commons(tb_status)
+
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
   if ids_tb_statuses && check_latest_record(tb_status, ids_tb_statuses)
     puts "Updating patient tb status for #{tb_status['person_id']}"
     ids_tb_statuses.update(
@@ -19,12 +27,19 @@ def ids_tb_statuses(tb_status)
     voided_by: presenting_complaint['voided_by'],
     voided_date: presenting_complaint['date_voided'],
     void_reason: presenting_complaint['void_reason'],
+<<<<<<< HEAD
+=======
+    creator: presenting_complaint['creator'],
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
     app_date_created: presenting_complaint['date_created'],
     app_date_updated: presenting_complaint['date_changed'])
     
   elsif ids_tb_statuses.blank?
     begin
+<<<<<<< HEAD
       puts "Creating patient tb status for #{tb_status['person_id']}"
+=======
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
       ids_tb_statuses                    = TbStatus.new
       ids_tb_statuses.tb_status_id       = tb_status['obs_id']
       ids_tb_statuses.concept_id         = concept_id
@@ -34,20 +49,32 @@ def ids_tb_statuses(tb_status)
       ids_tb_statuses.voided_by          = tb_status['voided_by']
       ids_tb_statuses.voided_date        = tb_status['date_voided']
       ids_tb_statuses.void_reason        = tb_status['void_reason']
+<<<<<<< HEAD
+=======
+      ids_tb_statuses.creator            = tb_status['creator']
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
       ids_tb_statuses.app_date_created   = tb_status['date_created']
       ids_tb_statuses.app_date_updated   = tb_status['date_changed']
 
       if ids_tb_statuses.save
+<<<<<<< HEAD
         puts 'Successfully save tb statuses'
         remove_failed_record('tb_status', tb_status['obs_id'].to_i)
       else
         puts 'Failed to save tb statuses'
+=======
+        remove_failed_record('tb_status', tb_status['obs_id'].to_i)
+      else
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
       end
         
     rescue Exception => e
       log_error_records('tb_status', tb_status['obs_id'].to_i, e)
     end
   end
+<<<<<<< HEAD
 
   update_last_update('TbStatus', tb_status['updated_at'])
+=======
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
 end
