@@ -233,6 +233,45 @@ class Api::V1::ReportsController < ApplicationController
     end
   end
 
+  def eidsr_registration_triage
+    condition = generate_conditions
+    data = ActiveRecord::Base.connection.select_all("select concat_ws('-',age_groups.case, gender) as age_group, count(*) from (select gender, case 
+            when age <= 0 then '<1-year'
+            when age between 1 and 4 then '1-4-years'
+            when age between 5 and 9 then '5-9 years'
+            when age between 10 and 14 then '10-14-years'
+            when age between 15 and 19 then '15-19-years'
+            when age between 20 and 24 then '20-24-years'
+            when age between 25 and 29 then '25-29-years'
+            when age between 30 and 34 then '30-34-years'
+            when age between 35 and 39 then '35-39-years'
+            when age between 40 and 44 then '40-44-years'
+            when age between 45 and 49 then '45-49-years'
+            when age between 50 and 54 then '50-54-years'
+            when age between 55 and 59 then '55-59-years'
+            when age between 60 and 64 then '60-64-years'
+            when age between 65 and 69 then '65-69-years'
+            when age between 70 and 74 then '70-74-years'
+            when age between 75 and 79 then '75-79-years'
+            when age between 80 and 84 then '80-84-years'
+            when age between 85 and 89 then '85-89-years'
+            when age >90 then '90-plus-years' 
+            end
+          from eidsr_reports er #{condition}) as age_groups
+          group by age_groups.case, age_groups.gender;")
+
+   render json: data, status: :ok
+  end
+
+  def eidsr_covid_19_triage
+    condition = generate_conditions
+    data = ActiveRecord::Base.connection.select_all("select concat_ws('-',conditions, gender), count(*) 
+          from eidsr_reports er #{condition}
+          group by conditions,gender;")
+
+   render json: data, status: :ok
+  end
+
 
   private
     def report_params
@@ -281,7 +320,7 @@ class Api::V1::ReportsController < ApplicationController
 
     def generate_conditions
       condition = ''
-      params.to_h.each_with_index do | value, r |
+      params.each do | value |
         next if value[0] == 'controller' || value[0] == 'action' || value[0] == 'report'
         condition += condition.blank? ? "WHERE #{value[0]} = '#{value[1]}' " : " AND #{value[0]} = '#{value[1]}'"
       end

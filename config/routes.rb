@@ -11,6 +11,8 @@ Rails.application.routes.draw do
     get 'available_emr_type', to: 'reports#available_emr_type'
     get 'available_reports', to: 'reports#available_reports'
     get 'pull_report', to: 'reports#pull_report'
+    get 'eidrs_registration_triage', to: 'reports#eidsr_registration_triage'
+    get 'eidrs_covid_19_triage', to: 'reports#eidsr_covid_19_triage'
   end
  end
 end
