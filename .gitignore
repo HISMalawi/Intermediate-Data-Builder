@@ -26,14 +26,12 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
-# Ignore only DB config file
-config/database.yml
-<<<<<<< HEAD
+# Ignore all .yml files
+config/*.yml
 
-=======
 # Ignore Schema.rb
 /db/schema.rb
->>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
+
 # install intellij .idea files
 .idea/
 .generators
