@@ -234,7 +234,9 @@ class Api::V1::ReportsController < ApplicationController
   end
 
   def eidsr_registration_triage
+    eidrs_rpt_params = eidrs_params
     condition = generate_conditions
+    condition += condition.blank? ? " WHERE obs_date >= '#{eidrs_rpt_params[:start_date]}' AND obs_date <= '#{eidrs_rpt_params[:end_date]}'" : " AND obs_date >= '#{eidrs_rpt_params[:start_date]}' AND obs_date <= '#{eidrs_rpt_params[:end_date]}'"
     data = ActiveRecord::Base.connection.select_all("select age_groups.case as age_group,
       SUM(case when lower(age_groups.gender) = 'm' then 1 end) as \"male\",
       SUM(case when lower(age_groups.gender) = 'f' then 1 end) as \"female\",
@@ -259,8 +261,8 @@ class Api::V1::ReportsController < ApplicationController
                   when age between 75 and 79 then '75-79 years'
                   when age between 80 and 84 then '80-84 years'
                   when age between 85 and 89 then '85-89 years'
-                  when age >90 then '90 plus years' 
-                  end
+                  when age >90 then '90 plus years'
+                  end 
                 from quarterly_reporting.eidsr_reports er #{condition}) as age_groups
                 group by age_groups.case, age_groups.gender;")
     formated_data = []
@@ -276,7 +278,9 @@ class Api::V1::ReportsController < ApplicationController
   end
 
   def eidsr_covid_19_triage
+    eidrs_rpt_params = eidrs_params
     condition = generate_conditions
+    condition += condition.blank? ? " WHERE obs_date >= '#{eidrs_rpt_params[:start_date]}' AND obs_date <= '#{eidrs_rpt_params[:end_date]}'" : " AND obs_date >= '#{eidrs_rpt_params[:start_date]}' AND obs_date <= '#{eidrs_rpt_params[:end_date]}'"
     data = ActiveRecord::Base.connection.select_all("select conditions as condition, 
       SUM(case when lower(er.gender) = 'm' then 1 end) \"male\",
       SUM(case when lower(er.gender) = 'f' then 1 end) \"female\",
@@ -341,11 +345,20 @@ class Api::V1::ReportsController < ApplicationController
       reports
     end
 
+    def eidrs_params
+      params.require([:start_date, :end_date])
+      params.permit(:start_date, :end_date)
+        {
+         start_date: params[:start_date], 
+         end_date: params[:end_date]
+        }
+    end
+
     def generate_conditions
       condition = ''
       params.each do | value |
-        next if value[0] == 'controller' || value[0] == 'action' || value[0] == 'report'
-        condition += condition.blank? ? "WHERE #{value[0]} = '#{value[1]}' " : " AND #{value[0]} = '#{value[1]}'"
+        next if value[0] == 'controller' || value[0] == 'action' || value[0] == 'report' || value[0] == 'end_date' || value[0] == 'start_date'
+        condition += condition.blank? ? "WHERE lower(#{value[0]}) = '#{value[1].downcase}' " : " AND lower(#{value[0]}) = '#{value[1].downcase}'"
       end
       return condition
     end
