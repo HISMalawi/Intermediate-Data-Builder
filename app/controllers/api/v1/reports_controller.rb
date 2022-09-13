@@ -357,7 +357,7 @@ class Api::V1::ReportsController < ApplicationController
     def generate_conditions
       condition = ''
       params.each do | value |
-        next if value[0] == 'controller' || value[0] == 'action' || value[0] == 'report' || value[0] == 'end_date' || value[0] == 'start_date'
+        next if value[0] == 'controller' || value[0] == 'action' || value[0] == 'report' || value[0] == 'end_date' || value[0] == 'start_date' || value[0] == '_'
         condition += condition.blank? ? "WHERE lower(#{value[0]}) = '#{value[1].downcase}' " : " AND lower(#{value[0]}) = '#{value[1].downcase}'"
       end
       return condition
