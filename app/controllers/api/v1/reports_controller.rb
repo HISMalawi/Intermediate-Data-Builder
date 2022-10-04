@@ -332,12 +332,24 @@ class Api::V1::ReportsController < ApplicationController
       params.permit!
     end
 
+    def get_distinct_params(table, parameters)
+      parameter = Hash.new { |h, k| h[k] = h.dup.clear }
+      data = ActiveRecord::Base.connection.select_all("SELECT distinct #{parameters.join(', ')} FROM #{table};")
+      data.each do | row |
+        parameter[row[parameters[0]]][row[parameters[1]]][row[parameters[2]]] = []
+      end
+      data.each do | row |
+        parameter[row[parameters[0]]][row[parameters[1]]][row[parameters[2]]] << row[parameters[3]]
+      end
+      parameter
+    end
+
     def available_rpts
-      
       reports = {}
       Parallel.each(ActiveRecord::Base.connection.tables, in_threads: Etc.nprocessors.to_i) do | table |
-          next unless CONFIGURED_REPORTS.include?(table)
+          next unless CONFIGURED_REPORTS.has_key?(table.to_sym)
           reports[table] = {}
+          reports[table]['report_params'] = get_distinct_params(table,CONFIGURED_REPORTS[table.to_sym][:parameters])
         ActiveRecord::Base.connection.columns(table).map(&:name).each do | field |
           reports[table][field] =  ActiveRecord::Base.connection.select_all("select distinct #{field} from #{table}").map(&:values).flatten
         end

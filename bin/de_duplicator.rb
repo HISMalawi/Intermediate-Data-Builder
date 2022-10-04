@@ -113,7 +113,7 @@ def process_duplicates(duplicates, demographics)
       next if (PotentialDuplicate.find_by(person_id_a: demographics['person_id'], person_id_b: duplicate['person_id']).present? || 
               PotentialDuplicate.find_by(person_id_a: duplicate['person_id'], person_id_b: demographics['person_id']).present?)
 
-      score = WhiteSimilarity.similarity(demographics['person_de_duplicator'],duplicate['person_de_duplicator'])
+      score = (WhiteSimilarity.similarity(demographics['person_de_duplicator'],duplicate['person_de_duplicator'])) * 100
       if score >= @threshold.to_i
         #Save to duplicate_statuses
         PotentialDuplicate.create!(person_id_a: demographics['person_id'], person_id_b: duplicate['person_id'], score: score)
