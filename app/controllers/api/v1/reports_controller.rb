@@ -236,7 +236,7 @@ class Api::V1::ReportsController < ApplicationController
   def eidsr_registration_triage
     eidrs_rpt_params = eidrs_params
     condition = generate_conditions
-    condition += condition.blank? ? " WHERE obs_date >= '#{eidrs_rpt_params[:start_date]}' AND obs_date <= '#{eidrs_rpt_params[:end_date]}'" : " AND obs_date >= '#{eidrs_rpt_params[:start_date]}' AND obs_date <= '#{eidrs_rpt_params[:end_date]}'"
+    condition += condition.blank? ? " WHERE obs_datetime >= '#{eidrs_rpt_params[:start_date]}' AND obs_datetime <= '#{eidrs_rpt_params[:end_date]}'" : " AND obs_datetime >= '#{eidrs_rpt_params[:start_date]}' AND obs_datetime <= '#{eidrs_rpt_params[:end_date]}'"
     data = ActiveRecord::Base.connection.select_all("select age_groups.case as age_group,
       SUM(case when lower(age_groups.gender) = 'm' then 1 end) as \"male\",
       SUM(case when lower(age_groups.gender) = 'f' then 1 end) as \"female\",
@@ -280,7 +280,7 @@ class Api::V1::ReportsController < ApplicationController
   def eidsr_covid_19_triage
     eidrs_rpt_params = eidrs_params
     condition = generate_conditions
-    condition += condition.blank? ? " WHERE obs_date >= '#{eidrs_rpt_params[:start_date]}' AND obs_date <= '#{eidrs_rpt_params[:end_date]}'" : " AND obs_date >= '#{eidrs_rpt_params[:start_date]}' AND obs_date <= '#{eidrs_rpt_params[:end_date]}'"
+    condition += condition.blank? ? " WHERE obs_datetime >= '#{eidrs_rpt_params[:start_date]}' AND obs_datetime <= '#{eidrs_rpt_params[:end_date]}'" : " AND obs_datetime >= '#{eidrs_rpt_params[:start_date]}' AND obs_datetime <= '#{eidrs_rpt_params[:end_date]}'"
     data = ActiveRecord::Base.connection.select_all("select conditions as condition, 
       SUM(case when lower(er.gender) = 'm' then 1 end) \"male\",
       SUM(case when lower(er.gender) = 'f' then 1 end) \"female\",
@@ -369,7 +369,7 @@ class Api::V1::ReportsController < ApplicationController
     def generate_conditions
       condition = ''
       params.each do | value |
-        next if value[0] == 'controller' || value[0] == 'action' || value[0] == 'report' || value[0] == 'end_date' || value[0] == 'start_date'
+        next if value[0] == 'controller' || value[0] == 'action' || value[0] == 'report' || value[0] == 'end_date' || value[0] == 'start_date' || value[0] == '_'
         condition += condition.blank? ? "WHERE lower(#{value[0]}) = '#{value[1].downcase}' " : " AND lower(#{value[0]}) = '#{value[1].downcase}'"
       end
       return condition
