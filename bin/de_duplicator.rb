@@ -179,14 +179,14 @@ end
 if File.exists?("/tmp/deduplicator.lock")
       puts 'Another instance of deduplicator running!'
       exit
-  else
-      FileUtils.touch "/tmp/deduplicator.lock"
+else
+    FileUtils.touch "/tmp/deduplicator.lock"
+end
+begin
+  initiate_de_duplication
+ensure
+  if File.exists?("/tmp/deduplicator.lock")
+    FileUtils.rm "/tmp/deduplicator.lock"
   end
-    begin
-      initiate_de_duplication
-    ensure
-      if File.exists?("/tmp/deduplicator.lock")
-        FileUtils.rm "/tmp/deduplicator.lock"
-      end
-    end
+end
 
