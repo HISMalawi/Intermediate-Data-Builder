@@ -5,7 +5,10 @@ class CreateLabTestResults < ActiveRecord::Migration[5.2]
     create_table :lab_test_results, primary_key: :test_result_id do |t|
       t.bigint  :lab_order_id, null: false
       t.string  :results_test_facility, null: false
+<<<<<<< HEAD
+=======
       t.string  :sending_facility
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
       t.string  :test_type, null: false
       t.string  :sample_type
       t.string :test_measure

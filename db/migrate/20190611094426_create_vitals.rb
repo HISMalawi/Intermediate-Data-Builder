@@ -7,8 +7,13 @@ class CreateVitals < ActiveRecord::Migration[5.2]
       t.bigint  :concept_id
       t.bigint  :value_coded
       t.bigint  :value_numeric
+<<<<<<< HEAD
+      t.bigint  :value_text
+      t.bigint  :value_modifier
+=======
       t.string  :value_text
       t.string  :value_modifier
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
       t.bigint  :value_min
       t.bigint  :value_max
       t.boolean :voided, null: false, default: 0

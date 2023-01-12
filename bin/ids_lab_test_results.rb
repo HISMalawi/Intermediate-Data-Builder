@@ -1,9 +1,31 @@
 require 'json'
+<<<<<<< HEAD
+@lims_url = '192.168.12.71:3010'
+=======
 @lims_url = 'localhost:3010'
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
 @lims_user = 'lab_test'
 @lims_pwd = 'lab_test'
 
 def populate_lab_test_results
+<<<<<<< HEAD
+  LabOrder.find_each do |lab_order|
+    if lab_order['tracking_number'].blank?
+       puts 'Skipping Record'
+       next
+    end
+    
+    last_updated = get_last_updated('LabTestResults')
+
+    token_key = authenticate
+    header = {token: token_key}
+    puts "processing #{lab_order['tracking_number']}"
+
+    get_lab_order_details = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_order_by_tracking_number/#{lab_order['tracking_number']}",
+                                           header))
+    get_lab_order_results = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_results_by_tracking_number/#{lab_order['tracking_number']}",
+                                                      header))
+=======
 
   last_updated = get_last_updated('LabTestResults')   
 
@@ -26,6 +48,7 @@ def ids_labOrder(lab_order)
                                            @header))
     get_lab_order_results = JSON.parse(RestClient.get("#{@lims_url}/api/v1/query_results_by_tracking_number/#{lab_order['tracking_number']}",
                                                       @header))
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
     if get_lab_order_results['status'] == 200
        get_lab_order_results['data']['results'].each do |measure, value|
          value.each do  | test, v|
@@ -60,6 +83,11 @@ def ids_labOrder(lab_order)
             end
           end
     end
+<<<<<<< HEAD
+    update_last_update('LabTestResults', lab_order['updated_at'])
+      end
+=======
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
 end
 
 def authenticate
