@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
-<<<<<<< HEAD
-=======
 require "damerau-levenshtein"
 @last_updated = YAML.load_file('log/last_update.yml')
 
->>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
 def person_has_type(type_id, person)
   case type_id
   when 1
@@ -41,8 +38,6 @@ def person_has_type(type_id, person)
   end
 end
 
-<<<<<<< HEAD
-=======
 def get_last_updated(model)
   if @last_updated
     if @last_updated.include?(model)
@@ -91,7 +86,6 @@ def fetch_data_P(query, method, model)
   end until batch.empty?
 end
 
->>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
 def fetch_data(query)
   offset = 0
   begin
@@ -102,11 +96,7 @@ def fetch_data(query)
     SQL
     batch.each do |row|
       yield row
-<<<<<<< HEAD
-    end
-=======
     end   
->>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
     offset += @batch_size
   end until batch.empty?
 end
@@ -135,15 +125,11 @@ def log_error_records(model, record_id, msg)
                              record_id: record_id.to_i,
                              errr_message: msg) 
    else
-<<<<<<< HEAD
-    record_present.update(updated_at: Time.now)
-=======
     record_present.update(failed_record_type_id:
         FailedRecordType.find_by(name: model.to_s).failed_record_type_id.to_i,
                              record_id: record_id.to_i,
                              errr_message: msg,
                              updated_at: Time.now)
->>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
    end
 end
 
@@ -188,34 +174,6 @@ def update_record(concept_id, value_coded, record, update)
       app_date_updated: update['date_changed'])
 end
 
-<<<<<<< HEAD
-# def create_record(concept_id, value_coded, record, new_record, failed_index)
-#   begin
-#       puts "Creating patient tb status for #{new_record['person_id']}"
-#       record.create(
-#       ids_tb_statuses.tb_status_id       = new_record['obs_id']
-#       ids_tb_statuses.concept_id         = concept_id
-#       ids_tb_statuses.encounter_id       = tb_status['encounter_id']
-#       ids_tb_statuses.value_coded        = value_coded
-#       ids_tb_statuses.voided             = new_record['voided']
-#       ids_tb_statuses.voided_by          = new_record['voided_by']
-#       ids_tb_statuses.voided_date        = new_record['date_voided']
-#       ids_tb_statuses.void_reason        = new_record['void_reason']
-#       ids_tb_statuses.app_date_created   = new_record['date_created']
-#       ids_tb_statuses.app_date_updated   = new_record['date_changed']
-
-#       if ids_tb_statuses.save
-#         puts 'Successfully save tb statuses'
-#         remove_failed_record(failed_index.to_s, new_record['obs_id'].to_i)
-#       else
-#         puts 'Failed to save tb statuses'
-#       end
-        
-#     rescue Exception => e
-#       log_error_records('tb_status', tb_status['obs_id'].to_i, e)
-#     end
-#  end
-=======
 def calculate_similarity_score(string_A,string_B)
     #Calulating % Similarity using the formula %RSD = (SD/max_ed)%
     #Where SD = Max(length(A),Length(B)) - Edit Distance
@@ -236,4 +194,3 @@ def calculate_similarity_score(string_A,string_B)
 
     score = (sd/max_ed.to_f) * 100
 end
->>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
