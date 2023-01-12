@@ -4,7 +4,7 @@ def populate_soundex(last_updated,current_datetime,count)
 	last_update = PersonName.where('updated_at >= ? AND updated_at <= ?', last_updated, current_datetime).maximum(:updated_at)
 
 	PersonName.where('updated_at >= ? AND updated_at <= ?', last_updated, current_datetime)
-	.select(:person_id, :given_name, :family_name).distinct(:person_id).find_in_batches(batch_size: @batch_size) do |batch|
+	.select(:person_name_id, :person_id, :given_name, :family_name).distinct(:person_id).find_in_batches(batch_size: @batch_size) do |batch|
 		Parallel.each(batch, progress: 'Populating soundex') do |person|
 			#print "Processing #{i+1} / #{count} \r"
 			next unless DeDuplicator.exists?(person_id: person.person_id) #skip if corresponding duplicator does not exist.
