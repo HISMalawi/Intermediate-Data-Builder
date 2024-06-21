@@ -1,11 +1,14 @@
 class Api::V1::ReportsController < ApplicationController
 
+   CONFIGURED_REPORTS = YAML.load_file("#{Rails.root}/config/application.yml")[:activated_reports]
+
   AGE_GROUP_ORDERING = ['<1 year','1-4 years','5-9 years','10-14 years','15-19 years','20-24 years','25-29 years','30-34 years','35-39 years',
                                                '40-44 years','45-49 years', '50-54 years', '55-59 years', '60-64 years', '65-69 years', '70-74 years', '75-79 years',
                                                '80-84 years', '85-89 years', '90 plus years', 'All']
-  COLUMN_ORDER = MohDisagg.column_names[7..40]
+  COLUMN_ORDER = MohDisagg.column_names[7..40] rescue false
 
-  SCHEMA_MAPPING = {moh_disagg: 'MohDisagg', pepfar_disagg: 'PepfarDisagg'}
+  SCHEMA_MAPPING = {moh_disagg: 'MohDisagg', pepfar_disagg: 'PepfarDisagg', 
+                    eidsr_covid_19_triage: 'eidsr_covid', eidsr_registration_triage: 'eidsr_reg'}
 
   def cohort
 
@@ -216,6 +219,87 @@ class Api::V1::ReportsController < ApplicationController
     render json: available.classify.constantize.distinct.select(:emr_type), status: :ok
   end
 
+  def available_reports
+    render json: available_rpts, status: :ok
+  end
+
+  def pull_report
+    begin
+      report = pull_report_params
+      condition = generate_conditions
+      render json: ActiveRecord::Base.connection.select_all("SELECT * FROM #{report[:report]} #{condition}"), status: :ok
+    rescue => e
+      render json: e, status: :internal_server_error
+    end
+  end
+
+  def eidsr_registration_triage
+    eidrs_rpt_params = eidrs_params
+    condition = generate_conditions
+    condition += condition.blank? ? " WHERE obs_datetime >= '#{eidrs_rpt_params[:start_date]}' AND obs_datetime <= '#{eidrs_rpt_params[:end_date]}'" : " AND obs_datetime >= '#{eidrs_rpt_params[:start_date]}' AND obs_datetime <= '#{eidrs_rpt_params[:end_date]}'"
+    data = ActiveRecord::Base.connection.select_all("select age_groups.case as age_group,
+      SUM(case when lower(age_groups.gender) = 'm' then 1 end) as \"male\",
+      SUM(case when lower(age_groups.gender) = 'f' then 1 end) as \"female\",
+      count(*) as \"total\" 
+      from (select gender, case 
+                  when age <= 0 then '<1-year'
+                  when age between 1 and 4 then '1-4 years'
+                  when age between 5 and 9 then '5-9 years'
+                  when age between 10 and 14 then '10-14 years'
+                  when age between 15 and 19 then '15-19 years'
+                  when age between 20 and 24 then '20-24 years'
+                  when age between 25 and 29 then '25-29 years'
+                  when age between 30 and 34 then '30-34 years'
+                  when age between 35 and 39 then '35-39 years'
+                  when age between 40 and 44 then '40-44 years'
+                  when age between 45 and 49 then '45-49 years'
+                  when age between 50 and 54 then '50-54 years'
+                  when age between 55 and 59 then '55-59 years'
+                  when age between 60 and 64 then '60-64 years'
+                  when age between 65 and 69 then '65-69 years'
+                  when age between 70 and 74 then '70-74 years'
+                  when age between 75 and 79 then '75-79 years'
+                  when age between 80 and 84 then '80-84 years'
+                  when age between 85 and 89 then '85-89 years'
+                  when age >90 then '90 plus years'
+                  end 
+                from quarterly_reporting.eidsr_reports er #{condition}) as age_groups
+                group by age_groups.case, age_groups.gender;")
+    formated_data = []
+    data.each do |row|
+      formated_data << {age_group: row['age_group'],
+                        male: row['male'] || 0,
+                        female: row['female'] || 0,
+                        total: row['total'] || 0
+                      }
+    end
+
+   render json: formated_data, status: :ok
+  end
+
+  def eidsr_covid_19_triage
+    eidrs_rpt_params = eidrs_params
+    condition = generate_conditions
+    condition += condition.blank? ? " WHERE obs_datetime >= '#{eidrs_rpt_params[:start_date]}' AND obs_datetime <= '#{eidrs_rpt_params[:end_date]}'" : " AND obs_datetime >= '#{eidrs_rpt_params[:start_date]}' AND obs_datetime <= '#{eidrs_rpt_params[:end_date]}'"
+    data = ActiveRecord::Base.connection.select_all("select conditions as condition, 
+      SUM(case when lower(er.gender) = 'm' then 1 end) \"male\",
+      SUM(case when lower(er.gender) = 'f' then 1 end) \"female\",
+      count(*) \"total\"
+      from quarterly_reporting.eidsr_reports er #{condition}
+      group by er.conditions;")
+    
+    formated_data = []
+    data.each do |row|
+      formated_data << {condition: row['condition'],
+                        male: row['male'] || 0,
+                        female: row['female'] || 0,
+                        total: row['total'] || 0
+                      }
+    end
+   render json: formated_data, status: :ok
+  end
+
+
   private
     def report_params
       params.require([:quarter,:report_type, :emr_type])
@@ -241,5 +325,53 @@ class Api::V1::ReportsController < ApplicationController
       when 'pepfar_disagg'
        return 'PepfarDisagg'
       end
+    end
+
+    def pull_report_params
+      params.require(:report)
+      params.permit!
+    end
+
+    def get_distinct_params(table, parameters)
+      parameter = Hash.new { |h, k| h[k] = h.dup.clear }
+      data = ActiveRecord::Base.connection.select_all("SELECT distinct #{parameters.join(', ')} FROM #{table};")
+      data.each do | row |
+        parameter[row[parameters[0]]][row[parameters[1]]][row[parameters[2]]] = []
+      end
+      data.each do | row |
+        parameter[row[parameters[0]]][row[parameters[1]]][row[parameters[2]]] << row[parameters[3]]
+      end
+      parameter
+    end
+
+    def available_rpts
+      reports = {}
+      Parallel.each(ActiveRecord::Base.connection.tables, in_threads: Etc.nprocessors.to_i) do | table |
+          next unless CONFIGURED_REPORTS.has_key?(table.to_sym)
+          reports[table] = {}
+          reports[table]['report_params'] = get_distinct_params(table,CONFIGURED_REPORTS[table.to_sym][:parameters])
+        ActiveRecord::Base.connection.columns(table).map(&:name).each do | field |
+          reports[table][field] =  ActiveRecord::Base.connection.select_all("select distinct #{field} from #{table}").map(&:values).flatten
+        end
+      end
+      reports
+    end
+
+    def eidrs_params
+      params.require([:start_date, :end_date])
+      params.permit(:start_date, :end_date)
+        {
+         start_date: params[:start_date], 
+         end_date: params[:end_date]
+        }
+    end
+
+    def generate_conditions
+      condition = ''
+      params.each do | value |
+        next if value[0] == 'controller' || value[0] == 'action' || value[0] == 'report' || value[0] == 'end_date' || value[0] == 'start_date' || value[0] == '_'
+        condition += condition.blank? ? "WHERE lower(#{value[0]}) = '#{value[1].downcase}' " : " AND lower(#{value[0]}) = '#{value[1].downcase}'"
+      end
+      return condition
     end
 end

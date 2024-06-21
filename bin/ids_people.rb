@@ -13,6 +13,11 @@ def ids_people(person)
 
   gender = person['gender'] == 'M' ? 1 : 0
 
+<<<<<<< HEAD
+  puts "processing Person record for person_id #{person['person_id']}"
+
+=======
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
   person_exits = Person.find_by(person_id: person['person_id'])
 
   if person_exits.blank?
@@ -30,4 +35,8 @@ def ids_people(person)
       puts 'Updating'
     end
   end
+<<<<<<< HEAD
+  update_last_update('Person', person['updated_at'])
+=======
+>>>>>>> a21f366acf67dc3014e7e0d13e087d72277d2e8d
 end
